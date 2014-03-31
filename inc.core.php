@@ -14,7 +14,7 @@
  	}
 	else {
 	
-		 	if(!defined('DOL_PACKAGE')) define('DOL_PACKAGE',false); /* Modèle de donnée DOLIBARR ou Standart ? impact la classe objet standart */
+		 	if(!defined('DOL_PACKAGE')) define('DOL_PACKAGE',true); /* Modèle de donnée DOLIBARR ou Standart ? impact la classe objet standart */
 		 
 		 	// define('OBJETSTD_MAKETABLEFORME'); // à décommenter pour création automatique des tables /!\ ne pas laisser en prod !
 		 
@@ -35,12 +35,10 @@
 				define('OBJETSTD_DATEMASK', 'dt_');
 				
 			}
-				
-		 
-		 	//RS : pour faire marcher les importsql
+						 
 			if(!defined('ROOT')){
-				define('ROOT','/var/www/ATM/atm-core/');
-				define('HTTP','http://127.0.0.1/ATM/atm-core/');
+				define('ROOT',dol_buildpath('/coreatm/'));
+				define('HTTP',dol_buildpath('/coreatm/',2));
 			}
 		
 			if(!defined('COREROOT')) {
