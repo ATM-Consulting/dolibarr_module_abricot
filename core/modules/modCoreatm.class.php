@@ -28,7 +28,7 @@ include_once DOL_DOCUMENT_ROOT . "/core/modules/DolibarrModules.class.php";
 /**
  * Description and activation class for module MyModule
  */
-class modMyModule extends DolibarrModules
+class modCoreatm extends DolibarrModules
 {
 
     /**
@@ -45,13 +45,13 @@ class modMyModule extends DolibarrModules
         // Id for module (must be unique).
         // Use a free id here
         // (See in Home -> System information -> Dolibarr for list of used modules id).
-        $this->numero = 104000; // 104000 to 104999 for ATM CONSULTING
+        $this->numero = 104999; // 104000 to 104999 for ATM CONSULTING
         // Key text used to identify module (for permissions, menus, etc...)
-        $this->rights_class = 'mymodule';
+        $this->rights_class = 'coreatm';
 
         // Family can be 'crm','financial','hr','projects','products','ecm','technic','other'
         // It is used to group modules in module setup page
-        $this->family = "other";
+        $this->family = "technic";
         // Module label (no space allowed)
         // used if translation string 'ModuleXXXName' not found
         // (where XXX is value of numeric property 'numero' of module)
@@ -59,28 +59,28 @@ class modMyModule extends DolibarrModules
         // Module description
         // used if translation string 'ModuleXXXDesc' not found
         // (where XXX is value of numeric property 'numero' of module)
-        $this->description = "Description of module MyModule";
+        $this->description = "Collection of specific ATM function";
         // Possible values for version are: 'development', 'experimental' or version
-        $this->version = 'development';
+        $this->version = '1.0';
         // Key used in llx_const table to save module status enabled/disabled
         // (where MYMODULE is value of property name of module in uppercase)
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
         // Where to store the module in setup page
         // (0=common,1=interface,2=others,3=very specific)
-        $this->special = 0;
+        $this->special = 2;
         // Name of image file used for this module.
         // If file is in theme/yourtheme/img directory under name object_pictovalue.png
         // use this->picto='pictovalue'
         // If file is in module/img directory under name object_pictovalue.png
         // use this->picto='pictovalue@module'
-        $this->picto = 'mymodule@mymodule'; // mypicto@mymodule
+        $this->picto = 'coreatm@coreatm'; // mypicto@mymodule
         // Defined all module parts (triggers, login, substitutions, menus, css, etc...)
         // for default path (eg: /mymodule/core/xxxxx) (0=disable, 1=enable)
         // for specific path of parts (eg: /mymodule/core/modules/barcode)
         // for specific css file (eg: /mymodule/css/mymodule.css.php)
         $this->module_parts = array(
             // Set this to 1 if module has its own trigger directory
-            'triggers' => 1,
+//            'triggers' => 1,
             // Set this to 1 if module has its own login method directory
             //'login' => 0,
             // Set this to 1 if module has its own substitution function file
@@ -105,7 +105,7 @@ class modMyModule extends DolibarrModules
 
         // Config pages. Put here list of php pages
         // stored into mymodule/admin directory, used to setup module.
-        $this->config_page_url = array("admin_mymodule.php@mymodule");
+        $this->config_page_url = false;
 
         // Dependencies
         // List of modules id that must be enabled if this module is enabled
@@ -116,7 +116,7 @@ class modMyModule extends DolibarrModules
         $this->phpmin = array(5, 3);
         // Minimum version of Dolibarr required by module
         $this->need_dolibarr_version = array(3, 2);
-        $this->langfiles = array("mymodule@mymodule"); // langfiles@mymodule
+        $this->langfiles = false; // langfiles@mymodule
         // Constants
         // List of particular constants to add when module is enabled
         // (key, 'chaine', value, desc, visible, 'current' or 'allentities', deleteonunactive)
@@ -218,8 +218,8 @@ class modMyModule extends DolibarrModules
         $r = 0;
         // Example:
 
-        $this->boxes[$r][1] = "MyBox@mymodule";
-        $r ++;
+//        $this->boxes[$r][1] = "MyBox@mymodule";
+//        $r ++;
         /*
           $this->boxes[$r][1] = "myboxb.php";
           $r++;
@@ -437,9 +437,6 @@ class modMyModule extends DolibarrModules
 
         $result = $this->loadTables();
 
-        $url = dol_buildpath('/mymodule/script/create-maj-base.php', 2);
-        file_get_contents($url);
-
         return $this->_init($sql, $options);
     }
 
@@ -468,6 +465,6 @@ class modMyModule extends DolibarrModules
      */
     private function loadTables()
     {
-        return $this->_load_tables('/mymodule/sql/');
+        return $this->_load_tables('/atmcore/sql/');
     }
 }
