@@ -13,28 +13,12 @@
 		
  	}
 	else {
-	
-		 	if(!defined('DOL_PACKAGE')) define('DOL_PACKAGE',true); /* Modèle de donnée DOLIBARR ou Standart ? impact la classe objet standart */
-		 
-		 	// define('OBJETSTD_MAKETABLEFORME'); // à décommenter pour création automatique des tables /!\ ne pas laisser en prod !
-		 
-		 	if(DOL_PACKAGE) {
-				/*
-				 * Adaptation Dolibarr
-				 */
-				define('OBJETSTD_MASTERKEY', 'rowid');
-				define('OBJETSTD_DATECREATE', 'date_cre');
-				define('OBJETSTD_DATEUPDATE', 'date_maj');
-				define('OBJETSTD_DATEMASK', 'date_');
+
+			define('OBJETSTD_MASTERKEY', 'rowid');
+			define('OBJETSTD_DATECREATE', 'date_cre');
+			define('OBJETSTD_DATEUPDATE', 'date_maj');
+			define('OBJETSTD_DATEMASK', 'date_');
 			
-			}	
-			else {
-				define('OBJETSTD_MASTERKEY', 'id');
-				define('OBJETSTD_DATECREATE', 'dt_cre');
-				define('OBJETSTD_DATEUPDATE', 'dt_maj');
-				define('OBJETSTD_DATEMASK', 'dt_');
-				
-			}
 						 
 			if(!defined('ROOT')){
 				define('ROOT',dol_buildpath('/coreatm/'));
