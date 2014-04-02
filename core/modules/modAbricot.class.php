@@ -28,7 +28,7 @@ include_once DOL_DOCUMENT_ROOT . "/core/modules/DolibarrModules.class.php";
 /**
  * Description and activation class for module MyModule
  */
-class modCoreatm extends DolibarrModules
+class modAbricot extends DolibarrModules
 {
 
     /**
@@ -47,7 +47,7 @@ class modCoreatm extends DolibarrModules
         // (See in Home -> System information -> Dolibarr for list of used modules id).
         $this->numero = 104999; // 104000 to 104999 for ATM CONSULTING
         // Key text used to identify module (for permissions, menus, etc...)
-        $this->rights_class = 'coreatm';
+        $this->rights_class = 'abricot';
 
         // Family can be 'crm','financial','hr','projects','products','ecm','technic','other'
         // It is used to group modules in module setup page
@@ -73,7 +73,7 @@ class modCoreatm extends DolibarrModules
         // use this->picto='pictovalue'
         // If file is in module/img directory under name object_pictovalue.png
         // use this->picto='pictovalue@module'
-        $this->picto = 'coreatm@coreatm'; // mypicto@mymodule
+        $this->picto = 'coreatm@abricot'; // mypicto@mymodule
         // Defined all module parts (triggers, login, substitutions, menus, css, etc...)
         // for default path (eg: /mymodule/core/xxxxx) (0=disable, 1=enable)
         // for specific path of parts (eg: /mymodule/core/modules/barcode)
@@ -465,6 +465,6 @@ class modCoreatm extends DolibarrModules
      */
     private function loadTables()
     {
-        return $this->_load_tables('/atmcore/sql/');
+        return $this->_load_tables('/abricot/sql/');
     }
 }
