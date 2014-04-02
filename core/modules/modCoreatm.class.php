@@ -1,5 +1,5 @@
 <?php
-/* <one line to give the program's name and a brief idea of what it does.>
+/* Collection of private function for ATM
  * Copyright (C) 2013 ATM Consulting <support@atm-consulting.fr>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -59,7 +59,7 @@ class modCoreatm extends DolibarrModules
         // Module description
         // used if translation string 'ModuleXXXDesc' not found
         // (where XXX is value of numeric property 'numero' of module)
-        $this->description = "Collection of specific ATM function";
+        $this->description = "Collection of specific ATM functions and classes";
         // Possible values for version are: 'development', 'experimental' or version
         $this->version = '1.0';
         // Key used in llx_const table to save module status enabled/disabled
