@@ -21,10 +21,10 @@
 			
 						 
 			if(!defined('ROOT')){
-				define('ROOT',dol_buildpath('/coreatm/'));
-				define('HTTP',dol_buildpath('/coreatm/',2));
+				define('ROOT',dol_buildpath('/abricot/'));
+				define('HTTP',dol_buildpath('/abricot/',2));
 			}
-		
+
 			if(!defined('COREROOT')) {
 				define('COREROOT',ROOT);	
 				define('COREHTTP',HTTP);
