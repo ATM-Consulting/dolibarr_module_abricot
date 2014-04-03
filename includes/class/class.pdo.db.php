@@ -36,7 +36,8 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 			$host = DB_HOST;
 		}
 		else {
-			print ('PDO DB ErrorConnexion : Paramètres de connexion impossible à utiliser (db:'.DB_NAME.'/user:'.DB_USER.')');
+			$this->debug=true;
+		    $this->Error('PDO DB ErrorConnexion : Paramètres de connexion impossible à utiliser (db:'.DB_NAME.'/user:'.DB_USER.')' );
 		}
 		
 		$this->connexionString = 'mysql:dbname='.DB_NAME.';host='.DB_HOST;
