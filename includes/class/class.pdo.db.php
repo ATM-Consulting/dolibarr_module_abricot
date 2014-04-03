@@ -56,6 +56,7 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 		try {
 		    $this -> db = new PDO($this->connexionString, $DB_USER, $DB_PASS);
 		} catch (PDOException $e) {
+			$this->debug=true;
 		    $this->Error('PDO DB ErrorConnexion : '.$e->getMessage().' ( '. $this->connexionString.' )' );
 		} 
 	}
