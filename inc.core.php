@@ -5,8 +5,6 @@
  * Les constantes suivantes devront déjà être définie
  * 
  * DB_DRIVER, DB_NAME, DB_USER, DB_PASS,DB_HOST // pour les connexions bases de données
- * BATIGOOG_DB_NAME, BATIGOOG_DB_USER, BATIGOOG_DB_PASS, BATIGOOG_DB_HOST // en cas d'utilisation de BatiGooG
- * 
  */ 
  	if(defined('ATM_CORE_INCLUDED')) {
  		null;
