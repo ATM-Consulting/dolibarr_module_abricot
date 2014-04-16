@@ -48,23 +48,17 @@
 		 	require_once(CORECLASS.'class.requete.core.php');
 		 	require_once(CORECLASS.'class.tools.php');
 		
+			/* Construction page */
+		 	require_once(CORECLASS.'class.form.core.php');
+		 	require_once(CORECLASS.'class.tbl.php');
 		
-		
-		
-		
-			if(!defined('NO_USE_IHM')) {
-			 	require_once(CORECLASS.'class.form.core.php');
-			 	require_once(CORECLASS.'class.tbl.php');
-			}
-		
-			if(defined('USE_TBS')) {
-			 	require_once(CORECLASS.'tbs_class.php');
-			 	require_once(CORECLASS.'tbs_plugin_opentbs.php');
-				require_once(CORECLASS.'plugins/tbs_plugin_bypage.php');
-				require_once(CORECLASS.'plugins/tbs_plugin_navbar.php');
-				require_once(CORECLASS.'class.template.tbs.php');
-				require_once(CORECLASS.'class.list.tbs.php');
-			}
+			/* templating TBS */
+		 	require_once(CORECLASS.'tbs_class.php');
+		 	require_once(CORECLASS.'tbs_plugin_opentbs.php');
+			require_once(CORECLASS.'plugins/tbs_plugin_bypage.php');
+			require_once(CORECLASS.'plugins/tbs_plugin_navbar.php');
+			require_once(CORECLASS.'class.template.tbs.php');
+			require_once(CORECLASS.'class.list.tbs.php');
 			
 			if(defined('USE_EXTEND_CLASS')) {
 		 		require_once(CORECLASS.'class.photo.php');
