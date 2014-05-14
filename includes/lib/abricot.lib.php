@@ -126,11 +126,11 @@ function decode_special_caracters($element){
   return $tmp;
 }
 /**
- * Fonction de conversion des �l�ments d'un tableau en UTF-8
- * Encodage appliqu� sur les cl�s et les valeurs
- * Fonction r�cursive 
+ * Fonction de conversion des éléments d'un tableau en UTF-8
+ * Encodage appliqué sur les clés et les valeurs
+ * Fonction récursive 
  * @param $array Le tableau à encoder
- * @return Array Tableau identiques avec donn�es en UTF-8
+ * @return Array Tableau identiques avec données en UTF-8
  */
 function arrayConvertUTF8 ($array, $encode=true, $special_caracters=false) {
 	$tmp = array();
@@ -156,12 +156,6 @@ function arrayConvertUTF8 ($array, $encode=true, $special_caracters=false) {
 }
 
 
-/**
- * Convertit la donn�es en json
- * Utilise une fonction red�finie si json_encode n'existe pas (> PHP 5.2)
- * @param Mixed $data La donn�es � convertir en json (donn�e, tableau, objet)
- * @return Mixed La donn�e encod�e en json
- */
 function get_json($data,$encoded=false) {
   $data = convertUTF8($data);
   return json_encode($data);
@@ -191,123 +185,7 @@ function _debug() {
 function _fnumber($i,$dec=0){
 	return number_format($i, $dec, ',', ' ');
 }
-function _url_format($s, $cut=true, $its_file=false){
-	$Tab_TransUrl= array(
-		" - "=>"-"
-		," "=>"-"
-		,"/"=>"-"
-		,"'"=>"-"
-		,"’"=>"-"
-		,","=>""
-		,"\""=>"-"
-		,"*"=>"-"
-		,"?"=>""
-		,"+"=>"-"
-		,"("=>"-"
-		,")"=>"-"
-		,"%"=>"-"
-		,"é"=>"e"
-		,"è"=>"e"
-		,"&"=>"-"
-		,"à"=>"a"
-		,"ç"=>"c"
-		,"Ç"=>"c"
-		,"ê"=>"e"
-		,"ë"=>"e"
-		,"â"=>"a"
-		,"ä"=>"a"
-		,"û"=>"u"
-		,"ü"=>"u"
-		,"î"=>"i"
-		,"ï"=>"i"
-		,"ù"=>"u"
-		,"ô"=>"o"
-		,"ö"=>"o"
-		,"Ö"=>"o"
-		,"Ô"=>"o"
-		,"<"=>"-"
-		,">"=>"-"
-		,":"=>"-"
-		,";"=>"-"
-		,"\\"=>""
-		,"\""=>"-"
-		,"|"=>"-"
-		,"»"=>"-"
-		,"«"=>"-"
-		//,"."=>""
-		,"!"=>""
-		,"’"=>"-"
-		,"®"=>""
-		,"“"=>""
-		,"”"=>""
-		,"°"=>""
-		,"™"=>""
-		,"²"=>""
-		,"•"=>""
-		,"œ"=>"oe"
-		,"æ"=>"ae"
-		,"#"=>""
-		,"…"=>"-"
-		,"—"=>"-"
-		,"‘"=>""
-		,"€"=>"e"
-		,'’'=>"'"
-     	,'–'=>'-'
-	);
-	
-	if(!$its_file){
-    $Tab_TransUrl['.']="";
-  }
-	//$s = strtolower($s);
-	if(defined("USE_UTF8")){
-	 $s = mb_strtolower($s, "utf8");
-  }else{  
-	 $s = mb_strtolower($s, "latin1");
-	}
-	
-	$s = strtr($s,$Tab_TransUrl);
-	if($cut)$s = substr($s,0,50);
-	$s = trim($s);
-	
-	$s = _url_format_verif_format($s);
 
-	return $s;
-
-}	
-function _url_format_verif_format($s){
-	$r="";
-	$nb=strlen($s);
-	for($i = 0; $i < $nb; $i++){
-		//print "$i : ".$s[$i]." ".ctype_alnum($s[$i])."<br>";
-		if(ctype_alnum($s[$i]) || $s[$i]=='-' || $s[$i]=='.'){
-			$r.=$s[$i];			
-		}
-	} // for
-	return $r;
-}
-function erreur($s){
-	$name="erreur_".md5(time().rand(100,2000)).rand(100,2000);
-  ?>
-	<table class="erreur" id="<?=$name?>"><tr><td>
-	<img src="../images/s_error.png" ALIGN="absmiddle"><b>Erreur : <?=$s?></b>
-	</td>
-	<td>
-	<a href="javascript:function wdn() {document.getElementById('<?=$name?>').style['display']='none';} wdn();" class="lien"> (Effacer) </a>
-	</td></tr></table>
-	<?
-}
-function info($s){
-  $name="info_".md5(time().rand(100,2000)).rand(100,2000);
-
-	?>
-	<table class="info" id="<?=$name?>"><tr><td>
-	<img src="../images/s_info.png" ALIGN="absmiddle"><b>Information : <?=$s?></b>
-	</td>
-	<td>
-	<a href="javascript:function wdn() {document.getElementById('<?=$name?>').style['display']='none';} wdn();" class="lien"> (Effacer) </a>
-	</td></tr></table>
-	<?
-}
 function _less30c($s){
 	$pos = strrpos(substr($s,0,-20)," ");
 	return substr($s,0,$pos)."...";
@@ -330,48 +208,6 @@ function _str_cut($s,$len = 120){
 		$r=$s;
 	}
 	return $r;
-}
-
-function delete_part_of_doc($doc,$tag_start,$tag_end){
-  /**
-   * Supprime la partie du document entre 2 balises de fa�on s�curis�e
-   * GM 23/03/2012 
-   **/
-	$pos_start = strpos($doc, $tag_start);
-  if($pos_start===false){
-    return $doc;
-  }  
-	$pos_end = strpos($doc, $tag_end)+strlen($tag_end);
-  if($pos_end===false){
-    return $doc;
-  }
-	return substr($doc,0,$pos_start).substr($doc,$pos_end);
-	
-}
-
-function _liste_all_files_in_dir_R($dir, & $Tab){
-	if ($handle = opendir($dir)) {
-	   /* Ceci est la fa�on correcte de traverser un dossier. */
-	   while (false !== ($file = readdir($handle))) {
-			set_time_limit(30);  
-		   	if($file!='.' && $file!='..'){
-				if(is_file($dir.$file)){
-					$row['file']=$file;
-					$row['dir']=$dir;
-					$Tab[]=$row;
-				}
-				else if(is_dir($dir.$file)){
-					_liste_all_files_in_dir_R($dir.$file."/",$Tab);
-				}			
-			}
-	   }
-	   closedir($handle);
-	}
-}
-function get_sess_name($start=""){
-
-	return $start."-".substr(md5(time()),0,8);
-
 }
 
 function array_delete_value($array,$search) {
@@ -398,21 +234,4 @@ function _in_js($s){
 
   return $js;
 }
-/**
- * Fonctions nécessaires pour la class.listview_js.php
- * utilisent les expressions régulières pour remplacer et évaluer à la volée le code placé entre
- * %%PHP%%...%%PHPEND%%
- * notamment dans les requêtes sql du back-office    
- **/ 
-function eval_match($matches) {
-	   ob_start();
-	   $stringy = 'echo '.stripslashes(addslashes($matches[1])).';';
-	   eval($stringy);
-	   $ret = ob_get_contents();
-	   ob_end_clean();
-	   return $ret;
-}
-function replace_php_in(&$req){
-			$pattern = '/%%PHP%%(.*?)%%PHPEND%%/';
-			$req = preg_replace_callback($pattern, 'eval_match', $req);
-} 
+
