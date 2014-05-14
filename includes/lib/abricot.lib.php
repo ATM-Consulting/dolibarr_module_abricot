@@ -68,11 +68,11 @@ function __out($data) {
 }
 
 function getStandartJS() {
-	?><script language="JavaScript" src="<?=COREHTTP?>includes/js/jquery-1.9.1.min.js"></script><?
-	?><script language="JavaScript" src="<?=COREHTTP?>includes/js/jquery-ui-1.8.6.custom.min.js"></script><?
+	?><script language="JavaScript" src="<?php echo COREHTTP?>includes/js/jquery-1.9.1.min.js"></script><?php
+	?><script language="JavaScript" src="<?php echo COREHTTP?>includes/js/jquery-ui-1.8.6.custom.min.js"></script><?php
 		
-	?><script language="JavaScript" src="<?=COREHTTP?>includes/js/dataTable/js/jquery.dataTables.min.js"></script><?
-	?><link href="<?=COREHTTP?>includes/js/dataTable/css/jquery.dataTables.css" rel="stylesheet" type="text/css" /><?
+	?><script language="JavaScript" src="<?php echo COREHTTP?>includes/js/dataTable/js/jquery.dataTables.min.js"></script><?php
+	?><link href="<?php echo COREHTTP?>includes/js/dataTable/css/jquery.dataTables.css" rel="stylesheet" type="text/css" /><?php
 	
 }
 function getStandartCSS() {
