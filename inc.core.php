@@ -29,7 +29,7 @@
 			}
 			
 			define('CORECLASS',COREROOT.'includes/class/');
-			define('COREFCT',COREROOT.'includes/');
+			define('COREFCT',COREROOT.'includes/lib/');
 			
 		/*
 		 * Inclusion des classes Core
@@ -78,7 +78,7 @@
 		 */
 		
 		 	if(!defined('NO_USE_FONCTION')) {
-		 		require_once(COREFCT.'fonctions-core.php');		
+		 		require_once(COREFCT.'abricot.lib.php');		
 		 	}
 		 
 			define('ATM_CORE_INCLUDED', true);
