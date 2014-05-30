@@ -491,7 +491,7 @@ class TListviewTBS {
 						$row[$field] = strtr( $row[$field] , $TParam['translate'][$field]);
 					}
 					
-					if(isset($TParam['eval'][$field])) {
+					if(isset($TParam['eval'][$field]) && $row[$field]) {
 						$strToEval = 'return '.strtr( $TParam['eval'][$field] ,  array_merge( $trans, array('@val@'=>$row[$field])  )).';';
 						$row[$field] = eval($strToEval);
 					}
