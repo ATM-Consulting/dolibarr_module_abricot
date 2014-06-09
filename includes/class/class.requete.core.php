@@ -33,10 +33,10 @@ class TRequeteCore{
 		return $TResultat;
 	}
 	
-	static function get_id_from_what_you_want(&$db, $table, $keys=array(), $field=OBJETSTD_MASTERKEY){
+	static function get_id_from_what_you_want(&$db, $table, $keys=array(), $field=OBJETSTD_MASTERKEY,$orderby=OBJETSTD_MASTERKEY){
 		
 		$sql="SELECT ".$field." FROM $table WHERE 1 ";
-		
+
 		if(is_array( $keys )) {
 			foreach($keys as $key=>$value) {
 				$sql.= ' AND '.$key." = '".addslashes( $value )."'";
@@ -45,6 +45,8 @@ class TRequeteCore{
 		else {
 			$sql.=' AND '.$keys;
 		}
+		
+		$sql .= " ORDER BY ".$orderby;
 		
 		return TRequeteCore::_get_id_by_sql($db, $sql,$field);
 	}

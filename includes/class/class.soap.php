@@ -120,13 +120,15 @@ class TRESTCoreConnector {
 		
 		?>
 		<ul>
-		<?
+		<?php
+		
 		foreach($xml->api->children() as $module=>$more) {
-			?><li><strong><?=$module."</strong> ". htmlentities($more->asXML()); ?></li><? 
+			?><li><strong><?php echo $module."</strong> ". htmlentities($more->asXML()); ?></li><?php 
 		}
+		
 		?>
 		</ul>
-		<?
+		<?php
    }
    function asArray() {
    		$this->typeOut='array';
