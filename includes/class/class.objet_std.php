@@ -126,9 +126,9 @@ function _no_save_vars($lst_chp) {
 	  	foreach($TChamps as $champs=>$info) {
 	  		
 			if(!in_array($champs, $Tab)) {
-				if($this->_is_int($info)) $db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` int(11)');	
+				if($this->_is_int($info)) $db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` int(11) NOT NULL DEFAULT \'0\'');	
 				else if($this->_is_date($info)) $db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` datetime NOT NULL DEFAULT \'0000-00-00 00:00:00\'');	
-				else if($this->_is_float($info)) $db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` DOUBLE');
+				else if($this->_is_float($info)) $db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` DOUBLE NOT NULL DEFAULT \'0\'');
 				else if($this->_is_tableau($info) || $this->_is_text($info)) $db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` LONGTEXT');
 				else $db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` VARCHAR(255)');	
 				
