@@ -1233,13 +1233,23 @@ function combo($pLib,$pName,$pListe,$pDefault,$pTaille=1,$onChange='',$plus='',$
   	$field.=$this->_combo_option($pListe, $pDefault);
 	
   $field .="</SELECT>";
- 
+  
   if ($this->type_aff =='view'){	  
-    if (isset($pListe["$pDefault"])) $val=$pListe["$pDefault"]; else $val="";  
+    if (isset($pListe["$pDefault"])){
+    	if(is_array($pListe["$pDefault"])) {
+  			$val = $pListe["$pDefault"]['label'];
+  		}
+		else {
+			$val=$pListe["$pDefault"]; 
+		}
+	}
+	else{
+		$val="";
+	} 
    // $field = "<INPUT class='text_view' TYPE='TEXT' READONLY TABINDEX=-1 NAME='$pName' VALUE=\"$val\" SIZE='$pTaille'>\n ";
     $field = $val;
   }
- 
+ 	
   if ($lib != '')
     return $lib." ".$field;
   else
@@ -1286,7 +1296,7 @@ private function _combo_option($Tab, $pDefault) {
 			}
 		
 			 $field .= '<option value="'.$val.'" '.$moreAttributs.($seleted ? 'selected="selected"' : '').'>'.$libelle."</option>\n";
-			
+
 		}	
 		
   }
