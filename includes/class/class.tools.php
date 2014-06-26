@@ -18,6 +18,16 @@
  
 class Tools{
 	
+	static function url_format($s){
+		$r='';
+		$nb=strlen($s);
+		for($i = 0; $i < $nb; $i++){
+			if(ctype_alnum($s[$i]) || $s[$i]=='-' || $s[$i]=='.'){
+				$r.=$s[$i];			
+			}
+		} 
+		return $r;
+	}
 	
 	static function anagramme(&$TResult,$chaine,$Tab){
 		$TResult[] = $chaine;

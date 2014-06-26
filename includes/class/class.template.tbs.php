@@ -3,7 +3,7 @@ class TTemplateTBS {
 	
 	function __construct(){
 		$this->TBS = new clsTinyButStrong;
-		$this->TBS->noerr = false;
+		$this->TBS->NoErr = false;
 		$this->TBS->Protect = false;
 		
 		$this->TExtensionOpenTBS=array('.odt','.docx','.xlsx','.ods');
