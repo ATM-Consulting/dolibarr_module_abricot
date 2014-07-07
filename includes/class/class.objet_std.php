@@ -373,6 +373,16 @@ function _no_save_vars($lst_chp) {
         
         $query[$nom_champ] = serialize($this->{$nom_champ});
       }
+	  
+      else if($this->_is_int($info)){
+        $query[$nom_champ] = (int)Tools::string2num($this->{$nom_champ});
+      }
+	  
+      else if($this->_is_float($info)){
+        $query[$nom_champ] = Tools::string2num($this->{$nom_champ});
+      }
+	  	  
+	  
       elseif($this->_is_null($info)) {
       	$query[$nom_champ] = (is_null($this->{$nom_champ}) || (empty($this->{$nom_champ}) && $this->{$nom_champ}!==0 && $this->{$nom_champ}!=='0')?null:$this->{$nom_champ}); 
       }
