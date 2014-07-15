@@ -444,7 +444,11 @@ function texte_search_predictive($pLib,$pNameId,$pVal,$pTaille,$pTailleMax=0,$pl
 function doliCalendar($pName, $pVal) {
 global $langs,$db;	
 	
-	if(strpos($pVal,'-')!==false ) {
+	
+	if(is_int($pVal)) {
+		$time = $pVal;	
+	}
+	else if(strpos($pVal,'-')!==false ) {
 	  		$time = strtotime($pVal);
 	}
 	else {
