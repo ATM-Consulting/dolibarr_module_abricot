@@ -440,6 +440,28 @@ function texte_search_predictive($pLib,$pNameId,$pVal,$pTaille,$pTailleMax=0,$pl
              
     return $field;
 }
+
+function doliCalendar($pName, $pVal) {
+global $langs,$db;	
+	
+	if(strpos($pVal,'-')!==false ) {
+	  		$time = strtotime($pVal);
+	}
+	else {
+	  		$time = Tools::get_time($pVal);
+	}
+	
+	if ($this->type_aff!='view'){
+		$formDoli=new Form($db);
+		return $formDoli->select_date($absence->date_debut, 'date_debut',0, 0, 0, "", 1, 0, 1);
+	}
+	else {
+		
+		return dol_print_date($time, $langs->trans('FormatDateShort')) ;
+	}
+	
+}
+
 function calendrier($pLib,$pName,$pVal,$pTaille=12,$pTailleMax=10,$plus='',$class='text',$format='d/m/Y'){
   /* jquery datepicker requis */
   
