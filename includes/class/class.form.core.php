@@ -474,6 +474,7 @@ function calendrier($pLib,$pName,$pVal,$pTaille=12,$pTailleMax=10,$plus='',$clas
   			        	 ,constrainInput: true
   			        	 ,changeYear: true
   			        	 ,autoSize: false 
+  			        	 ,dateFormat: "dd/mm/yy"
 					});
   			    });
                </script>';
