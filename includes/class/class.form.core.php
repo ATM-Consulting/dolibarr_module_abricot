@@ -457,7 +457,7 @@ global $langs,$db;
 	
 	if ($this->type_aff!='view'){
 		$formDoli=new Form($db);
-		return $formDoli->select_date($absence->date_debut, 'date_debut',0, 0, 0, "", 1, 0, 1);
+		return $formDoli->select_date($time, $pName,0, 0, 0, "", 1, 0, 1);
 	}
 	else {
 		
