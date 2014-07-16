@@ -217,12 +217,11 @@ function dbupdate($table,$value,$key){
                                 continue;
                         }
                 }
+		
+		if(is_null($v)) $val = 'NULL';
+		else if(is_int($v) || is_double($v)) $val=$v;
+                else $val = $this->quote( $v );
 
-                if ($v == '') {
-                        $val = 'NULL';
-                } else {
-                        $val = $this->quote( $v );
-                }
                 $tmp[] = "`$k`=$val";
         }
         $this->query = sprintf( $fmtsql, implode( ",", $tmp ) , implode(" AND ",$where) );
