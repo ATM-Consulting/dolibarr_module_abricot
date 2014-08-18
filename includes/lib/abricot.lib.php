@@ -44,21 +44,31 @@ function __val(&$valueObject, $default='', $type='string',$noempty=false) {
 	 
 	 return $value;
 } 
-function __out($data) {
+function __out($data, $type='', $callback='') {
 	
-	if(isset($_REQUEST['gz'])) {
+	if(empty($type)) {
+		if(isset($_REQUEST['gz'])) $type = 'gz';
+		else if(isset($_REQUEST['gz2']))$type = 'gz2';
+		elseif(isset($_REQUEST['json'])) $type='json';
+		elseif(isset($_REQUEST['jsonp'])) $type='jsonp';
+	}
+	
+	
+	
+	if($type==='gz') {
 		$s = serialize($data);
 		print gzdeflate($s,9);
 	}
-	elseif(isset($_REQUEST['gz2'])) {
+	elseif($type==='gz2') {
 		$s = serialize($data);
 		print gzencode($s,9);
 	}
-	elseif(isset($_REQUEST['json'])) {
+	elseif($type==='json') {
 		print json_encode($data);
 	}
-	elseif(isset($_REQUEST['jsonp'])) {
-			print $_GET['callback'].'('.json_encode($data).');' ;
+	elseif($type==='jsonp') {
+		if(empty($callback) && isset($_GET['callback'])) $callback = $_GET['callback'];
+		print $callback.'('.json_encode($data).');' ;
 	}
 	else{
 		$s = serialize($data);
