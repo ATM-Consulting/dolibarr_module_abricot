@@ -407,7 +407,7 @@ function _no_save_vars($lst_chp) {
 	 }
 	 
 	 if(defined('OBJETSTD_MAKETABLEFORME')) {
-			$db=new Tdb;
+			$db=new TPDOdb;
 			$this->init_db_by_vars($db);
 			$db->close();
 	 }
