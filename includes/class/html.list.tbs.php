@@ -52,6 +52,6 @@
 	
 </table>
 <p align="center">
-	[liste.messageNothing] [onshow; block=p; strconv=no; when [liste.totalNB]==0]
+	[liste.messageNothing;strconv=no] [onshow; block=p;  when [liste.totalNB]==0]
 </p>
 	
