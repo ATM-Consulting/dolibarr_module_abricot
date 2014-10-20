@@ -27,16 +27,7 @@ function __construct($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE
 // Modifié par AA 16/09/2004
 // Je ne veux pas de cr�ation de formulaire syst�matique	
 	if (!empty($pName)) {
-	    echo '<form method="'.$pMethod.'"' ;
-	    if ($pTransfert)
-	      echo ' ENCTYPE = "multipart/form-data"'; 
-		if($plus)  echo " $plus ";
-	    
-		if($pAction=='auto')$pAction=$_SERVER['PHP_SELF'];
-		
-	    echo ' action="'.$pAction.'"';
-	    echo ' id="'.$pName.'"';
-	    echo ' name="'.$pName.'">';
+	    echo $this->begin_form($pAction, $pName, $pMethod, $pTransfert, $plus);
 	}
 	
 	// propriété de comparaison de string stricte si besoin!	
@@ -44,7 +35,24 @@ function __construct($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE
 }
 
 
-
+function begin_form($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE,$plus="") {
+	
+	$r='';
+	if (!empty($pName)) {
+	    $r.= '<form method="'.$pMethod.'"' ;
+	    if ($pTransfert)
+	      $r.=  ' ENCTYPE = "multipart/form-data"'; 
+		if($plus)  $r.=  " $plus ";
+	    
+		if($pAction=='auto')$pAction=$_SERVER['PHP_SELF'];
+		
+	    $r.=  ' action="'.$pAction.'"';
+	    $r.=  ' id="'.$pName.'"';
+	    $r.=  ' name="'.$pName.'">';
+	}
+	
+	return $r;
+}
 
 function TForm_js($params=array()){
 		
