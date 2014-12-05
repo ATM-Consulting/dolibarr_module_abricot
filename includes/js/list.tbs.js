@@ -63,3 +63,15 @@ function TListTBS_submitSearch(obj) {
 	
 	//alert(.html());	
 }
+
+$(document).ready(function() {
+	$('tr.barre-recherche input').keypress(function(e) {
+    if(e.which == 13) {
+       
+       var id_list = $(this).closest('table').attr('id');
+       
+       $('#'+id_list+' .list-search-link').click();
+       
+    }
+});
+});

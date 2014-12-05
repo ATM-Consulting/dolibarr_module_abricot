@@ -206,7 +206,7 @@ class TListviewTBS {
 		}
 		
 		if(!empty($TParam['search']) && !empty($TSearch)) {
-			$TSearch[$key].= '<a href="#" onclick="TListTBS_submitSearch(this);">'.$TParam['liste']['picto_search'].'</a>';
+			$TSearch[$key].= '<a href="#" onclick="TListTBS_submitSearch(this);" class="list-search-link">'.$TParam['liste']['picto_search'].'</a>';
 		}
 		
 		return $TSearch;
