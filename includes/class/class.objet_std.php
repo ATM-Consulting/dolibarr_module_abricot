@@ -75,7 +75,8 @@ class TObjetStd {
 	
 		foreach ($this->TChamps as $nom_champ=>$info) {
 			if($this->_is_date($info)){
-				$this->{$nom_champ} = strtotime($db->Get_field($nom_champ));
+				if($db->Get_field($nom_champ) === '0000-00-00 00:00:00')$this->{$nom_champ} = 0;
+				else $this->{$nom_champ} = strtotime($db->Get_field($nom_champ));
 			}
 			elseif($this->_is_tableau($info)){
 				//echo '<li>TABLEAU '.$nom_champ." ".$db->Get_field($nom_champ)." ".unserialize($db->Get_field($nom_champ));
@@ -224,7 +225,8 @@ function _no_save_vars($lst_chp) {
   }
   
   function get_date($nom_champ,$format_date='d/m/Y') {
-  	if($this->{$nom_champ}<=strtotime('0000-00-00 00:00:00')) return '';
+  	if(empty($this->{$nom_champ})) return '';
+	elseif($this->{$nom_champ}<=strtotime('0000-00-00 00:00:00')) return '';
 	else {
 	    return date($format_date, (int)$this->{$nom_champ});
 	}
@@ -234,7 +236,7 @@ function _no_save_vars($lst_chp) {
   function set_date($nom_champ,$date){
   	
 	  	if(empty($date)) {
-	  		$this->{$nom_champ} = strtotime('0000-00-00 00:00:00');
+	  		$this->{$nom_champ} = 0;//strtotime('0000-00-00 00:00:00');
 	  	}
 		else if(strpos($date,'/')===false){
 	  		$this->{$nom_champ} = strtotime($date);
