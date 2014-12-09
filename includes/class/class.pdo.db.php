@@ -1,13 +1,14 @@
 <?php
 /*
  * Equivalent Classe DB basé sur librarie PDO
- */ 
+ */
+
 
 class TPDOdb{
 /**
 * Construteur
 **/
-function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='') {
+function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='', $DB_OPTIONS=array()) {
 		
 	$this -> db = null;
 	$this -> rs = null;            //RecordSet
@@ -18,6 +19,9 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 	$this -> debugError = false;
 	$this -> error = '';
 	
+	if(empty($DB_OPTIONS[PDO::MYSQL_ATTR_INIT_COMMAND]) && ini_get('default_charset') === 'iso-8859-1'){
+		$DB_OPTIONS[PDO::MYSQL_ATTR_INIT_COMMAND]= 'SET NAMES \'UTF-8\'';
+	}
 	
 	if(empty($connexionString)) {
 		if (($db_type == '') && (defined('DB_DRIVER')))
@@ -43,7 +47,7 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 		$this->connexionString = 'mysql:dbname='.DB_NAME.';host='.DB_HOST;
 		
 		try {
-		    $this -> db = new PDO($this->connexionString, DB_USER, DB_PASS);
+		    $this -> db = new PDO($this->connexionString, DB_USER, DB_PASS, $DB_OPTIONS);
 		} catch (PDOException $e) {
 		    $this->Error('PDO DB ErrorConnexion : '.$e->getMessage().' ( '. $this->connexionString.' - '.DB_USER .' )' );
 		}
@@ -55,7 +59,7 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 		
 		$this->connexionString = $connexionString;
 		try {
-		    $this -> db = new PDO($this->connexionString, $DB_USER, $DB_PASS);
+		    $this -> db = new PDO($this->connexionString, $DB_USER, $DB_PASS, $DB_OPTIONS);
 		} catch (PDOException $e) {
 			$this->debug=true;
 		    $this->Error('PDO DB ErrorConnexion : '.$e->getMessage().' ( '. $this->connexionString.' )' );
