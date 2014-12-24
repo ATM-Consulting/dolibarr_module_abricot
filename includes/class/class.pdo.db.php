@@ -41,6 +41,7 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 		}
 		
 		$this->connexionString = 'mysql:dbname='.DB_NAME.';host='.DB_HOST;
+		if(defined('DB_SOCKET') && constant('DB_SOCKET')!='') $this->connexionString .= ';unix_socket='.DB_SOCKET;
 		
 		try {
 		    $this -> db = new PDO($this->connexionString, DB_USER, DB_PASS);
