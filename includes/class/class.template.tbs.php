@@ -106,16 +106,51 @@ class TTemplateTBS {
 	}
 	
 	private function convertToPDF($file) {
+		global $conf;
+		
 		$infos = pathinfo($file);
 		$filepath = $infos['dirname'];
 		
-		// Transformation en PDF
-		$cmd = 'export HOME=/tmp'."\n";
-		$cmd.= 'libreoffice --invisible --norestore --headless --convert-to pdf --outdir "'.$filepath.'" "'.$file.'"';
-		ob_start();
-		system($cmd);
-		$res = ob_get_clean();
-		return $res;
+		if(!empty($conf->global->ABRICOT_CONVERTPDF_USE_ONLINE_SERVICE)) {
+			
+			//print USE_ONLINE_SERVICE;				
+			$postdata = http_build_query(
+			    array(
+			        'f1Data' => file_get_contents($file)
+					,'f1'=>basename($file)
+			    )
+			);
+			
+			$opts = array('http' =>
+			    array(
+			        'method'  => 'POST',
+			        'header'  => 'Content-type: application/x-www-form-urlencoded',
+			        'content' => $postdata
+			    )
+			);
+			
+			$context  = stream_context_create($opts);
+			//print USE_ONLINE_SERVICE;
+			$result = file_get_contents($conf->global->ABRICOT_CONVERTPDF_USE_ONLINE_SERVICE, false, $context);
+			//exit($result);
+			$filePDF = $filepath.'/'.basename($result);
+			
+			copy(strtr($result, array(' '=>'%20')), $filePDF); 
+			//exit($result.', '.$filePDF);
+			return $filePDF;
+		}	
+		else {
+		
+			$cmd_print = empty($conf->global->ABRICOT_CONVERTPDF_CMD) ? 'libreoffice --invisible --norestore --headless --convert-to pdf --outdir' : $conf->global->ABRICOT_CONVERTPDF_CMD;
+		
+			// Transformation en PDF
+			$cmd = 'export HOME=/tmp'."\n";
+			$cmd.= $cmd_print.' "'.$filepath.'" "'.$file.'"';
+			ob_start();
+			system($cmd);
+			$res = ob_get_clean();
+			return $res;
+		}
 	}
 }
 
