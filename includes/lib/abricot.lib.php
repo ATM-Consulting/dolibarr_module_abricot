@@ -167,6 +167,7 @@ function arrayConvertUTF8 ($array, $encode=true, $special_caracters=false) {
 
 
 function get_json($data,$encoded=false) {
+  // FIXME: convertUTF8() is undefined
   $data = convertUTF8($data);
   return json_encode($data);
 }
