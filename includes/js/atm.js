@@ -1,5 +1,5 @@
 function getYScroll(){
- y=0;
+ var y=0;
  if (document.body)y = document.body.scrollTop;
  return y;
 }
@@ -57,11 +57,11 @@ function showPopup(strUrl,strFormName,strClickField,w,h){
         if(strFormName!=''){
 			strAdresse+="FORM="+strFormName;
 		}
-    l=strClickField.length;
+    var l=strClickField.length;
     if (strClickField != '' && l>0){
-        param ='';j=0;k=0;
+        var param ='', j= 0, k=0;
         while (j<l){
-            i = strClickField.indexOf(';',j);
+            var i = strClickField.indexOf(';',j);
             if (i==-1) i=l;
 			
 			if((param!='')||(strFormName!='')){
@@ -87,11 +87,11 @@ function LinkForm(strNomForm,strFormData){
             if (forms[i].name==strNomForm){
                                 for (var j=0;j<forms[i].elements.length;j++){
                     //on cherche si un champ du formulaire se trouve dans la liste affich�e
-                     iIndex=strFormData.indexOf(forms[i].elements[j].name+'=',0);
+                     var iIndex=strFormData.indexOf(forms[i].elements[j].name+'=',0);
                     if ((iIndex)>-1){
                         iIndex+=(forms[i].elements[j].name).length+1;
                         if (strFormData.indexOf(';',iIndex)>-1){
-                                strValue=strFormData.substring(iIndex,strFormData.indexOf(';',iIndex));
+                                var strValue=strFormData.substring(iIndex,strFormData.indexOf(';',iIndex));
                                 forms[i].elements[j].value=strValue;
                         }
                     }
@@ -182,11 +182,11 @@ function LinkForm2(strNomForm,strFormData){
             if (forms[i].name==strNomForm){
                 for (var j=0;j<forms[i].elements.length;j++){
                     //on cherche si un champ du formulaire se trouve dans la liste affich�e
-                    iIndex=strFormData.indexOf(forms[i].elements[j].name+'=',0);
+                    var iIndex=strFormData.indexOf(forms[i].elements[j].name+'=',0);
                     if ((iIndex)>-1){
                         iIndex+=(forms[i].elements[j].name).length+1;
                         if (strFormData.indexOf(';',iIndex)>-1){
-                                strValue=strFormData.substring(iIndex,strFormData.indexOf(';',iIndex));
+                                var strValue=strFormData.substring(iIndex,strFormData.indexOf(';',iIndex));
                                 forms[i].elements[j].value=strValue;
                         }
                     }
