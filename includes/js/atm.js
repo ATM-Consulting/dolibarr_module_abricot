@@ -11,7 +11,7 @@ function OpenForm(strUrl){
         window.document.location.href=strUrl;
 }
 function TListview_OrderBy(tblname,orderColumnOld,orderTypOld,orderColumnNew){
-        //orderColumnOld : nom de la derni�re colonne � partir de laquelle on a tri�
+        //orderColumnOld : nom de la dernière colonne à partir de laquelle on a trié
         //orderTypOld : l'ancien ordre de tri
         //orderColumnNew : nom de la colonne sur laquelle on veut trier
         var orderTypNew='A';
@@ -22,7 +22,7 @@ function TListview_OrderBy(tblname,orderColumnOld,orderTypOld,orderColumnNew){
         document.location.href=modifyUrl(modifyUrl(modifyUrl(document.location.href,"orderColumn",orderColumnNew),"orderTyp",orderTypNew),"tblname",tblname);
 }
 function TListviewUrl_OrderBy(url,tblname,orderColumnOld,orderTypOld,orderColumnNew){
-	    // idem pr�c�dente sauf url fournie
+	    // idem précédente sauf url fournie
         var orderTypNew='A';
         if (orderColumnOld>"" && orderColumnNew>"" && orderColumnOld==orderColumnNew && orderTypOld=='A')
                 orderTypNew='D';
@@ -31,7 +31,7 @@ function TListviewUrl_OrderBy(url,tblname,orderColumnOld,orderTypOld,orderColumn
 }
 function modifyUrl(strURL,paramName,paramNewValue){
         if (strURL.search(paramName+'=')!=-1){
-                //on r�cup�re la premi�re partie de l'url
+                //on récupère la première partie de l'url
                 var strFirstPart=strURL.substring(0,strURL.indexOf(paramName+'=',0))+paramName+'=';
                 var strLastPart="";
                 if (strURL.indexOf('&',strFirstPart.length-1)>0)
@@ -181,7 +181,7 @@ function LinkForm2(strNomForm,strFormData){
         for (var i=0;i<forms.length;i++){
             if (forms[i].name==strNomForm){
                 for (var j=0;j<forms[i].elements.length;j++){
-                    //on cherche si un champ du formulaire se trouve dans la liste affich�e
+                    //on cherche si un champ du formulaire se trouve dans la liste affichée
                     var iIndex=strFormData.indexOf(forms[i].elements[j].name+'=',0);
                     if ((iIndex)>-1){
                         iIndex+=(forms[i].elements[j].name).length+1;
