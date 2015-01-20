@@ -48,7 +48,7 @@ function modifyUrl(strURL,paramName,paramNewValue){
 }
 function showPopup(strUrl,strFormName,strClickField,w,h){
         var strAdresse="";
-		strAdresse+=strUrl
+		strAdresse+=strUrl;
 		
 		if((strFormName!='')||(strClickField!='')){
 			strAdresse+="?";
