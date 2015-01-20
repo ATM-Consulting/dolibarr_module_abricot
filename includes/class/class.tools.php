@@ -539,7 +539,7 @@ class TInsertSQL {
 	static function _fclose(&$f1, $gz=false) {
 	
 		if($gz) {
-			return gzclose($f1);;
+			return gzclose($f1);
 		}
 		else {
 			return fclose($f1);
