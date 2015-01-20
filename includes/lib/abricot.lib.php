@@ -139,8 +139,8 @@ function decode_special_caracters($element){
  * Fonction de conversion des éléments d'un tableau en UTF-8
  * Encodage appliqué sur les clés et les valeurs
  * Fonction récursive 
- * @param $array Le tableau à encoder
- * @return Array Tableau identiques avec données en UTF-8
+ * @param array $array Le tableau à encoder
+ * @return array Tableau identiques avec données en UTF-8
  */
 function arrayConvertUTF8 ($array, $encode=true, $special_caracters=false) {
 	$tmp = array();
