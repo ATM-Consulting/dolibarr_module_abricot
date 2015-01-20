@@ -106,7 +106,7 @@ class TListviewTBS {
 					}
 					else {
 						$value = $this->getSearchValue($value);
-						$sql.=" AND ".$this->getSearchKey($key, $TParam)." LIKE '".addslashes($value)."'" ;	
+						$sql.=" AND ".$this->getSearchKey($key, $TParam)." LIKE '%".addslashes($value)."%'" ;	
 					}
 					
 				}	
