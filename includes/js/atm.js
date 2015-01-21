@@ -1,5 +1,5 @@
 function getYScroll(){
- y=0;
+ var y=0;
  if (document.body)y = document.body.scrollTop;
  return y;
 }
@@ -11,7 +11,7 @@ function OpenForm(strUrl){
         window.document.location.href=strUrl;
 }
 function TListview_OrderBy(tblname,orderColumnOld,orderTypOld,orderColumnNew){
-        //orderColumnOld : nom de la derni�re colonne � partir de laquelle on a tri�
+        //orderColumnOld : nom de la dernière colonne à partir de laquelle on a trié
         //orderTypOld : l'ancien ordre de tri
         //orderColumnNew : nom de la colonne sur laquelle on veut trier
         var orderTypNew='A';
@@ -22,7 +22,7 @@ function TListview_OrderBy(tblname,orderColumnOld,orderTypOld,orderColumnNew){
         document.location.href=modifyUrl(modifyUrl(modifyUrl(document.location.href,"orderColumn",orderColumnNew),"orderTyp",orderTypNew),"tblname",tblname);
 }
 function TListviewUrl_OrderBy(url,tblname,orderColumnOld,orderTypOld,orderColumnNew){
-	    // idem pr�c�dente sauf url fournie
+	    // idem précédente sauf url fournie
         var orderTypNew='A';
         if (orderColumnOld>"" && orderColumnNew>"" && orderColumnOld==orderColumnNew && orderTypOld=='A')
                 orderTypNew='D';
@@ -31,7 +31,7 @@ function TListviewUrl_OrderBy(url,tblname,orderColumnOld,orderTypOld,orderColumn
 }
 function modifyUrl(strURL,paramName,paramNewValue){
         if (strURL.search(paramName+'=')!=-1){
-                //on r�cup�re la premi�re partie de l'url
+                //on récupère la première partie de l'url
                 var strFirstPart=strURL.substring(0,strURL.indexOf(paramName+'=',0))+paramName+'=';
                 var strLastPart="";
                 if (strURL.indexOf('&',strFirstPart.length-1)>0)
@@ -48,7 +48,7 @@ function modifyUrl(strURL,paramName,paramNewValue){
 }
 function showPopup(strUrl,strFormName,strClickField,w,h){
         var strAdresse="";
-		strAdresse+=strUrl
+		strAdresse+=strUrl;
 		
 		if((strFormName!='')||(strClickField!='')){
 			strAdresse+="?";
@@ -57,11 +57,11 @@ function showPopup(strUrl,strFormName,strClickField,w,h){
         if(strFormName!=''){
 			strAdresse+="FORM="+strFormName;
 		}
-    l=strClickField.length;
+    var l=strClickField.length;
     if (strClickField != '' && l>0){
-        param ='';j=0;k=0;
+        var param ='', j= 0, k=0;
         while (j<l){
-            i = strClickField.indexOf(';',j);
+            var i = strClickField.indexOf(';',j);
             if (i==-1) i=l;
 			
 			if((param!='')||(strFormName!='')){
@@ -87,11 +87,11 @@ function LinkForm(strNomForm,strFormData){
             if (forms[i].name==strNomForm){
                                 for (var j=0;j<forms[i].elements.length;j++){
                     //on cherche si un champ du formulaire se trouve dans la liste affich�e
-                     iIndex=strFormData.indexOf(forms[i].elements[j].name+'=',0);
+                     var iIndex=strFormData.indexOf(forms[i].elements[j].name+'=',0);
                     if ((iIndex)>-1){
                         iIndex+=(forms[i].elements[j].name).length+1;
                         if (strFormData.indexOf(';',iIndex)>-1){
-                                strValue=strFormData.substring(iIndex,strFormData.indexOf(';',iIndex));
+                                var strValue=strFormData.substring(iIndex,strFormData.indexOf(';',iIndex));
                                 forms[i].elements[j].value=strValue;
                         }
                     }
@@ -181,12 +181,12 @@ function LinkForm2(strNomForm,strFormData){
         for (var i=0;i<forms.length;i++){
             if (forms[i].name==strNomForm){
                 for (var j=0;j<forms[i].elements.length;j++){
-                    //on cherche si un champ du formulaire se trouve dans la liste affich�e
-                    iIndex=strFormData.indexOf(forms[i].elements[j].name+'=',0);
+                    //on cherche si un champ du formulaire se trouve dans la liste affichée
+                    var iIndex=strFormData.indexOf(forms[i].elements[j].name+'=',0);
                     if ((iIndex)>-1){
                         iIndex+=(forms[i].elements[j].name).length+1;
                         if (strFormData.indexOf(';',iIndex)>-1){
-                                strValue=strFormData.substring(iIndex,strFormData.indexOf(';',iIndex));
+                                var strValue=strFormData.substring(iIndex,strFormData.indexOf(';',iIndex));
                                 forms[i].elements[j].value=strValue;
                         }
                     }

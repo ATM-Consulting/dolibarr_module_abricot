@@ -12,7 +12,7 @@ var $ondblclickline;
 var $debug=false;
 
 /*
-* associe une function js avec un ev�nement
+* associe une function js avec un evènement
 */
 function set_action($pAction,$pFunction)
 {
@@ -123,7 +123,7 @@ function TTbl($pDirect=TRUE){
 }
 /**
  * Alexis ALGOUD le 18/09/2004
- * Ajout du param�tre de l'id de la table utile au cadre
+ * Ajout du paramètre de l'id de la table utile au cadre
  **/
 
 function beg_tbl($pClass,$pWidth=-1,$pColSpace=0,$pIdTable='',$align=""){
@@ -167,7 +167,7 @@ function end_line(){
   $r = "</TR>\n";
   if ($this->direct) echo $r ;else return $r;
 }
-// Modifi� par AA le 11/09/04
+// Modifié par AA le 11/09/04
 // ajout des alignement
 // ajout du no wrap
 // ajout dim
@@ -199,7 +199,7 @@ function Cell($pContent,$pWidth=-1,$pClass='',$pSpan='',$align="",$valign="",$nw
  if ($this->direct) echo $r ;else return $r;
 
 }
-// modiofi� par AA 11/09/2004
+// modiofié par AA 11/09/2004
 // ajout des alignement
 // ajout du no wrap
 // ajout dim
@@ -231,8 +231,8 @@ function end_tbl(){
 }
 /*
       AA 11/09/2004
-      Ajout � partir de class perso des image et liens
-      Pr�vue pour une untilisation dans des cellule ou via un print
+      Ajout à partir de class perso des image et liens
+      Prévue pour une untilisation dans des cellule ou via un print
 */
 function link($libelle,$link="#",$class="",$target="",$img="",$tit=""){
             $r="<a href=\"";

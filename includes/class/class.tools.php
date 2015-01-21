@@ -372,13 +372,11 @@ class Tools{
 	
 	static function parse_ini_file_array($filename,$dim=2){
 		$temp = parse_ini_file($filename);	
-		$i=1;
 		$array = array();
 		//if($dim==3)print_r($temp);
 		foreach($temp as $key => $val){
 			list($type,$number) = explode('_',$key);
 			if($type=='key'){   //if($i++%$dim==1){
-				$i = $number;
 				//if($dim==3)echo '<li>val:'.$val.' key:'.$key."($i)";
 				switch($dim){
 					case 2:
@@ -449,8 +447,7 @@ class TInsertSQL {
 		$f1 = TInsertSQL::_fopen($file, $gz); 
 	
 		print "Lecture du fichier..."; flush();
-		$db=new TPDOdb;
-		
+
 		if($f1===false) { exit("Erreur d'ouverture du fichier"); }
 		
 		$ligne="";
@@ -539,7 +536,7 @@ class TInsertSQL {
 	static function _fclose(&$f1, $gz=false) {
 	
 		if($gz) {
-			return gzclose($f1);;
+			return gzclose($f1);
 		}
 		else {
 			return fclose($f1);
