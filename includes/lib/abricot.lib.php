@@ -144,31 +144,43 @@ function decode_special_caracters($element){
  */
 function arrayConvertUTF8 ($array, $encode=true, $special_caracters=false) {
 	$tmp = array();
-	foreach ($array as $k => $v) {
-
-		if(is_array($v) || is_object($v)) {
-			if($encode) {
-				$tmp[utf8_encode($k)] = arrayConvertUTF8($v, $encode);
+	
+	if(is_array($array)) {
+		
+		foreach ($array as $k => $v) {
+	
+			if(is_array($v) || is_object($v)) {
+				if($encode) {
+					$tmp[utf8_encode($k)] = arrayConvertUTF8($v, $encode);
+				} else {
+					$tmp[utf8_urldecode($k)] = arrayConvertUTF8($v, $encode);
+				}
 			} else {
-				$tmp[utf8_urldecode($k)] = arrayConvertUTF8($v, $encode);
+				if($encode) {
+					$tmp[utf8_encode($k)] = utf8_encode($v);
+				} else {
+					$tmp[utf8_urldecode($k)] = utf8_decode($v);
+				}
 			}
-		} else {
-			if($encode) {
-				$tmp[utf8_encode($k)] = utf8_encode($v);
-			} else {
-				$tmp[utf8_urldecode($k)] = utf8_decode($v);
-			}
+			 
 		}
-		 
+		
 	}
+	else{
+		if($encode) {
+			$tmp = utf8_encode($array);
+		} else {
+			$tmp = utf8_decode($array);
+		}
+	}
+	
 	
 	return $tmp;
 }
 
 
 function get_json($data,$encoded=false) {
-  // FIXME: convertUTF8() is undefined
-  $data = convertUTF8($data);
+  $data = arrayConvertUTF8($data, $encoded);
   return json_encode($data);
 }
 
