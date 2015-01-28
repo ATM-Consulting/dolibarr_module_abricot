@@ -1,19 +1,24 @@
 <?php
 
-/**
- * Classe tools
- * 
- * utilisée dans le front.
- * cette classe donne un ensemble de fonctionnalités "inclassables"
- * 
- * @author 		Alexis 
- * @category	catégorie, je ne sais pas encore  a quoi ca sert :)
- * @version 	1.1.0.0
+/*
+ Copyright (C) 2006-2013 Alexis Algoud <azriel68@gmail.com>
+ Copyright (C) 2013-2015 ATM Consulting <support@atm-consulting.fr>
+
+ This program and all files within this directory and sub directory
+ is free software: you can redistribute it and/or modify it under 
+ the terms of the GNU General Public License as published by the 
+ Free Software Foundation, either version 3 of the License, or any 
+ later version.
  
- * @copyright 	2006
- * @version 	$Id$
- * @subpackage 	tools
- **/
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
  
  
 class Tools{
