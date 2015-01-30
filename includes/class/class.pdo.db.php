@@ -57,7 +57,7 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 		else {
 			$this->debug=true;
 		    $this->Error('PDO DB ErrorConnexion : Paramètres de connexion impossible à utiliser (db:'.DB_NAME.'/user:'.DB_USER.')' );
-		}is
+		}
 		
 		$this->connexionString = 'mysql:dbname='.DB_NAME.';host='.DB_HOST;
 		if(defined('DB_SOCKET') && constant('DB_SOCKET')!='') $this->connexionString .= ';unix_socket='.DB_SOCKET;
