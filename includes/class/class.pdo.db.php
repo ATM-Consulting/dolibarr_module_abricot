@@ -33,8 +33,10 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 	$this -> debug = false;
 	$this -> debugError = false;
 	$this -> error = '';
+
+	$charset = ini_get('default_charset');
 	
-	if(empty($DB_OPTIONS[PDO::MYSQL_ATTR_INIT_COMMAND]) && ini_get('default_charset') === 'iso-8859-1'){
+	if(empty($DB_OPTIONS[PDO::MYSQL_ATTR_INIT_COMMAND]) && ($charset  === 'iso-8859-1' || empty($charset))){
 		$DB_OPTIONS[PDO::MYSQL_ATTR_INIT_COMMAND]= 'SET NAMES \'UTF-8\'';
 	}
 	
