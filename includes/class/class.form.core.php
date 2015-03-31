@@ -561,6 +561,39 @@ function texte($pLib,$pName,$pVal,$pTaille,$pTailleMax=0,$plus='',$class="text",
   else
     return $field;
 }
+/*
+ * fonction qui permet de récupérer un champ texte
+ * 
+ * @param pLib : libellé
+ * @param pName : Nom
+ * @param pVal : Valeur
+ * @param pTaille : Taille
+ * 
+ */
+ 
+function number($pLib,$pName,$pVal,$pTaille,$step=1,$min=null,$max=null,$pTailleMax=0,$plus='',$class="text", $default=''){
+  $lib="";
+  $field="";
+  if ($pLib!="")
+    $lib   = "<label for=".$pName.">$pLib</label>";
+  if ($pTailleMax==0) 
+     $pTailleMax=$pTaille;
+  if ($this->type_aff!='view'){
+  	$field='<input class="'.$class.'" step="'.$step.'" type="number" id="'.$pName.'" name="'
+  	.$pName.'" value="'.strtr($pVal,$this->trans).'" size="'.$pTaille.'" maxlength="'.$pTailleMax.'" '
+  	.(!is_null($min) ? ' min="'.$min.'" ' :'')
+  	.(!is_null($max) ? ' max="'.$max.'" ' :'')
+  	.$plus.'>'."\n";  
+  
+ }
+  else
+    $field = ($pVal=='')?$default:strtr($pVal,$this->trans)." \n ";
+//    $field = $pVal;
+  if ($lib != '')
+    return $lib." ".$field;
+  else
+    return $field;
+}
 
 
 function texte_search_predictive($pLib,$pNameId,$pVal,$pTaille,$pTailleMax=0,$plus='',$class="text",$source='annonce_emploi'){
@@ -2007,8 +2040,14 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus=""){
 	    return $field;
 	}
 	
-	function btsubmit($pLib,$pName,$plus="", $class='button'){
-	    $field = "<INPUT class='".$class."' TYPE='SUBMIT' NAME='$pName' VALUE=\"$pLib\" $plus>\n";
+	function btsubmit($pLib,$pName,$plus="", $class='button', $autoDisabled = false){
+	    $field = "<INPUT class='".$class."' TYPE='SUBMIT' NAME='$pName' VALUE=\"$pLib\" ";
+        
+        if($autoDisabled && stripos($plus, 'onclick')===false) {
+            $field.=' onclick="this.disabled=true" ';            
+        }
+        
+        $field.=" $plus>\n";
 	    return $field;
 	}
 	function bt($pLib,$pName,$plus=""){
