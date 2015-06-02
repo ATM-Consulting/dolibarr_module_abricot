@@ -1682,7 +1682,7 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus=""){
 	 *
 	 * @return Retourne le formulaire
 	 */
-	function checkbox1($pLib,$pName,$pVal,$checked=false,$plus='',$class='',$id='',$order='case_after'){
+	function checkbox1($pLib,$pName,$pVal,$checked=false,$plus='',$class='',$id='',$order='case_after', $check_visu=array() ){
 	  if($checked==true)$checkedVal="CHECKED";
 	  else $checkedVal=" ";
 	
@@ -1691,8 +1691,8 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus=""){
 	  $field="";
 	  
 	  if ($this->type_aff =='view'){
-				if($checked)$field='<span class="check">Oui</span>';
-				else $field='<span class="no-check">Non</span>';
+				if($checked)$field='<span class="check">'. (isset($check_visu['yes']) ? $check_visu['yes'] : 'Oui') .'</span>';
+				else $field='<span class="no-check">'. (isset($check_visu['no']) ? $check_visu['no'] : 'Non') .'</span>';
 	  }
 	  else {
 	  		$field = "<INPUT TYPE='CHECKBOX' CLASS='$class' NAME='$pName' ID='$id' VALUE=\"$pVal\" $checkedVal $plus />\n";
