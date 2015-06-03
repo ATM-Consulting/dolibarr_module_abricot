@@ -33,6 +33,8 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 	$this -> debug = false;
 	$this -> debugError = false;
 	$this -> error = '';
+    $this -> stopOnInsertOrUpdateError = true;
+
 
 	$charset = ini_get('default_charset');
 	
@@ -127,6 +129,30 @@ function Get_DbType() {
 function Get_Recordcount() {
 	return $this -> rs -> rowCount();
 }
+
+function showTrace() {
+        print '<pre>';
+        $trace=debug_backtrace();       
+      
+        $log=''; 
+        foreach($trace as $row) {
+                if((!empty($row['class']) && $row['class']=='TPDOdb') 
+                        || (!empty($row['function']) && $row['function']==__FUNCTION__)
+                        || (!empty($row['function']) && $row['function']=='call_user_func')) continue;
+                        
+                $log='<strong>L. '.$row['line'].'</strong>';
+                if(!empty($row['class']))$log.=' '.$row['class'];
+                $log.=' <span style="color:green">'.$row['function'].'()</span> dans <span style="color:blue">'.$row['file'].'</span>';
+                
+                print $log.'<br>';
+        }
+        
+        //debug_print_backtrace();
+        print '</pre><hr>';
+    
+    
+}
+
 private function Error($message, $showTrace=true) {
 	$this -> error = $message;
 	
@@ -134,26 +160,9 @@ private function Error($message, $showTrace=true) {
 		//print $this->connexionString.'<br/>';
 		print "<strong>".$message."</strong>";
 		
-		if($showTrace) {
-			print '<pre>';
-			$trace=debug_backtrace();       
-	      
-	        $log=''; 
-	        foreach($trace as $row) {
-	                if((!empty($row['class']) && $row['class']=='TPDOdb') 
-	                        || (!empty($row['function']) && $row['function']==__FUNCTION__)
-	                        || (!empty($row['function']) && $row['function']=='call_user_func')) continue;
-	                        
-	                $log='<strong>L. '.$row['line'].'</strong>';
-	                if(!empty($row['class']))$log.=' '.$row['class'];
-	                $log.=' <span style="color:green">'.$row['function'].'()</span> dans <span style="color:blue">'.$row['file'].'</span>';
-					
-					print $log.'<br>';
-	        }
-			
-			//debug_print_backtrace();
-			print '</pre><hr>';
-		}
+		   if($showTrace) {
+                $this->showTrace();
+           }
 		
 	}	
 	else {
@@ -250,7 +259,16 @@ function dbupdate($table,$value,$key){
 		
 		$res = $this->db->exec( $this->query );
 		
-		if($res===false) $this->Error("PDO DB ErrorUpdate : " . print_r($this ->db-> errorInfo(),true)." ".$this->query);
+		if($res===false) {
+		    $this->Error("PDO DB ErrorUpdate : " . print_r($this ->db-> errorInfo(),true)." ".$this->query);
+            if($this->stopOnInsertOrUpdateError) {
+                            
+                echo $this->error.'<hr />';
+                $this->showTrace();
+                exit('PDOdb stop execution for caution'); 
+                
+            }
+        }
 		
 		if($this->debug)$this->Error("Mise à jour (".(int)$res." ligne(s)) ".$this->query);
 		
@@ -271,7 +289,16 @@ function dbinsert($table,$value){
         $this->query = sprintf( $fmtsql, implode( ",", $fields ) ,  implode( ",", $values ) );
 
         if (!$this->db->exec( $this->query )) {
-        		$this->Error("PDO DB ErrorInsert : ". print_r($this ->db-> errorInfo(),true).' '.$this->query);
+        		$this->Error("PDO DB ErrorInsert : ". print_r($this ->db-> errorInfo(),true).'<br />'.$this->query);
+            
+                if($this->stopOnInsertOrUpdateError) {
+                        
+                    echo $this->error.'<hr />';
+                    $this->showTrace();
+                    exit('PDOdb stop execution for caution'); 
+                    
+                }
+            
                 return false;
         }
 		if($this->debug)$this->Error("Insertion ".$this->query);
