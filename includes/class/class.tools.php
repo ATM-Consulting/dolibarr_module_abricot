@@ -23,6 +23,45 @@
  
 class Tools{
 	
+    static function checkVersion(&$DoliDb, $moduleName) {
+        global $conf;
+       
+        if(class_exists($moduleName)) {
+        
+            $conf_name = 'ATM_MODULE_VERSION_'.strtoupper($moduleName);
+         
+            $mod = new $moduleName($DoliDb);
+            
+            if(!empty($mod->version)) {
+                $version = $mod->version;
+                if($conf->global->$conf_name != $version) {
+                    
+                    $message = "Your module wasn't updated. Please reload it or launch the update of database script";
+                    
+                    accessforbidden($message); 
+                }
+            }
+        }
+        
+    }
+    
+    static function setVersion(&$DoliDb, $moduleName) {
+        
+        if(class_exists($moduleName)) {
+            dol_include_once('/core/lib/admin.lib.php');
+
+            $mod = new $moduleName($DoliDb);
+            
+            if(!empty($mod->version)) {
+                $version = $mod->version;
+                dolibarr_set_const($DoliDb, 'ATM_MODULE_VERSION_'.strtoupper($moduleName), $version);
+                
+            }
+        }
+        
+        
+    }
+    
 	static function url_format($s){
 		$r='';
 		$nb=strlen($s);
