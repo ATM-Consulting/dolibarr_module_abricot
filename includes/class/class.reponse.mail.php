@@ -34,7 +34,7 @@ class TReponseMail{
 		$this->TPiece=array();
 		$this->boundary = "_".md5 (uniqid (rand())); 
 		
-		$this->emailerror = defined('WEBMASTER_MAIL') ? WEBMASTER_MAIL : "webmaster@atm-consulting.com";
+		$this->emailerror = defined('WEBMASTER_MAIL') ? WEBMASTER_MAIL : "webmaster@atm-consulting.fr";
 		
 	}
 	/**
