@@ -491,14 +491,6 @@ class TListviewTBS {
 				
 				if(!in_array($field,$TParam['hide'])) {
 					$row[$field]=$value;
-
-					if(isset($TParam['type'][$field])) {
-						if($TParam['type'][$field]=='date') { $row[$field] = date('d/m/Y', strtotime($row[$field])); }
-						if($TParam['type'][$field]=='datetime') { $row[$field] = date('d/m/Y H:i:s', strtotime($row[$field])); }
-						if($TParam['type'][$field]=='hour') { $row[$field] = date('H:i', strtotime($row[$field])); }
-						if($TParam['type'][$field]=='money') { $row[$field] = '<div align="right">'.number_format((double)$row[$field],2,',',' ').'</div>'; }
-						if($TParam['type'][$field]=='number') { $row[$field] = '<div align="right">'.number_format((double)$row[$field],2,',',' ').'</div>'; }
-					}
 					
 					if(isset($TParam['link'][$field])) {
 						if(empty($row[$field]) && $row[$field]!==0 && $row[$field]!=='0')$row[$field]='(vide)';
@@ -512,6 +504,14 @@ class TListviewTBS {
 					if(isset($TParam['eval'][$field]) && in_array($field,array_keys($row))) {
 						$strToEval = 'return '.strtr( $TParam['eval'][$field] ,  array_merge( $trans, array('@val@'=>$row[$field])  )).';';
 						$row[$field] = eval($strToEval);
+					}
+					
+					if(isset($TParam['type'][$field])) {
+						if($TParam['type'][$field]=='date') { $row[$field] = date('d/m/Y', strtotime($row[$field])); }
+						if($TParam['type'][$field]=='datetime') { $row[$field] = date('d/m/Y H:i:s', strtotime($row[$field])); }
+						if($TParam['type'][$field]=='hour') { $row[$field] = date('H:i', strtotime($row[$field])); }
+						if($TParam['type'][$field]=='money') { $row[$field] = '<div align="right">'.number_format((double)$row[$field],2,',',' ').'</div>'; }
+						if($TParam['type'][$field]=='number') { $row[$field] = '<div align="right">'.number_format((double)$row[$field],2,',',' ').'</div>'; }
 					}
 
 				} 
