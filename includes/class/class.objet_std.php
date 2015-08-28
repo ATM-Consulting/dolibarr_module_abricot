@@ -424,15 +424,26 @@ function _no_save_vars($lst_chp) {
 	 }
 	 
   }
-  function run_trigger(&$ATMdb, $state) {
-  	/* Execute les trigger */
-  	if(class_exists('TTrigger')) {
-  //	print  get_class($this).", $state<br>";
-  		$trigger=new TTrigger;
-  		$trigger->run($ATMdb,$this, get_class($this), $state);
+	function run_trigger(&$ATMdb, $state) 
+	{
+		global $db,$user,$langs,$conf;
 		
-  	}	
-  }
+		if (isset($db,$user,$langs,$conf))
+		{
+			$trigger_name = strtoupper(get_class($this).'_'.$state);
+			dol_include_once('/core/class/interfaces.class.php');
+			$interface=new Interfaces($db);
+			$result=$interface->run_triggers($trigger_name,$this,$user,$langs,$conf);
+		}
+		
+		/* Execute les trigger */
+		if(class_exists('TTrigger')) {
+	  		// print  get_class($this).", $state<br>";
+	  		$trigger=new TTrigger;
+	  		$trigger->run($ATMdb,$this, get_class($this), $state);
+		
+		}	
+	}
   function loadBy(&$db, $value, $field, $annexe=false) {
   	$db->Execute("SELECT ".OBJETSTD_MASTERKEY." FROM ".$this->get_table()." WHERE ".$field."='".$value."' LIMIT 1");
 	if($db->Get_line()) {
