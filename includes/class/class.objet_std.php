@@ -140,7 +140,7 @@ function _no_save_vars($lst_chp) {
 				else if($this->_is_date($info)) $db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` datetime NOT NULL DEFAULT \'0000-00-00 00:00:00\'');	
 				else if($this->_is_float($info)) $db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` DOUBLE NOT NULL DEFAULT \'0\'');
 				else if($this->_is_tableau($info) || $this->_is_text($info)) $db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` LONGTEXT');
-				else $db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` VARCHAR('.( empty($info['length']) ? 255 : $info['length'] ).')');	
+				else $db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` VARCHAR('.(is_array($info) && !empty($info['length']) ? $info['length']: 255 ).')');
 				
 				if($this->_is_index($info)) {
 					 $db->Execute('ALTER TABLE '.$this->get_table().' ADD INDEX `'.$champs.'`(`'.$champs.'`)');
@@ -424,15 +424,26 @@ function _no_save_vars($lst_chp) {
 	 }
 	 
   }
-  function run_trigger(&$ATMdb, $state) {
-  	/* Execute les trigger */
-  	if(class_exists('TTrigger')) {
-  //	print  get_class($this).", $state<br>";
-  		$trigger=new TTrigger;
-  		$trigger->run($ATMdb,$this, get_class($this), $state);
+	function run_trigger(&$ATMdb, $state) 
+	{
+		global $db,$user,$langs,$conf;
 		
-  	}	
-  }
+		if (isset($db,$user,$langs,$conf))
+		{
+			$trigger_name = strtoupper(get_class($this).'_'.$state);
+			dol_include_once('/core/class/interfaces.class.php');
+			$interface=new Interfaces($db);
+			$result=$interface->run_triggers($trigger_name,$this,$user,$langs,$conf);
+		}
+		
+		/* Execute les trigger */
+		if(class_exists('TTrigger')) {
+	  		// print  get_class($this).", $state<br>";
+	  		$trigger=new TTrigger;
+	  		$trigger->run($ATMdb,$this, get_class($this), $state);
+		
+		}	
+	}
   function loadBy(&$db, $value, $field, $annexe=false) {
   	$db->Execute("SELECT ".OBJETSTD_MASTERKEY." FROM ".$this->get_table()." WHERE ".$field."='".$value."' LIMIT 1");
 	if($db->Get_line()) {
