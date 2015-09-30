@@ -51,7 +51,7 @@ class TListviewTBS {
 			,'orderDown'=>''
 			,'orderUp'=>''
 			,'id'=>$this->id
-			,'picto_search'=>'[Rechercher]'
+			,'picto_search'=>img_picto('Search', 'search.png')
 		),$TParam['liste']);
 		
 		if(!isset($TParam['limit']))$TParam['limit']=array();
@@ -222,9 +222,15 @@ class TListviewTBS {
 			}
 			
 		}
+
+		$search_button = ' <a href="#" onclick="TListTBS_submitSearch(this);" class="list-search-link">'.$TParam['liste']['picto_search'].'</a>';
+
+		if(!empty($TParam['liste']['head_search'])) {
+			$TParam['liste']['head_search'].=$search_button;
+		}
 		
 		if(!empty($TParam['search']) && !empty($TSearch)) {
-			$TSearch[$key].= '<a href="#" onclick="TListTBS_submitSearch(this);" class="list-search-link">'.$TParam['liste']['picto_search'].'</a>';
+			$TSearch[$key].= $search_button;
 		}
 		
 		return $TSearch;
@@ -357,7 +363,7 @@ class TListviewTBS {
 				,'total'=>$TTotal
 			)
 			, array(
-				'liste'=>array_merge(array('id'=>$this->id, 'totalNB'=>count($TChamps), 'nbSearch'=>count($TSearch), 'haveTotal'=>(int)!empty($TTotal), 'havePage'=>(int)!empty($TPagination) ), $TParam['liste'])
+				'liste'=>array_merge(array('id'=>$this->id, 'nb_columns'=>count($TEntete) ,'totalNB'=>count($TChamps), 'nbSearch'=>count($TSearch), 'haveTotal'=>(int)!empty($TTotal), 'havePage'=>(int)!empty($TPagination) ), $TParam['liste'])
 			)
 			, $TPagination
 			, array()

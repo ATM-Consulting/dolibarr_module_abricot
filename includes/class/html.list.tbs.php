@@ -23,6 +23,9 @@
 <table id="[liste.id]" class="liste" width="100%">
 	<thead>
 		<tr class="liste_titre">
+			<td colspan="[liste.nb_columns]">[liste.head_search;strconv=no]</td>
+		</tr>
+		<tr class="liste_titre">
 			<th class="liste_titre">[entete.libelle;block=th;strconv=no] 
 				<span>[onshow;block=span; when [entete.order]==1]<a href="javascript:TListTBS_OrderDown('[liste.id]','[entete.$;strconv=js]')">[liste.order_down;strconv=no]</a><a href="javascript:TListTBS_OrderUp('[liste.id]', '[entete.$;strconv=js]')">[liste.order_up;strconv=no]</a></span>
 			</th>
