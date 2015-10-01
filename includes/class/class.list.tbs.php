@@ -52,6 +52,7 @@ class TListviewTBS {
 			,'orderUp'=>''
 			,'id'=>$this->id
 			,'picto_search'=>img_picto('Search', 'search.png')
+			,'head_search'=>''
 		),$TParam['liste']);
 		
 		if(!isset($TParam['limit']))$TParam['limit']=array();
