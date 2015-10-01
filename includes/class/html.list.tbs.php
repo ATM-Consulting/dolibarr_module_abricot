@@ -23,7 +23,7 @@
 <table id="[liste.id]" class="liste" width="100%">
 	<thead>
 		<tr class="liste_titre">
-			<td colspan="[liste.nb_columns]">[liste.head_search;strconv=no]</td>
+			<td colspan="[liste.nb_columns]">[liste.head_search;strconv=no;magnet=tr]</td>
 		</tr>
 		<tr class="liste_titre">
 			<th class="liste_titre">[entete.libelle;block=th;strconv=no] 
