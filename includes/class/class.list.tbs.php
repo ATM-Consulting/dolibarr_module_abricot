@@ -136,7 +136,7 @@ class TListviewTBS {
 		}
 		return $sql;
 	}
-	public function render(&$db,$sql,$TParam=array()) {
+	public function render(&$db,$sql,$TParam=array(),$TBind=array()) {
 		$this->typeRender = 'sql';
 	//		print_r($TParam);
 		$TEntete=array();
@@ -147,7 +147,7 @@ class TListviewTBS {
 		$sql = $this->search($sql,$TParam);
 		$sql = $this->order_by($sql, $TParam);		
 		
-		$this->parse_sql($db, $TEntete, $TChamps, $TParam, $sql);	
+		$this->parse_sql($db, $TEntete, $TChamps, $TParam, $sql,$TBind);	
 		
 		$TTotal=$this->get_total($TChamps, $TParam);
 		
@@ -534,12 +534,12 @@ class TListviewTBS {
 			$TChamps[] = $row;	
 	}
 	
-	private function parse_sql(&$db, &$TEntete, &$TChamps,&$TParam, $sql) {
+	private function parse_sql(&$db, &$TEntete, &$TChamps,&$TParam, $sql, $TBind=array()) {
 		
 		//$sql.=' LIMIT '.($TParam['limit']['page']*$TParam['limit']['nbLine']).','.$TParam['limit']['nbLine'];
 		$this->TTotalTmp=array();
 		
-		$db->Execute($sql);
+		$db->Execute($sql, $TBind);
 		$first=true;
 		while($db->Get_line()) {
 			if($first) {
