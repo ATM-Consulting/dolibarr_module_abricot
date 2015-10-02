@@ -28,6 +28,8 @@ class TListviewTBS {
 		$this->typeRender = 'sql';
 		
 		$this->TTotalTmp=array();
+		
+		$this->TBind=array();
 	}
 	private function init(&$TParam) {
 		
@@ -91,7 +93,6 @@ class TListviewTBS {
 	private function search($sql,&$TParam) {
 	
 		if(!empty($_REQUEST['TListTBS'][$this->id]['search'])) {
-			
 			$sqlGROUPBY='';
 			if(strpos($sql,'GROUP BY')!==false) {
 				list($sql, $sqlGROUPBY) = explode('GROUP BY', $sql);
@@ -101,31 +102,59 @@ class TListviewTBS {
 			
 			foreach($_REQUEST['TListTBS'][$this->id]['search'] as $key=>$value) {
 				if(!empty($value)) {
+					$sKey = $this->getSearchKey($key, $TParam);
+					$sBindKey = strtr($sKey,array('.'=>'_' ,'`'=>''));
+					
 					if(isset($TParam['type'][$key]) && $TParam['type'][$key]==='date') {
 						if(is_array($value)) {
 							if(!empty($value['deb'])) {
 								list($dd,$mm,$aaaa) = explode('/', $value['deb']);
 								$valueDeb = date('Y-m-d', mktime(0,0,0,$mm,$dd,$aaaa));
-								$sql.=" AND ".$this->getSearchKey($key, $TParam)." >= '".$valueDeb."'" ;	
 								
+								if(isset($this->TBind[$sBindKey.'_start'])) {
+									$this->TBind[$sBindKey.'_start'] = $valueDeb;
+								} 
+								else  {
+									$sql.=" AND ".$sKey." >= '".$valueDeb."'" ;
+								}
 							}
 							if(!empty($value['fin'])) {
 								list($dd,$mm,$aaaa) = explode('/', $value['fin']);
 								$valueFin = date('Y-m-d', mktime(0,0,0,$mm,$dd,$aaaa));
-								$sql.=" AND ".$this->getSearchKey($key, $TParam)." <= '".$valueFin."'" ;	
 								
+								if(isset($this->TBind[$sBindKey.'_end'])) {
+									$this->TBind[$sBindKey.'_end'] = $valueFin;
+								} 
+								else  {
+									$sql.=" AND ".$sKey." <= '".$valueFin."'" ;	
+								}
 							}
 							
 						}	
 						else {
 							list($dd,$mm,$aaaa) = explode('/', $value);
 							$value = date('Y-m-d', mktime(0,0,0,$mm,$dd,$aaaa)).'%';
-							$sql.=" AND ".$this->getSearchKey($key, $TParam)." LIKE '".$value."'" ;	
+							
+							if(isset($this->TBind[$sBindKey])) {
+								$this->TBind[$sBindKey] = $value.'%';
+							} 
+							else  {
+							
+								$sql.=" AND ".$sKey." LIKE '".$value."'" ;
+							}	
 						}
 					}
 					else {
-						$value = $this->getSearchValue($value);
-						$sql.=" AND ".$this->getSearchKey($key, $TParam)." LIKE '%".addslashes($value)."%'" ;	
+						
+						if(isset($this->TBind[$sBindKey])) {
+							$this->TBind[$sBindKey] = '%'.$value.'%';
+							
+						} 
+						else  {
+							$value = $this->getSearchValue($value);
+							$sql.=" AND ".$sKey." LIKE '%".addslashes($value)."%'" ;	
+						}
+						
 					}
 					
 				}	
@@ -144,10 +173,12 @@ class TListviewTBS {
 		
 		$this->init($TParam);
 		
+		if(!empty($TBind)) $this->TBind = $TBind;
+		
 		$sql = $this->search($sql,$TParam);
 		$sql = $this->order_by($sql, $TParam);		
 		
-		$this->parse_sql($db, $TEntete, $TChamps, $TParam, $sql,$TBind);	
+		$this->parse_sql($db, $TEntete, $TChamps, $TParam, $sql);	
 		
 		$TTotal=$this->get_total($TChamps, $TParam);
 		
@@ -539,7 +570,7 @@ class TListviewTBS {
 		//$sql.=' LIMIT '.($TParam['limit']['page']*$TParam['limit']['nbLine']).','.$TParam['limit']['nbLine'];
 		$this->TTotalTmp=array();
 		
-		$db->Execute($sql, $TBind);
+		$db->Execute($sql, $this->TBind);
 		$first=true;
 		while($db->Get_line()) {
 			if($first) {
