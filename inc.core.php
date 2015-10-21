@@ -60,9 +60,7 @@
 			   	require_once(CORECLASS.'class.pdo.db.php');
 		 	}
 		 	require_once(CORECLASS.'class.objet_std.php');
-		 	if(DOL_PACKAGE) {
-		 		require_once(CORECLASS.'class.objet_std_dolibarr.php');
-			}
+	 		require_once(CORECLASS.'class.objet_std_dolibarr.php');
 		 	require_once(CORECLASS.'class.trigger.php');
 		 	require_once(CORECLASS.'class.reponse.mail.php');
 		 	require_once(CORECLASS.'class.cache_file.php');
