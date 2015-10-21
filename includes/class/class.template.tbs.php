@@ -119,6 +119,7 @@ class TTemplateTBS {
 			        'f1Data' => file_get_contents($file)
 					,'f1'=>basename($file)
 			    )
+			    ,'','&', PHP_QUERY_RFC1738
 			);
 			
 			$opts = array('http' =>

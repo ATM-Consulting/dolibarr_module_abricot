@@ -28,6 +28,8 @@ class TListviewTBS {
 		$this->typeRender = 'sql';
 		
 		$this->TTotalTmp=array();
+		
+		$this->TBind=array();
 	}
 	private function init(&$TParam) {
 		
@@ -51,7 +53,8 @@ class TListviewTBS {
 			,'orderDown'=>''
 			,'orderUp'=>''
 			,'id'=>$this->id
-			,'picto_search'=>'[Rechercher]'
+			,'picto_search'=>img_picto('Search', 'search.png')
+			,'head_search'=>''
 		),$TParam['liste']);
 		
 		if(!isset($TParam['limit']))$TParam['limit']=array();
@@ -90,7 +93,6 @@ class TListviewTBS {
 	private function search($sql,&$TParam) {
 	
 		if(!empty($_REQUEST['TListTBS'][$this->id]['search'])) {
-			
 			$sqlGROUPBY='';
 			if(strpos($sql,'GROUP BY')!==false) {
 				list($sql, $sqlGROUPBY) = explode('GROUP BY', $sql);
@@ -100,31 +102,59 @@ class TListviewTBS {
 			
 			foreach($_REQUEST['TListTBS'][$this->id]['search'] as $key=>$value) {
 				if(!empty($value)) {
+					$sKey = $this->getSearchKey($key, $TParam);
+					$sBindKey = strtr($sKey,array('.'=>'_' ,'`'=>''));
+					
 					if(isset($TParam['type'][$key]) && $TParam['type'][$key]==='date') {
 						if(is_array($value)) {
 							if(!empty($value['deb'])) {
 								list($dd,$mm,$aaaa) = explode('/', $value['deb']);
 								$valueDeb = date('Y-m-d', mktime(0,0,0,$mm,$dd,$aaaa));
-								$sql.=" AND ".$this->getSearchKey($key, $TParam)." >= '".$valueDeb."'" ;	
 								
+								if(isset($this->TBind[$sBindKey.'_start'])) {
+									$this->TBind[$sBindKey.'_start'] = $valueDeb;
+								} 
+								else  {
+									$sql.=" AND ".$sKey." >= '".$valueDeb."'" ;
+								}
 							}
 							if(!empty($value['fin'])) {
 								list($dd,$mm,$aaaa) = explode('/', $value['fin']);
 								$valueFin = date('Y-m-d', mktime(0,0,0,$mm,$dd,$aaaa));
-								$sql.=" AND ".$this->getSearchKey($key, $TParam)." <= '".$valueFin."'" ;	
 								
+								if(isset($this->TBind[$sBindKey.'_end'])) {
+									$this->TBind[$sBindKey.'_end'] = $valueFin;
+								} 
+								else  {
+									$sql.=" AND ".$sKey." <= '".$valueFin."'" ;	
+								}
 							}
 							
 						}	
 						else {
 							list($dd,$mm,$aaaa) = explode('/', $value);
 							$value = date('Y-m-d', mktime(0,0,0,$mm,$dd,$aaaa)).'%';
-							$sql.=" AND ".$this->getSearchKey($key, $TParam)." LIKE '".$value."'" ;	
+							
+							if(isset($this->TBind[$sBindKey])) {
+								$this->TBind[$sBindKey] = $value.'%';
+							} 
+							else  {
+							
+								$sql.=" AND ".$sKey." LIKE '".$value."'" ;
+							}	
 						}
 					}
 					else {
-						$value = $this->getSearchValue($value);
-						$sql.=" AND ".$this->getSearchKey($key, $TParam)." LIKE '%".addslashes($value)."%'" ;	
+						
+						if(isset($this->TBind[$sBindKey])) {
+							$this->TBind[$sBindKey] = '%'.$value.'%';
+							
+						} 
+						else  {
+							$value = $this->getSearchValue($value);
+							$sql.=" AND ".$sKey." LIKE '%".addslashes($value)."%'" ;	
+						}
+						
 					}
 					
 				}	
@@ -135,13 +165,15 @@ class TListviewTBS {
 		}
 		return $sql;
 	}
-	public function render(&$db,$sql,$TParam=array()) {
+	public function render(&$db,$sql,$TParam=array(),$TBind=array()) {
 		$this->typeRender = 'sql';
 	//		print_r($TParam);
 		$TEntete=array();
 		$TChamps=array();	
 		
 		$this->init($TParam);
+		
+		if(!empty($TBind)) $this->TBind = $TBind;
 		
 		$sql = $this->search($sql,$TParam);
 		$sql = $this->order_by($sql, $TParam);		
@@ -222,9 +254,15 @@ class TListviewTBS {
 			}
 			
 		}
+
+		$search_button = ' <a href="#" onclick="TListTBS_submitSearch(this);" class="list-search-link">'.$TParam['liste']['picto_search'].'</a>';
+
+		if(!empty($TParam['liste']['head_search'])) {
+			$TParam['liste']['head_search'].=$search_button;
+		}
 		
 		if(!empty($TParam['search']) && !empty($TSearch)) {
-			$TSearch[$key].= '<a href="#" onclick="TListTBS_submitSearch(this);" class="list-search-link">'.$TParam['liste']['picto_search'].'</a>';
+			$TSearch[$key].= $search_button;
 		}
 		
 		return $TSearch;
@@ -357,7 +395,7 @@ class TListviewTBS {
 				,'total'=>$TTotal
 			)
 			, array(
-				'liste'=>array_merge(array('id'=>$this->id, 'totalNB'=>count($TChamps), 'nbSearch'=>count($TSearch), 'haveTotal'=>(int)!empty($TTotal), 'havePage'=>(int)!empty($TPagination) ), $TParam['liste'])
+				'liste'=>array_merge(array('id'=>$this->id, 'nb_columns'=>count($TEntete) ,'totalNB'=>count($TChamps), 'nbSearch'=>count($TSearch), 'haveTotal'=>(int)!empty($TTotal), 'havePage'=>(int)!empty($TPagination) ), $TParam['liste'])
 			)
 			, $TPagination
 			, array()
@@ -527,12 +565,12 @@ class TListviewTBS {
 			$TChamps[] = $row;	
 	}
 	
-	private function parse_sql(&$db, &$TEntete, &$TChamps,&$TParam, $sql) {
+	private function parse_sql(&$db, &$TEntete, &$TChamps,&$TParam, $sql, $TBind=array()) {
 		
 		//$sql.=' LIMIT '.($TParam['limit']['page']*$TParam['limit']['nbLine']).','.$TParam['limit']['nbLine'];
 		$this->TTotalTmp=array();
 		
-		$db->Execute($sql);
+		$db->Execute($sql, $this->TBind);
 		$first=true;
 		while($db->Get_line()) {
 			if($first) {
