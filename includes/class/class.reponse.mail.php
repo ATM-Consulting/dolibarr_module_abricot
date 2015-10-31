@@ -54,9 +54,10 @@ class TReponseMail{
 		if((defined('ENV'))&& ( ENV =="DEV" || ENV =="PREPROD" ) ){
 			$this->emailto = EMAIL_TO;
 		}
-		
-		
-		if($this->use_dolibarr_for_smtp && $conf->global->MAIN_MAIL_SENDMODE == 'smtps' && !empty($this->TPiece)) {
+
+//var_dump($this->use_dolibarr_for_smtp , $conf->global->MAIN_MAIL_SENDMODE , $this->TPiece);
+
+		if($this->use_dolibarr_for_smtp && $conf->global->MAIN_MAIL_SENDMODE == 'smtps' && empty($this->TPiece)) {
 			// Si la conf global indique du smtp et qu'il n'y a pas de pièce jointe, envoi via dolibarr
 			dol_include_once('/core/class/CMailFile.class.php');
 			if(class_exists('CMailFile')) {
