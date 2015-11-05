@@ -433,7 +433,7 @@ class TListviewTBS {
 	private function order_by($sql, &$TParam) {
 		$first = true;	
 		//	print_r($TParam['orderBy']);
-		if(isset($TParam['orderBy'])) {
+		if(!empty($TParam['orderBy'])) {
 			
 			$sql.=' ORDER BY '; 
 			foreach($TParam['orderBy'] as $field=>$order) {
