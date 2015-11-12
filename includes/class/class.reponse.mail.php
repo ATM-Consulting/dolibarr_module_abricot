@@ -36,6 +36,7 @@ class TReponseMail{
 		
 		$this->emailerror = defined('WEBMASTER_MAIL') ? WEBMASTER_MAIL : "webmaster@atm-consulting.fr";
 		
+		$this->use_dolibarr_for_smtp = true;		
 	}
 	/**
 	 * envoi la réponse ainsi générée 
@@ -43,6 +44,34 @@ class TReponseMail{
 	 * par défaut en ISO-8859-1
 	 **/
 	function send($html=true,$encoding='iso-8859-1'){
+		global $conf;
+		
+		if($this->reply_to==""){
+			$this->reply_to = $this->emailfrom;
+		}
+
+		//empeche l'envoi de mail vers l'extérieur en préprod et en dev.		
+		if((defined('ENV'))&& ( ENV =="DEV" || ENV =="PREPROD" ) ){
+			$this->emailto = EMAIL_TO;
+		}
+
+//var_dump($this->use_dolibarr_for_smtp , $conf->global->MAIN_MAIL_SENDMODE , $this->TPiece);
+
+		if($this->use_dolibarr_for_smtp && $conf->global->MAIN_MAIL_SENDMODE == 'smtps' && empty($this->TPiece)) {
+			// Si la conf global indique du smtp et qu'il n'y a pas de pièce jointe, envoi via dolibarr
+			dol_include_once('/core/class/CMailFile.class.php');
+			if(class_exists('CMailFile')) {
+				
+				$mail=new CMailFile($this->titre, $this->emailto, $this->emailfrom, $this->corps,array(),array(),array(),'',$this->emailtoBcc,0,$html );
+				$res = $mail->sendfile();
+				
+				return $res;
+				
+			}
+			
+		}
+		
+		
 		$html = ($html == 'html')?true:$html;
 		
 		$headers="";
@@ -52,15 +81,7 @@ class TReponseMail{
 		$headers .= "X-Sender: <".$this->emailfrom.">\n";
 		$headers .= "X-auth-smtp-user: ".$this->emailerror." \n";
 		$headers .= "X-abuse-contact: ".$this->emailerror." \n"; 
-		if($this->reply_to==""){
-			$this->reply_to = $this->emailfrom;
-		}
 
-		//empeche l'envoi de mail vers l'extérieur en préprod et en dev.		
-		if((defined('ENV'))&& ( ENV =="DEV" || ENV =="PREPROD" ) ){
-			$this->emailto = EMAIL_TO;
-		}
-		
 		$headers .= "Reply-To: ".$this->reply_to." \n";
 		$headers .= "Return-path: ".$this->reply_to." \n";
 		//
