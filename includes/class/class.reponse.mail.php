@@ -55,16 +55,23 @@ class TReponseMail{
 			$this->emailto = EMAIL_TO;
 		}
 
-//var_dump($this->use_dolibarr_for_smtp , $conf->global->MAIN_MAIL_SENDMODE , $this->TPiece);
+//var_dump($this->use_dolibarr_for_smtp , $conf->global->MAIN_MAIL_SENDMODE , $this->TPiece);exit;
 
-		if($this->use_dolibarr_for_smtp && $conf->global->MAIN_MAIL_SENDMODE == 'smtps' && empty($this->TPiece)) {
+		if($this->use_dolibarr_for_smtp && $conf->global->MAIN_MAIL_SENDMODE == 'smtps') {
 			// Si la conf global indique du smtp et qu'il n'y a pas de pièce jointe, envoi via dolibarr
 			dol_include_once('/core/class/CMailFile.class.php');
 			if(class_exists('CMailFile')) {
 				
-				$mail=new CMailFile($this->titre, $this->emailto, $this->emailfrom, $this->corps,array(),array(),array(),'',$this->emailtoBcc,0,$html );
+				$TFilePath = $TMimeType = $TFileName = array();
+				foreach($this->TPiece as &$piece) {
+					$TFilePath[] = $piece['file'];
+					$TMimeType[] = $piece['mimetype'];
+					$TFileName[] = basename($piece['file']);
+				}
+																												//,$filepath,$mimetype,$filename
+				$mail=new CMailFile($this->titre, $this->emailto, $this->emailfrom, $this->corps,$TFilePath,$TMimeType,$TFileName,'',$this->emailtoBcc,0,$html );
 				$res = $mail->sendfile();
-				
+//exit('sendfile');				
 				return $res;
 				
 			}
@@ -97,7 +104,7 @@ class TReponseMail{
 			$headers .= "Content-Type: ".(($html)?"text/html":"text/plain")."; charset=".$encoding."\r\n\n";
 			$headers .= $this->corps."\n\n";
 			foreach($this->TPiece as $piece){
-				$headers .= $piece."\n\n";
+				$headers .= $piece['data']."\n\n";
 			}
 			$headers .= "--" . $this->boundary . "--"; 
 		}
@@ -123,7 +130,12 @@ class TReponseMail{
 		$body .="Content-Disposition: attachment; filename=\"$nom_fichier\"\n\n";
 		$body .=$fichier;
 		$piece = $body;
-		$this->TPiece[]=$piece;
+		$this->TPiece[]=array(
+			'file'=>$chemin_fichier
+			,'mimetype'=>$type
+			,'data'=>$piece
+			
+		);
 	
 	}
 	
