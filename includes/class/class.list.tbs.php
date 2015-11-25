@@ -232,7 +232,8 @@ class TListviewTBS {
 				$typeRecherche = (is_array($TParam['search'][$key]) && isset($TParam['search'][$key]['recherche'])) ? $TParam['search'][$key]['recherche'] : $TParam['search'][$key];  
 				
 				if(is_array($typeRecherche)) {
-					$TSearch[$key]=$form->combo('','TListTBS['.$this->id.'][search]['.$key.']',array_merge(array(''=>' '), $typeRecherche),$value);
+					$typeRecherche = array(''=>' ') + $typeRecherche;
+					$TSearch[$key]=$form->combo('','TListTBS['.$this->id.'][search]['.$key.']', $typeRecherche,$value);
 				}
 				else if($typeRecherche==='calendar') {
 					$TSearch[$key]=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.']',$value,10,10);	
