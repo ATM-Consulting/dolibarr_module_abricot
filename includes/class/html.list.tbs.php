@@ -39,11 +39,11 @@
 	<tbody>
 		<tr class="impair">
 			<!-- [champs.$;block=tr;sub1] -->
-			<td>[champs_sub1.val;block=td; strconv=no]</td>
+			<td field="[champs_sub1.$]">[champs_sub1.val;block=td; strconv=no]</td>
 		</tr>
 		<tr class="pair">
 			<!-- [champs.$;block=tr;sub1] -->
-			<td>[champs_sub1.val;block=td; strconv=no]</td>
+			<td field="[champs_sub1.$]">[champs_sub1.val;block=td; strconv=no]</td>
 		</tr>
 	</tbody>
 	<tfoot>
