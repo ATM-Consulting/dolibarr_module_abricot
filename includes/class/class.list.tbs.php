@@ -228,11 +228,8 @@ class TListviewTBS {
 		$TSearch=array();
 		$form=new TFormCore;
 		
-		
-		foreach($TEntete as $key=>$libelle) { // init
-			$TSearch[$key]='';
-		}
-		
+		$nb_search_in_bar = 0;
+				
 		foreach($TParam['search'] as $key=>$param_search) {
 			
 		
@@ -260,8 +257,10 @@ class TListviewTBS {
 
 			if(!empty($TEntete[$key])) {
 				$TSearch[$key] = $fsearch;
+				$nb_search_in_bar++;
 			}
 			else {
+				
 				$libelle = !empty($TParam['title'][$key]) ? $TParam['title'][$key] : $key ;
 				$TParam['liste']['head_search'].='<div>'.$libelle.' '.$fsearch.'</div>';	
 			}
@@ -274,7 +273,12 @@ class TListviewTBS {
 			$TParam['liste']['head_search'].='<div align="right">'.$langs->trans('Search').' '.$search_button.'</div>';
 		}
 		
-		if(!empty($TParam['search']) && !empty($TSearch)) {
+		if($nb_search_in_bar>0) {
+			foreach($TEntete as $key=>$libelle) { // init
+				if(empty($TSearch[$key]))$TSearch[$key]='';
+			}
+			
+			
 			$TSearch[$key].= $search_button;
 		}
 		
@@ -495,8 +499,9 @@ class TListviewTBS {
 
 	}
 	
-	private function init_entete(&$TEntete, &$TParam, $Tab) {
-		foreach ($Tab as $field => $value) {
+	private function init_entete(&$TEntete, &$TParam, $currentLine) {
+		foreach ($currentLine as $field => $value) {
+			
 			if(!in_array($field,$TParam['hide'])) {
 				$libelle = isset($TParam['title'][$field]) ? $TParam['title'][$field] : $field;
 				$TEntete[$field] = array(
@@ -584,15 +589,15 @@ class TListviewTBS {
 		//$sql.=' LIMIT '.($TParam['limit']['page']*$TParam['limit']['nbLine']).','.$TParam['limit']['nbLine'];
 		$this->TTotalTmp=array();
 		
-		$db->Execute($sql, $this->TBind);
+		$res = $db->Execute($sql, $this->TBind);
 		$first=true;
-		while($db->Get_line()) {
+		while($currentLine = $db->Get_line()) {
 			if($first) {
-				$this->init_entete($TEntete, $TParam, $db->currentLine);
+				$this->init_entete($TEntete, $TParam, $currentLine);
 				$first = false;
 			}
 			
-			$this->set_line($TChamps, $TParam, $db->currentLine);
+			$this->set_line($TChamps, $TParam, $currentLine);
 			
 		}
 		
