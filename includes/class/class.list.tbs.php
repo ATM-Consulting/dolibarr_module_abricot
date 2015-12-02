@@ -221,45 +221,57 @@ class TListviewTBS {
 		
 	}
 	private function setSearch(&$TEntete, &$TParam) {
+		global $langs;
+		
 		if(empty($TParam['search'])) return array();
 		
 		$TSearch=array();
 		$form=new TFormCore;
-		foreach($TEntete as $key=>$libelle) {
-			if(isset($TParam['search'][$key])) {
-				$value = isset($_REQUEST['TListTBS'][$this->id]['search'][$key]) ? $_REQUEST['TListTBS'][$this->id]['search'][$key] : '';
-				
-				$typeRecherche = (is_array($TParam['search'][$key]) && isset($TParam['search'][$key]['recherche'])) ? $TParam['search'][$key]['recherche'] : $TParam['search'][$key];  
-				
-				if(is_array($typeRecherche)) {
-					$typeRecherche = array(''=>' ') + $typeRecherche;
-					$TSearch[$key]=$form->combo('','TListTBS['.$this->id.'][search]['.$key.']', $typeRecherche,$value);
-				}
-				else if($typeRecherche==='calendar') {
-					$TSearch[$key]=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.']',$value,10,10);	
-				}
-				else if($typeRecherche==='calendars') {
-					$TSearch[$key]=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.'][deb]',isset($value['deb'])?$value['deb']:'',10,10)
-						.' '.$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.'][fin]',isset($value['fin'])?$value['fin']:'',10,10);	
-				}
-				else if(is_string($typeRecherche)) {
-					$TSearch[$key]=$TParam['search'][$key];	
-				}
-				else {
-					$TSearch[$key]=$form->texte('','TListTBS['.$this->id.'][search]['.$key.']',$value,15,255);	
-				}
-					
+		
+		
+		foreach($TEntete as $key=>$libelle) { // init
+			$TSearch[$key]='';
+		}
+		
+		foreach($TParam['search'] as $key=>$param_search) {
+			
+		
+			$value = isset($_REQUEST['TListTBS'][$this->id]['search'][$key]) ? $_REQUEST['TListTBS'][$this->id]['search'][$key] : '';
+			
+			$typeRecherche = (is_array($param_search) && isset($param_search['recherche'])) ? $param_search['recherche'] : $param_search;  
+			
+			if(is_array($typeRecherche)) {
+				$typeRecherche = array(''=>' ') + $typeRecherche;
+				$fsearch=$form->combo('','TListTBS['.$this->id.'][search]['.$key.']', $typeRecherche,$value);
+			}
+			else if($typeRecherche==='calendar') {
+				$fsearch=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.']',$value,10,10);	
+			}
+			else if($typeRecherche==='calendars') {
+				$fsearch=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.'][deb]',isset($value['deb'])?$value['deb']:'',10,10)
+					.' '.$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.'][fin]',isset($value['fin'])?$value['fin']:'',10,10);	
+			}
+			else if(is_string($typeRecherche)) {
+				$fsearch=$TParam['search'][$key];	
 			}
 			else {
-				$TSearch[$key]='';
+				$fsearch=$form->texte('','TListTBS['.$this->id.'][search]['.$key.']',$value,15,255);	
 			}
-			
-		}
 
+			if(!empty($TEntete[$key])) {
+				$TSearch[$key] = $fsearch;
+			}
+			else {
+				$libelle = !empty($TParam['title'][$key]) ? $TParam['title'][$key] : $key ;
+				$TParam['liste']['head_search'].='<div>'.$libelle.' '.$fsearch.'</div>';	
+			}
+				
+		}
+		
 		$search_button = ' <a href="#" onclick="TListTBS_submitSearch(this);" class="list-search-link">'.$TParam['liste']['picto_search'].'</a>';
 
 		if(!empty($TParam['liste']['head_search'])) {
-			$TParam['liste']['head_search'].=$search_button;
+			$TParam['liste']['head_search'].='<div align="right">'.$langs->trans('Search').' '.$search_button.'</div>';
 		}
 		
 		if(!empty($TParam['search']) && !empty($TSearch)) {
@@ -384,7 +396,6 @@ class TListviewTBS {
 		else {
 			$TPagination=array();
 		}
-		
 		
 		$TSearch = $this->setSearch($TEntete, $TParam);
 		
