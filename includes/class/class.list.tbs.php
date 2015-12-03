@@ -30,6 +30,8 @@ class TListviewTBS {
 		$this->TTotalTmp=array();
 		
 		$this->TBind=array();
+		
+		$this->sql = '';
 	}
 	private function init(&$TParam) {
 		
@@ -55,6 +57,7 @@ class TListviewTBS {
 			,'id'=>$this->id
 			,'picto_search'=>img_picto('Search', 'search.png')
 			,'head_search'=>''
+			,'export'=>array()
 		),$TParam['liste']);
 		
 		if(!isset($TParam['limit']))$TParam['limit']=array();
@@ -387,6 +390,39 @@ class TListviewTBS {
 		
 		return $javaScript;
 	}
+
+	private function setExport(&$TParam,$TChamps,$TEntete) {
+		global $langs;
+		
+		$Tab=array();
+		if(!empty($TParam['export'])) {
+			$token = md5($this->id.time().rand(1,9999));
+			$_SESSION['token_list_'.$token] = gzdeflate( serialize( array(
+				'title'=>$this->title
+				,'sql'=>$this->sql
+				,'TBind'=>$this->TBind
+				,'TChamps'=>$TChamps
+				,'TEntete'=>$TEntete
+			) ) );
+				
+			foreach($TParam['export'] as $mode_export) {
+				
+				$Tab[] = array(
+						'label'=>$langs->trans('Export'.$mode_export)
+						,'url'=>dol_buildpath('/abricot/downlist.php',1)
+						,'mode'=>$mode_export
+						,'token'=>$token
+						,'session_name'=>session_name()
+				);
+				
+			}
+			
+		}
+		
+		
+		return $Tab;
+	}
+
 	private function renderList(&$TEntete, &$TChamps, &$TTotal, &$TParam) {
 		$TBS = new TTemplateTBS;
 		
@@ -402,6 +438,7 @@ class TListviewTBS {
 		}
 		
 		$TSearch = $this->setSearch($TEntete, $TParam);
+		$TExport=$this->setExport($TParam, $TChamps, $TEntete);
 		
 		return $TBS->render($this->template
 			, array(
@@ -409,9 +446,10 @@ class TListviewTBS {
 				,'champs'=>$TChamps
 				,'recherche'=>$TSearch
 				,'total'=>$TTotal
+				,'export'=>$TExport
 			)
 			, array(
-				'liste'=>array_merge(array('id'=>$this->id, 'nb_columns'=>count($TEntete) ,'totalNB'=>count($TChamps), 'nbSearch'=>count($TSearch), 'haveTotal'=>(int)!empty($TTotal), 'havePage'=>(int)!empty($TPagination) ), $TParam['liste'])
+				'liste'=>array_merge(array('haveExport'=>count($TExport), 'id'=>$this->id, 'nb_columns'=>count($TEntete) ,'totalNB'=>count($TChamps), 'nbSearch'=>count($TSearch), 'haveTotal'=>(int)!empty($TTotal), 'havePage'=>(int)!empty($TPagination) ), $TParam['liste'])
 			)
 			, $TPagination
 			, array()
@@ -588,6 +626,8 @@ class TListviewTBS {
 		
 		//$sql.=' LIMIT '.($TParam['limit']['page']*$TParam['limit']['nbLine']).','.$TParam['limit']['nbLine'];
 		$this->TTotalTmp=array();
+		
+		$this->sql = $sql;
 		
 		$res = $db->Execute($sql, $this->TBind);
 		$first=true;
