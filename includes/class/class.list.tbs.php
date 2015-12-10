@@ -489,6 +489,10 @@ class TListviewTBS {
 		//	print_r($TParam['orderBy']);
 		if(!empty($TParam['orderBy'])) {
 			
+			if(strpos($sql,'LIMIT ')!==false) {
+				list($sql, $sqlLIMIT) = explode('LIMIT ', $sql);
+			}
+			
 			$sql.=' ORDER BY '; 
 			foreach($TParam['orderBy'] as $field=>$order) {
 				if(!$first) $sql.=',';
@@ -501,6 +505,9 @@ class TListviewTBS {
 				
 				$first=false;
 			}
+			
+			if(!empty($sqlLIMIT))$sql.=' LIMIT '.$sqlLIMIT;
+			
 		}
 		
 		return $sql;
