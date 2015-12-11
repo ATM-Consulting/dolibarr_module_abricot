@@ -101,7 +101,7 @@
 		 	}
 		 
 			define('ATM_CORE_INCLUDED', true);
-			define('ABRICOT_VERSION',1.4);
+			define('ABRICOT_VERSION',1.5);
 		}
 	
  
