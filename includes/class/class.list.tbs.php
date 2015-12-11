@@ -300,11 +300,14 @@ class TListviewTBS {
 			foreach($TChamps[0] as $field=>$value) {
 				$TTotal[$field]='';	
 			}
-			
+		
 			foreach($TParam['math'] as $field=>$typeMath){
 
 				if($typeMath=='average') {
 					$TTotal[$field]=array_sum($this->TTotalTmp[$field]) / count($this->TTotalTmp[$field]);
+				}
+				elseif($typeMath=='count') {
+					$TTotal[$field]=count($this->TTotalTmp[$field]);
 				}
 				else {
 					$TTotal[$field]=array_sum($this->TTotalTmp[$field]);	
