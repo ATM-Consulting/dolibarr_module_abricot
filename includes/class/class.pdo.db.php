@@ -348,6 +348,7 @@ function ExecuteAsArray($sql, $TBind=array() ,$mode = PDO::FETCH_OBJ) {
 function Get_All($mode = PDO::FETCH_OBJ, $functionOrClassOrColumn=null) {
 			
 	if(!is_null($functionOrClassOrColumn))return $this->rs->fetchAll($mode,$functionOrClassOrColumn);
+	else if ($this->rs === false) return array();
 	else return $this->rs->fetchAll($mode);	
 	
 	

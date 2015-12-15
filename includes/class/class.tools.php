@@ -36,7 +36,7 @@ class Tools{
                 $version = $mod->version;
                 if($conf->global->$conf_name != $version) {
                     
-                    $message = "Your module wasn't updated. Please reload it or launch the update of database script";
+                    $message = "Your module wasn't updated (v".$conf->global->$conf_name." != ".$version."). Please reload it or launch the update of database script";
                     
                     accessforbidden($message); 
                 }
