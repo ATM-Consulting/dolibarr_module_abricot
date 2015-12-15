@@ -509,7 +509,7 @@ class TListviewTBS {
 			foreach($TSearch as $field=>$input) {
 				if(!empty($input)) {
 					$label = !empty($TParam['title'][$field]) ? $TParam['title'][$field] : $field;
-					$html.='<tr><td>'.$field.'</td><td>'.$input.'</td></tr>';	
+					$html.='<tr><td>'.$label.'</td><td>'.$input.'</td></tr>';	
 				}
 			}
 			
