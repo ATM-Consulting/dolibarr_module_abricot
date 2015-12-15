@@ -68,5 +68,7 @@
 		
 	    exit();
 		
+	}
+	else if ($mode == 'PDF') {
 		
 	}

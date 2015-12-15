@@ -1,0 +1,50 @@
+<table width="100%" border="0" style="margin-bottom: 2px;border:0 none;">
+		<tr>
+			[onshow;block=begin; when [liste.noheader]==0]
+			<td width="40" align="left" valign="middle">
+				[liste.image;magnet=img; strconv=no]
+			</td>
+			<td><h3>[liste.titre; strconv=no]</h3></td>
+			[onshow;block=end]
+			<td class="nobordernopadding" align="right" valign="middle">
+				<div class="pagination"> 
+					[onshow;block=div; when [liste.havePage]+-0 ]
+				<!-- [onshow;block=div;when [pagination.last]+-1 ] -->
+				    <a href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.prev])"><!-- [pagination.prev;endpoint;magnet=a] -->[liste.picto_precedent;strconv=no]</a>
+				    Page
+				    <a href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.page;navsize=15;navpos=centred])"> [pagination.page;block=a] </a>
+				    <u>[pagination.page;block=u;currpage]</u>
+				    <a href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.next])"><!-- [pagination.last;endpoint;magnet=a] -->[liste.picto_suivant;strconv=no]</a>
+				</div>
+			</td>
+		</tr>
+</table>	
+
+<table id="[liste.id]" width="100%" style="border:1px solid #666; border-collapse: collapse;">
+	<thead>
+		<tr style="font-weight: bold; border:1px solid #888;">
+			<td style="width:[entete.width;]">[entete.libelle;block=td;strconv=no]</td>
+		</tr>
+	</thead>
+	<tbody>
+		<tr syle="background-color:#fff;">
+			<!-- [champs.$;block=tr;sub1] -->
+			<td style="border:1px solid #ccc;" field="[champs_sub1.$]">[champs_sub1.val;block=td; strconv=no]</td>
+		</tr>
+		<tr  syle="background-color:#eee;">
+			<!-- [champs.$;block=tr;sub1] -->
+			<td style="border:1px solid #ccc;" field="[champs_sub1.$]">[champs_sub1.val;block=td; strconv=no]</td>
+		</tr>
+	</tbody>
+	<tfoot>
+		<tr style="font-weight: bold;">
+			[onshow;block=tr; when [liste.haveTotal]+-0 ]
+			<td align="right">[total.val;block=td;strconv=no;frm=0 000,00]</td>
+		</tr>
+	</tfoot>
+	
+</table>
+<p align="center">
+	[liste.messageNothing;strconv=no] [onshow; block=p;  when [liste.totalNB]==0]
+</p>
+	
