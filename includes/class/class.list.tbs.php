@@ -150,8 +150,19 @@ class TListviewTBS {
 					else {
 						
 						if(isset($this->TBind[$sBindKey])) {
-							$this->TBind[$sBindKey] = '%'.$value.'%';
 							
+							if(isset($TParam['operator'][$key])) {
+								if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=') {
+									$this->TBind[$sBindKey] = $value;
+								}
+								else{
+									$this->TBind[$sBindKey] = '%'.$value.'%';	
+								}
+								
+							}
+							else {
+								$this->TBind[$sBindKey] = '%'.$value.'%';	
+							}
 						} 
 						else  {
 							$value = $this->getSearchValue($value);
