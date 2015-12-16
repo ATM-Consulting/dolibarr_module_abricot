@@ -516,7 +516,7 @@ class TListviewTBS {
 		
 		if(!empty($TSearch)) {
 			
-			$html.='<table class="border">';
+			$html.='<table class="border searchbox">';
 			foreach($TSearch as $field=>$input) {
 				if(!empty($input)) {
 					$label = !empty($TParam['title'][$field]) ? $TParam['title'][$field] : $field;
