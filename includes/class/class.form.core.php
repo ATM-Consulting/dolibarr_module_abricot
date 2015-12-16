@@ -266,14 +266,139 @@ public function text_js($array){
 
 
 
+/**
+ *	Override de la fonction classique de la class FormProject
+ *  Show a combo list with projects qualified for a third party
+ *
+ *	@param	int		$socid      	Id third party (-1=all, 0=only projects not linked to a third party, id=projects not linked or linked to third party id)
+ *	@param  int		$selected   	Id project preselected
+ *	@param  string	$htmlname   	Nom de la zone html
+ *	@param	int		$maxlength		Maximum length of label
+ *	@param	int		$option_only	Option only
+ *	@param	int		$show_empty		Add an empty line
+ *	@return string         		    select or options if OK, void if KO
+ */
+function select_projects($socid=-1, $selected='', $htmlname='projectid', $maxlength=25, $option_only=0, $show_empty=1)
+{
+	global $user,$conf,$langs,$db;
 
+	require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
 
+	$out='';
 
+	if ($this->type_aff == 'view')
+	{
+		if ($selected > 0)
+		{
+			$project = new Project($db);
+			$project->fetch($selected);
+			
+			return dol_trunc($project->ref,18).' - '.dol_trunc($project->title,$maxlength);
+		}
+		else 
+		{
+			return $out;			
+		}
+	}
 
+	$hideunselectables = false;
+	if (! empty($conf->global->PROJECT_HIDE_UNSELECTABLES)) $hideunselectables = true;
 
+	$projectsListId = false;
+	if (empty($user->rights->projet->all->lire))
+	{
+		$projectstatic=new Project($db);
+		$projectsListId = $projectstatic->getProjectsAuthorizedForUser($user,0,1);
+	}
 
+	// Search all projects
+	$sql = 'SELECT p.rowid, p.ref, p.title, p.fk_soc, p.fk_statut, p.public';
+	$sql.= ' FROM '.MAIN_DB_PREFIX .'projet as p';
+	$sql.= " WHERE p.entity = ".$conf->entity;
+	if ($projectsListId !== false) $sql.= " AND p.rowid IN (".$projectsListId.")";
+	if ($socid == 0) $sql.= " AND (p.fk_soc=0 OR p.fk_soc IS NULL)";
+	if ($socid > 0)  $sql.= " AND (p.fk_soc=".$socid." OR p.fk_soc IS NULL)";
+	$sql.= " ORDER BY p.ref ASC";
 
+	dol_syslog(get_class($this)."::select_projects sql=".$sql,LOG_DEBUG);
+	$resql=$db->query($sql);
+	if ($resql)
+	{
+		if (empty($option_only)) {
+			$out.= '<select class="flat" name="'.$htmlname.'">';
+		}
+		if (!empty($show_empty)) {
+			$out.= '<option value="0">&nbsp;</option>';
+		}
+		$num = $db->num_rows($resql);
+		$i = 0;
+		if ($num)
+		{
+			while ($i < $num)
+			{
+				$obj = $db->fetch_object($resql);
+				// If we ask to filter on a company and user has no permission to see all companies and project is linked to another company, we hide project.
+				if ($socid > 0 && (empty($obj->fk_soc) || $obj->fk_soc == $socid) && ! $user->rights->societe->lire)
+				{
+					// Do nothing
+				}
+				else
+				{
+					$labeltoshow=dol_trunc($obj->ref,18);
+					//if ($obj->public) $labeltoshow.=' ('.$langs->trans("SharedProject").')';
+					//else $labeltoshow.=' ('.$langs->trans("Private").')';
+					if (!empty($selected) && $selected == $obj->rowid && $obj->fk_statut > 0)
+					{
+						$out.= '<option value="'.$obj->rowid.'" selected="selected">'.$labeltoshow.' - '.dol_trunc($obj->title,$maxlength).'</option>';
+					}
+					else
+					{
+						$disabled=0;
+						$labeltoshow.=' '.dol_trunc($obj->title,$maxlength);
+						if (! $obj->fk_statut > 0)
+						{
+							$disabled=1;
+							$labeltoshow.=' - '.$langs->trans("Draft");
+						}
+						if ($socid > 0 && (! empty($obj->fk_soc) && $obj->fk_soc != $socid))
+						{
+							$disabled=1;
+							$labeltoshow.=' - '.$langs->trans("LinkedToAnotherCompany");
+						}
 
+						if ($hideunselectables && $disabled)
+						{
+							$resultat='';
+						}
+						else
+						{
+							$resultat='<option value="'.$obj->rowid.'"';
+							if ($disabled) $resultat.=' disabled="disabled"';
+							//if ($obj->public) $labeltoshow.=' ('.$langs->trans("Public").')';
+							//else $labeltoshow.=' ('.$langs->trans("Private").')';
+							$resultat.='>';
+							$resultat.=$labeltoshow;
+							$resultat.='</option>';
+						}
+						$out.= $resultat;
+					}
+				}
+				$i++;
+			}
+		}
+		if (empty($option_only)) {
+			$out.= '</select>';
+		}
+
+		$db->free($resql);
+		return $out;
+	}
+	else
+	{
+		dol_print_error($db);
+		return '';
+	}
+}
 
 
 

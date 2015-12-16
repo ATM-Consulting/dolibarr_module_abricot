@@ -79,6 +79,10 @@
 			require_once(CORECLASS.'class.template.tbs.php');
 			require_once(CORECLASS.'class.list.tbs.php');
 			
+			/* wkhtmltopdf */
+			require_once(CORECLASS.'Wkhtmltopdf.php');
+			
+			
 			if(defined('USE_EXTEND_CLASS')) {
 		 		require_once(CORECLASS.'class.photo.php');
 			}

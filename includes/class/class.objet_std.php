@@ -746,7 +746,6 @@ function _no_save_vars($lst_chp) {
 				}
 				else {
 					// le @ protège des tableaux passés
-					
 					$this->{$key} = @stripslashes($value);
 				}
 			}
