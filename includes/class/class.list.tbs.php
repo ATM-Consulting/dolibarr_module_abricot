@@ -150,8 +150,19 @@ class TListviewTBS {
 					else {
 						
 						if(isset($this->TBind[$sBindKey])) {
-							$this->TBind[$sBindKey] = '%'.$value.'%';
 							
+							if(isset($TParam['operator'][$key])) {
+								if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=') {
+									$this->TBind[$sBindKey] = $value;
+								}
+								else{
+									$this->TBind[$sBindKey] = '%'.$value.'%';	
+								}
+								
+							}
+							else {
+								$this->TBind[$sBindKey] = '%'.$value.'%';	
+							}
 						} 
 						else  {
 							$value = $this->getSearchValue($value);
@@ -185,7 +196,14 @@ class TListviewTBS {
 		
 		$TTotal=$this->get_total($TChamps, $TParam);
 		
-		return $this->renderList($TEntete, $TChamps,$TTotal, $TParam);
+		
+		if($TParam['type'] == 'chart') {
+			return $this->renderChart($TEntete, $TChamps,$TTotal, $TParam);	
+		}
+		else {
+			return $this->renderList($TEntete, $TChamps,$TTotal, $TParam);	
+		}
+		
 		
 	}
 	public function renderDataTableAjax(&$db,$sql,$TParam=array()) {
@@ -258,7 +276,7 @@ class TListviewTBS {
 				$fsearch=$form->texte('','TListTBS['.$this->id.'][search]['.$key.']',$value,15,255);	
 			}
 
-			if(!empty($TEntete[$key])) {
+			if(!empty($TEntete[$key]) || $TParam['type'] == 'chart') {
 				$TSearch[$key] = $fsearch;
 				$nb_search_in_bar++;
 			}
@@ -424,6 +442,124 @@ class TListviewTBS {
 		
 		
 		return $Tab;
+	}
+
+	private function renderChart(&$TEntete, &$TChamps,&$TTotal, &$TParam) {
+		
+		$TData = array();
+		$header = '';
+		$first = true;
+		
+		$TSearch = $this->setSearch($TEntete, $TParam);
+		$TExport= $this->setExport($TParam, $TChamps, $TEntete);
+		
+		if(empty($TParam['xaxis']) && !empty($TEntete)) {
+			$fieldXaxis = key($TEntete);
+		}
+		else {
+			$fieldXaxis = $TParam['xaxis'];
+		}
+		
+		$TValue=array(); $key = null;
+		foreach($TEntete as $field=>&$entete) {
+			if($field!=$fieldXaxis)$TValue[] = addslashes($entete['libelle']);
+		}
+
+		$header='["'.addslashes( $TEntete[$fieldXaxis]['libelle'] ).'","'.implode('","', $TValue).'"]';
+		//var_dump($fieldXaxis, $TChamps);
+		foreach($TChamps as &$row) {
+			$TValue=array();
+			$key = null;
+			
+			foreach($row as $k=>$v) {
+				
+				if($k == $fieldXaxis) {
+					$key = $v;
+				}
+				else {
+					$TValue[] = (float)$v;
+				}
+				
+			}
+
+			if(!is_null($key)) {
+				if(!isset($TData[$key])) $TData[$key] = $TValue;
+				else {
+					foreach($TData[$key] as $k=>$v) {
+						$TData[$key][$k]+=(float)$TValue[$k];
+					}
+					
+				}
+			}
+			
+			
+		}
+		
+		$data = $header;
+		foreach($TData as $key=>$TValue) {
+			
+			$data .= ',[ "'.$key.'", ';
+			foreach($TValue as $v) {
+				$data.=(float)$v.',';
+			}
+			
+			$data.=' ]';
+		}
+		
+		$height = empty($TParam['height']) ? 500 : $TParam['height'];
+		$curveType= empty($TParam['curveType']) ? 'none': $TParam['curveType']; // none or function
+		$pieHole =  empty($TParam['pieHole']) ? 0: $TParam['pieHole']; // none or function
+		
+		$type = empty($TParam['chartType']) ? 'LineChart' : $TParam['chartType'];
+		
+		$html = '';
+		
+		if(!empty($TSearch)) {
+			
+			$html.='<table class="border">';
+			foreach($TSearch as $field=>$input) {
+				if(!empty($input)) {
+					$label = !empty($TParam['title'][$field]) ? $TParam['title'][$field] : $field;
+					$html.='<tr><td>'.$label.'</td><td>'.$input.'</td></tr>';	
+				}
+			}
+			
+			$html.='</table>';
+			
+		}
+		$javaScript = $this->getJS($TParam);
+		
+		$html.='<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+		<script type="text/javascript">
+		  
+		  	  google.load("visualization", "1", {"packages":["corechart"]});
+		      google.setOnLoadCallback(drawChart'.$this->id.');
+			
+			  function drawChart'.$this->id.'() {
+		        var data = google.visualization.arrayToDataTable([
+		          '.$data.'
+		        ]);
+	
+		        var options = {
+		          title: "'.addslashes($TParam['liste']['titre']).'"
+		          '.(!empty($curveType) ? ',curveType: "'.$curveType.'"' : '' ).'
+		          ,legend: { position: "bottom" }
+				  ,animation: { "startup": true }
+				  ,height : '.$height.'
+				  '.( $type == 'PieChart' && !empty($pieHole) ? ',pieHole: '.$pieHole : '').'
+				  '.( $type == 'AreaChart' ? ',isStacked: \'percent\'' : '').'
+		        };
+		
+		        var chart = new google.visualization.'.$type.'(document.getElementById("div_query_chart'.$this->id.'"));
+		
+		        chart.draw(data, options);
+		      }
+		  
+	    </script>
+		<div id="div_query_chart'.$this->id.'"></div>
+		'.$javaScript; 
+		
+		return $html;
 	}
 
 	private function renderList(&$TEntete, &$TChamps, &$TTotal, &$TParam) {
