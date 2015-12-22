@@ -250,7 +250,13 @@ class TListviewTBS {
 		$form=new TFormCore;
 		
 		$nb_search_in_bar = 0;
-				
+		
+		if(!empty($TParam['search'])) {
+			foreach($TEntete as $key=>$libelle) { // init
+				if(empty($TSearch[$key]))$TSearch[$key]='';
+			}
+		}		
+		
 		foreach($TParam['search'] as $key=>$param_search) {
 			
 		
@@ -295,12 +301,12 @@ class TListviewTBS {
 		}
 		
 		if($nb_search_in_bar>0) {
-			foreach($TEntete as $key=>$libelle) { // init
-				if(empty($TSearch[$key]))$TSearch[$key]='';
-			}
-			
-			
-			$TSearch[$key].= $search_button;
+			end($TSearch);
+			list($key,$v) = each($TSearch);
+			$TSearch[$key].=$search_button;
+		}
+		else{
+			$TSearch=array();
 		}
 		
 		return $TSearch;
