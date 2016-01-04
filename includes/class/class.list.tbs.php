@@ -626,7 +626,13 @@ class TListviewTBS {
 		
 		$this->parse_array($TEntete, $TChamps, $TParam,$TField);
 		$TTotal=$this->get_total($TChamps, $TParam);
-		return $this->renderList($TEntete, $TChamps,$TTotal, $TParam);
+		
+		if($TParam['type'] == 'chart') {
+			return $this->renderChart($TEntete, $TChamps,$TTotal, $TParam);	
+		}
+		else {
+			return $this->renderList($TEntete, $TChamps,$TTotal, $TParam);	
+		}
 	}
 
 	private function order_by($sql, &$TParam) {
