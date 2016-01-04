@@ -47,8 +47,8 @@ class TListviewTBS {
 			'messageNothing'=>"Il n'y a aucun élément à afficher."
 			,'picto_precedent'=>'&lt;'
 			,'picto_suivant'=>'&gt;'
-			,'order_down'=>'&#9660;'
-			,'order_up'=>'&#9650;'
+			,'order_down'=>img_down()
+			,'order_up'=>img_up()
 			,'noheader'=>0
 			,'image'=>''
 			,'titre'=>'Liste'
