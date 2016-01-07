@@ -100,22 +100,23 @@ class TReponseMail{
 		
 		if(count($this->TPiece)>0) {
 			$headers .= "Content-type: multipart/mixed; boundary=\"".$this->boundary."\"\n\n";
-			$headers .= "--".$this->boundary."\n";
-			$headers .= "Content-Type: ".(($html)?"text/html":"text/plain")."; charset=".$encoding."\r\n\n";
-			$headers .= $this->corps."\n\n";
+			$body = "--".$this->boundary."\n";
+			$body .= "Content-Type: ".(($html)?"text/html":"text/plain")."; charset=".$encoding."\r\n\n";
+			$body .= $this->corps."\n\n";
 			foreach($this->TPiece as $piece){
-				$headers .= $piece['data']."\n\n";
+				$body .= $piece['data']."\n\n";
 			}
-			$headers .= "--" . $this->boundary . "--"; 
+			$body .= "--" . $this->boundary . "--"; 
 		}
 		else {
 			if ($html) $headers.= "Content-type: text/html; charset=\"".$encoding."\" \n";
 			else $headers.= "Content-Type: text/plain; charset=\"".$encoding."\" \n";
 			$headers.= "Content-Transfer-Encoding: 8bit \n";
+			$body = $this->corps;
 			//die('count');
 		}
 		
-		return mail($this->emailto,$this->titre,$this->corps,$headers, "-f".$this->emailerror);
+		return mail($this->emailto,$this->titre,$body,$headers, "-f".$this->emailerror);
 	}
 	
 	
