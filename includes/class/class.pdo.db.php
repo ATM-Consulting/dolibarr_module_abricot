@@ -68,7 +68,7 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 		}
 		
 		$this->connexionString = 'mysql:dbname='.DB_NAME.';host='.DB_HOST; 
-		if(!empty($charset))$this->connexionString.=';charset=utf8';
+		if(!empty($charset))$this->connexionString.=';charset='.$charset;
 		
 		if(defined('DB_SOCKET') && constant('DB_SOCKET')!='') $this->connexionString .= ';unix_socket='.DB_SOCKET;
 		
