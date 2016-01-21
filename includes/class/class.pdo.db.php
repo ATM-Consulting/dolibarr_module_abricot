@@ -37,15 +37,19 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 
 	global $conf;
 	
-	$charset = $conf->db->character_set;
-
-/*
-	$charset = ini_get('default_charset');
-	
-	if(empty($DB_OPTIONS[1002]) && ($charset  === 'iso-8859-1' || empty($charset))){
-		$DB_OPTIONS[1002]= 'SET NAMES \'UTF8\'';
+	if(empty($conf->global->ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING)) {
+		$charset = $conf->db->character_set;	
+	}	
+	else {
+		$charset = ini_get('default_charset');
+		
+		if(empty($DB_OPTIONS[1002]) && ($charset  === 'iso-8859-1' || empty($charset))){
+			$DB_OPTIONS[1002]= 'SET NAMES \'UTF8\'';
+		}
+		
 	}
-	*/
+
+
 	if(empty($connexionString)) {
 		if (($db_type == '') && (defined('DB_DRIVER')))
 			$db_type = DB_DRIVER;
@@ -68,7 +72,7 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 		}
 		
 		$this->connexionString = 'mysql:dbname='.DB_NAME.';host='.DB_HOST; 
-		if(!empty($charset))$this->connexionString.=';charset='.$charset;
+		if(!empty($charset) && empty($conf->global->ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING) )$this->connexionString.=';charset='.$charset;
 		
 		if(defined('DB_SOCKET') && constant('DB_SOCKET')!='') $this->connexionString .= ';unix_socket='.DB_SOCKET;
 		
