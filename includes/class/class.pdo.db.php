@@ -35,13 +35,21 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 	$this -> error = '';
     $this -> stopOnInsertOrUpdateError = true;
 
-
-	$charset = ini_get('default_charset');
+	global $conf;
 	
-	if(empty($DB_OPTIONS[1002]) && ($charset  === 'iso-8859-1' || empty($charset))){
-		$DB_OPTIONS[1002]= 'SET NAMES \'UTF8\'';
+	if(empty($conf->global->ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING)) {
+		$charset = $conf->db->character_set;	
+	}	
+	else {
+		$charset = ini_get('default_charset');
+		
+		if(empty($DB_OPTIONS[1002]) && ($charset  === 'iso-8859-1' || empty($charset))){
+			$DB_OPTIONS[1002]= 'SET NAMES \'UTF8\'';
+		}
+		
 	}
-	
+
+
 	if(empty($connexionString)) {
 		if (($db_type == '') && (defined('DB_DRIVER')))
 			$db_type = DB_DRIVER;
@@ -63,7 +71,9 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 		    $this->Error('PDO DB ErrorConnexion : Paramètres de connexion impossible à utiliser (db:'.DB_NAME.'/user:'.DB_USER.')' );
 		}
 		
-		$this->connexionString = 'mysql:dbname='.DB_NAME.';host='.DB_HOST;
+		$this->connexionString = 'mysql:dbname='.DB_NAME.';host='.DB_HOST; 
+		if(!empty($charset) && empty($conf->global->ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING) )$this->connexionString.=';charset='.$charset;
+		
 		if(defined('DB_SOCKET') && constant('DB_SOCKET')!='') $this->connexionString .= ';unix_socket='.DB_SOCKET;
 		
 		try {
