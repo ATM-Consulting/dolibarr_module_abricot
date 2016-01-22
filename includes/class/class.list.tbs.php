@@ -515,6 +515,8 @@ class TListviewTBS {
 		$height = empty($TParam['height']) ? 500 : $TParam['height'];
 		$curveType= empty($TParam['curveType']) ? 'none': $TParam['curveType']; // none or function
 		$pieHole =  empty($TParam['pieHole']) ? 0: $TParam['pieHole']; // none or function
+		$hAxis = empty($TParam['hAxis']) ? array() : $TParam['hAxis']; // Array of params
+		$vAxis = empty($TParam['vAxis']) ? array() : $TParam['vAxis']; // Array of params
 		
 		$type = empty($TParam['chartType']) ? 'LineChart' : $TParam['chartType'];
 		
@@ -552,6 +554,8 @@ class TListviewTBS {
 		          ,legend: { position: "bottom" }
 				  ,animation: { "startup": true }
 				  ,height : '.$height.'
+				  ,hAxis: '.json_encode($hAxis).'
+				  ,vAxis: '.json_encode($vAxis).'
 				  '.( $type == 'PieChart' && !empty($pieHole) ? ',pieHole: '.$pieHole : '').'
 				  '.( $type == 'AreaChart' ? ',isStacked: \'percent\'' : '').'
 		        };
