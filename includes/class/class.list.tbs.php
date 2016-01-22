@@ -118,7 +118,7 @@ class TListviewTBS {
 									$this->TBind[$sBindKey.'_start'] = $valueDeb;
 								} 
 								else  {
-									$sql.=" AND ".$sKey." >= '".$valueDeb."'" ;
+									$sql.=" AND ".$sKey." >= '".$valueDeb." 00:00:00'" ;
 								}
 							}
 							if(!empty($value['fin'])) {
@@ -129,7 +129,7 @@ class TListviewTBS {
 									$this->TBind[$sBindKey.'_end'] = $valueFin;
 								} 
 								else  {
-									$sql.=" AND ".$sKey." <= '".$valueFin."'" ;	
+									$sql.=" AND ".$sKey." <= '".$valueFin." 23:59:59'" ;	
 								}
 							}
 							
