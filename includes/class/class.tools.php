@@ -446,19 +446,27 @@ class Tools{
 	}
 	
 	static function string2num($s) {
-		$r = ''; 
-		$l=strlen($s);
 		
-		for($i = 0;$i<$l;$i++) {
-			$c = $s[$i];	
-			if($c == ',') $c = '.';
-			if(ctype_digit($c) || $c == '.') {
-				$r.=$c;
+		if(is_string($s)) {
+			$r = ''; 
+			$l=strlen($s);
+			
+			for($i = 0;$i<$l;$i++) {
+				$c = $s[$i];	
+				if($c == ',') $c = '.';
+				if(ctype_digit($c) || $c == '.') {
+					$r.=$c;
+				}
+				
 			}
 			
+			return (float)$r;
+		}
+		else {
+			return $s;
 		}
 		
-		return (float)$r;
+		
 	}
 	
 	static function get_time($date) {
