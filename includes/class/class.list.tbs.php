@@ -518,6 +518,9 @@ class TListviewTBS {
 		$hAxis = empty($TParam['hAxis']) ? array() : $TParam['hAxis']; // Array of params
 		$vAxis = empty($TParam['vAxis']) ? array() : $TParam['vAxis']; // Array of params
 		
+		// This feature is experimental and may change in future releases
+		$explorer = empty($TParam['explorer']) ? array() : $TParam['explorer']; // Note: The explorer only works with continuous axes (such as numbers or dates)
+		
 		$type = empty($TParam['chartType']) ? 'LineChart' : $TParam['chartType'];
 		
 		$html = '';
@@ -553,13 +556,14 @@ class TListviewTBS {
 		          '.(!empty($curveType) ? ',curveType: "'.$curveType.'"' : '' ).'
 		          ,legend: { position: "bottom" }
 				  ,animation: { "startup": true }
+				  '.(!empty($explorer) ? ',explorer: '.json_encode($explorer) : '').'
 				  ,height : '.$height.'
 				  ,hAxis: '.json_encode($hAxis).'
 				  ,vAxis: '.json_encode($vAxis).'
 				  '.( $type == 'PieChart' && !empty($pieHole) ? ',pieHole: '.$pieHole : '').'
 				  '.( $type == 'AreaChart' ? ',isStacked: \'percent\'' : '').'
 		        };
-		
+
 		        var chart = new google.visualization.'.$type.'(document.getElementById("div_query_chart'.$this->id.'"));
 		
 		        chart.draw(data, options);
