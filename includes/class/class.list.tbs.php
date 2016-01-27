@@ -759,7 +759,13 @@ class TListviewTBS {
 					}
 					
 					if(isset($TParam['type'][$field])) {
-						if($TParam['type'][$field]=='date') { $row[$field] = date('d/m/Y', strtotime($row[$field]));  }
+						if($TParam['type'][$field]=='date') {
+							if($row[$field] != '0000-00-00 00:00:00' && $row[$field] != '0000-00-00' && !empty($row[$field])) {
+								$row[$field] = date('d/m/Y', strtotime($row[$field]));
+							} else {
+								$row[$field] = '';
+							}
+						}
 						if($TParam['type'][$field]=='datetime') { $row[$field] = date('d/m/Y H:i:s', strtotime($row[$field])); }
 						if($TParam['type'][$field]=='hour') { $row[$field] = date('H:i', strtotime($row[$field])); }
 						if($TParam['type'][$field]=='money') { $row[$field] = '<div align="right">'.number_format((double)$row[$field],2,',',' ').'</div>'; }
