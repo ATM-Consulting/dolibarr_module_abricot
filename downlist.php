@@ -32,7 +32,7 @@
 		
 		foreach($TChamps as $row) {
 			foreach($row as $v) {
-				$r.='"'.addslashes($v).'";';
+				$r.='"'.addslashes(strip_tags( $v )).'";';
 			}
 			$r.=PHP_EOL;
 		}
@@ -59,7 +59,7 @@
 		
 		foreach($TChamps as $row) {
 			foreach($row as $v) {
-				$r.='"'.addslashes($v).'"'."\t";
+				$r.='"'.addslashes(strip_tags($v)).'"'."\t";
 			}
 			$r.=PHP_EOL;
 		}
