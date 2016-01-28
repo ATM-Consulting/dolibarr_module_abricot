@@ -25,6 +25,8 @@ class TReponseMail{
      * @access protected
      */
 	function TReponseMail($emailfrom="",$emailto="",$titre="",$corps=""){
+		global $conf;
+		
 		$this->emailfrom=$emailfrom;
 		$this->emailto=$emailto;
 		$this->titre=$titre;
@@ -34,7 +36,7 @@ class TReponseMail{
 		$this->TPiece=array();
 		$this->boundary = "_".md5 (uniqid (rand())); 
 		
-		$this->emailerror = defined('WEBMASTER_MAIL') ? WEBMASTER_MAIL : "webmaster@atm-consulting.fr";
+		$this->emailerror = !empty($conf->global->MAIN_MAIL_ERRORS_TO) ? $conf->global->MAIN_MAIL_ERRORS_TO : $conf->global->MAIN_MAIL_EMAIL_FROM;
 		
 		$this->use_dolibarr_for_smtp = true;		
 	}
