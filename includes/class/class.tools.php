@@ -454,7 +454,7 @@ class Tools{
 			for($i = 0;$i<$l;$i++) {
 				$c = $s[$i];	
 				if($c == ',') $c = '.';
-				if(ctype_digit($c) || $c == '.') {
+				if(ctype_digit($c) || $c == '.' || $c == '-') {
 					$r.=$c;
 				}
 				

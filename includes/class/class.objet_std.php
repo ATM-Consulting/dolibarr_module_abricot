@@ -595,15 +595,16 @@ function _no_save_vars($lst_chp) {
 		foreach ($this->TChamps as $field=>$info) {
 			
 			if(!empty($this->TConstraint[$field])) {
-				if(!TConstraint::check($this->{$field}, $this->TConstraint[$field], !empty($this->TConstraint['autoset']))) {
+				//var_dump($field,$this->{$field},$this->TConstraint[$field]);
+				if(!TConstraint::check($this->{$field}, $this->TConstraint[$field], !empty($this->TConstraint[$field]['autoset']))) {
 					$this->errors[] = 'Abricot : '.$field.'='.$this->{$field}.' do not respect its constraint';
 					$error++;
 				}
-				
+				//var_dump($this->{$field},'-------------------------------------');
 			}
 			
 		}
-		
+		//var_dump($this->errors);exit;
 		return ($error == 0);
 	}
 	
