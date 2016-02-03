@@ -62,6 +62,7 @@
 		 	require_once(CORECLASS.'class.objet_std.php');
 	 		require_once(CORECLASS.'class.objet_std_dolibarr.php');
 		 	require_once(CORECLASS.'class.trigger.php');
+		 	require_once(CORECLASS.'class.observer.php');
 		 	require_once(CORECLASS.'class.reponse.mail.php');
 		 	require_once(CORECLASS.'class.cache_file.php');
 		 	require_once(CORECLASS.'class.requete.core.php');

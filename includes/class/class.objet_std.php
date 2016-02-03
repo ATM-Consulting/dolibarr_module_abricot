@@ -34,9 +34,9 @@ class TObjetStd {
 		$this->TChamps=array(); /* tableau contenant la d?claration de variables */
 		$this->TNoSaveVars=array(); /* tableau des variables ? charger mais pas ? sauvegarder */
 		$this->TList=array(); /* tableau permettant la construction d'une liste */ 
+		$this->TConstraint=array();
 		
-		
-		
+		$this->errors=array();
 	}
 	/**
 	 * change la table
@@ -49,7 +49,7 @@ class TObjetStd {
 	  *
 	  * @return stdClass|null
 	  */
-	function add_champs($nom, $infos=array()){
+	function add_champs($nom, $infos=array(),$constraint=array()){
 		
 		if(is_string($infos))$infos = strtolower($infos); // deprecated
 		
@@ -59,6 +59,7 @@ class TObjetStd {
 	        for ($i=0; $i<$nb ; $i++) {
 	        	
 	        	$this->TChamps[trim($var[$i])] = $infos;
+				$this->TConstraint[trim($var[$i])] = $constraint;
 	        } // for
     	}
     
@@ -588,6 +589,23 @@ function _no_save_vars($lst_chp) {
 		}	
 	}
 	
+	private function checkConstraint() {
+		$error = 0;
+		
+		foreach ($this->TChamps as $field=>$info) {
+			
+			if(!empty($this->TConstraint[$field])) {
+				if(!TConstraint::check($this->{$field}, $this->TConstraint[$field], !empty($this->TConstraint['autoset']))) {
+					$this->errors[] = 'Abricot : '.$field.'='.$this->{$field}.' do not respect its constraint';
+					$error++;
+				}
+				
+			}
+			
+		}
+		
+		return ($error == 0);
+	}
 	
 	function save(&$db){
 		//$this->save_log($db);
@@ -595,11 +613,14 @@ function _no_save_vars($lst_chp) {
 			$this->delete($db);
 		}
 		else {
+			if(!$this->checkConstraint()) {
+				return false;
+			}
+				
 			$query = array();
 			$query[OBJETSTD_DATECREATE] = date("Y-m-d H:i:s",$this->{OBJETSTD_DATECREATE});
 			if(!isset($this->no_dt_maj))$query[OBJETSTD_DATEUPDATE] = date('Y-m-d H:i:s');
 			$this->_set_save_query($query);
-			
 			
 			$key[0]=OBJETSTD_MASTERKEY;
 			
