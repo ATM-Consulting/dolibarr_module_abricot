@@ -1400,7 +1400,7 @@ function combo_js($array){
 
 }
 
-function combo($pLib,$pName,$pListe,$pDefault,$pTaille=1,$onChange='',$plus='',$class='flat',$id='',$multiple='false'){
+function combo($pLib,$pName,$pListe,$pDefault,$pTaille=1,$onChange='',$plus='',$class='flat',$id='',$multiple='false', $showEmpty=0){
 // AA : 16/09/2004
 // Ajout du onChange
 
@@ -1437,6 +1437,13 @@ function combo($pLib,$pName,$pListe,$pDefault,$pTaille=1,$onChange='',$plus='',$
 	
 	$field.=">\n";
 	$field.="<!-- options -->";
+    if ($showEmpty)
+    {
+    	echo 'test';
+    	$textforempty=' ';
+    	if (! empty($conf->use_javascript_ajax)) $textforempty='&nbsp;';	// If we use ajaxcombo, we need &nbsp; here to avoid to have an empty element that is too small.
+        $field.='<option value="'.($show_empty < 0 ? $show_empty : -1).'"'.($pDefault==-2?' selected':'').'>'.$textforempty.'</option>'."\n";     // id is -2 because -1 is already "do not contact"
+    }
   	
   	$field.=$this->_combo_option($pListe, $pDefault);
 	
@@ -1463,6 +1470,36 @@ function combo($pLib,$pName,$pListe,$pDefault,$pTaille=1,$onChange='',$plus='',$
   else
     return $field;
 }
+
+function combo_sexy($pLib,$pName,$pListe,$pDefault,$pTaille=1,$onChange='',$plus='',$class='flat',$id='',$multiple='false', $showEmpty=0){
+// AA : 16/09/2004
+// Ajout du onChange
+	global $conf;
+
+	if(empty($pListe)) return '[Liste de valeur manquante]';
+
+	$lib="";
+	$field="";
+		
+    if($id=='')$id=$pName;
+	
+	$minLengthToAutocomplete=0;
+	$tmpplugin=empty($conf->global->MAIN_USE_JQUERY_MULTISELECT)?constant('REQUIRE_JQUERY_MULTISELECT')?constant('REQUIRE_JQUERY_MULTISELECT'):'select2':$conf->global->MAIN_USE_JQUERY_MULTISELECT;
+	$field.='<!-- JS CODE TO ENABLE '.$tmpplugin.' for id '.$id.' -->
+			<script type="text/javascript">
+				$(document).ready(function () {
+					$(\''.(preg_match('/^\./',$id)?$id:'#'.$id).'\').'.$tmpplugin.'({
+				    dir: \'ltr\',
+					width: \'resolve\',		/* off or resolve */
+					minimumInputLength: '.$minLengthToAutocomplete.'
+				});
+			});
+		   </script>';
+	$field .= $this->combo($pLib,$pName,$pListe,$pDefault,$pTaille,$onChange,$plus,$class,$id,$multiple,$showEmpty);
+	
+    return $field;
+}
+
 private function _combo_option($Tab, $pDefault) {
  $field ='';		
 
