@@ -462,6 +462,9 @@ class Tools{
 			
 			return (float)$r;
 		}
+		else if(empty($s)) {
+			return 0;	
+		}
 		else {
 			return $s;
 		}
