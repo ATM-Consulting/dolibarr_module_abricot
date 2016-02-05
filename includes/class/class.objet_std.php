@@ -391,7 +391,7 @@ function _no_save_vars($lst_chp) {
       }
 	  
       else if($this->_is_float($info)){
-        $query[$nom_champ] = Tools::string2num($this->{$nom_champ});
+        $query[$nom_champ] = (double)Tools::string2num($this->{$nom_champ});
       }
 	  	  
 	  
@@ -404,6 +404,7 @@ function _no_save_vars($lst_chp) {
       
     	
     }
+
   }
   
   function start(){
@@ -761,7 +762,7 @@ function _no_save_vars($lst_chp) {
 					$this->{$key} = $value;
 				}
 				else if($this->_is_float($this->TChamps[$key])) {
-					$this->{$key} = Tools::string2num($value);						
+					$this->{$key} = (double)Tools::string2num($value);						
 				}
 				else if($this->_is_int($this->TChamps[$key])) {
 					$this->{$key} = (int)Tools::string2num($value);						
