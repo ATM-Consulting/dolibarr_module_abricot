@@ -1115,7 +1115,7 @@ private function required_textarea_js($name,$lib="",$required='TRUE',$array=arra
  * @param pTaille : Taille
  * 
  */
-function zonetexte($pLib,$pName,$pVal,$pTaille,$pHauteur=5,$plus='',$class='text',$pId=''){
+function zonetexte($pLib,$pName,$pVal,$pTaille,$pHauteur=5,$plus='',$class='text',$pId='', $nl2br=false){
   $lib="";
   $field="";
   
@@ -1133,6 +1133,7 @@ function zonetexte($pLib,$pName,$pVal,$pTaille,$pHauteur=5,$plus='',$class='text
   else{
   	$field = $pVal;
   }
+  if($nl2br && $this->type_aff=='view') $field = nl2br($field);
 //    $field = $pVal;
   if ($lib != ''){
     return $lib." ".$field;
@@ -2097,6 +2098,113 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus=""){
 	
 	function btreset($pLib,$pName){
 	    $field = "<INPUT class='button' TYPE='RESET' NAME='$pName' VALUE='$pLib'>\n";
+	    return $field;
+	}
+	
+	
+	/*
+	 * permet de récupérer un input avec un choix visuel d'une valeur entière
+	 * 
+	 * @param $pName 	Nom du champs (sans [] si tableau)
+	 * @param $pMin 	Valeur minimale (entier)
+	 * @param $pMax		Valeur maximale (entier)
+	 * @param $pDefault	Valeur par défaut (entier)
+	 * @param $pId		Entrer seulement si votre input doit être un tableau (name="TNote[$pId]")
+	 * @param $pStep	Valeur de l'incrèment entre min et max
+	 * @param $plusJs	Pour ajouter du JS
+	 * @param $plusCss	Pour ajouter du CSS
+	 *
+	 * @return Retourne l'input au complet
+	 */
+	function radio_js_bloc_number($pName,$pMin,$pMax,$pDefault,$pId=null,$pStep=1,$plusJs=null,$plusCss=null,$trad=array()){
+		// Exemple pour input en name tableau : name="TNote[1]" ...TNote[5]
+		// obligatoire si on à un tablea dynamique avec plusieurs de ce type
+		global $conf;
+	    $field ="<!-- field jquery -->\n";
+	    // Calcul affichage pour nombre élevé
+	    
+	    $nb_aff = ($pMax - $pMin)/$pStep;
+		$must_split = ($nb_aff>10)?true:false;
+		$nb_split = (($nb_aff/2)<10)?round($nb_aff/2):10;
+		
+		// Init var base
+	   	$i=$pMin;
+		$pName_unique=$pName;
+		if($pDefault<$pMin || $pDefault>$pMax) $pDefault=null;
+		if(isset($pId))
+		{
+			$pName_unique=$pName.'_'.$pId;
+			$pName=$pName.'['.$pId.']';
+		}
+		if($this->type_aff=='view')
+		{
+			// Affichage view
+			
+			$field .= '<span class="radio_js_bloc_number '.$pName_unique.'">'.$pDefault.'</span>';
+		} else {
+			// Affichage edit/create
+			
+		    while ($i<=$pMax){
+		        
+		        if ($i == $pDefault){
+		            $checked = "selected";
+		        }
+				else{
+		            $checked = "";
+				}
+				$field .= '<span title="'.$trad[$i].'" class="radio_js_bloc_number '.$pName_unique.' '.$checked.'">'.$i.'</span>';
+				
+				if($must_split && $i%$nb_split==0)$field.='<br/>';
+				$i++;
+		    }
+	        $field .= '<input type="hidden" id="'.$pName_unique.'" name="'.$pName.'" value="'.$pDefault.'" />';
+			$field .= '
+			<script type="text/javascript">
+				$(document).ready(function(){
+					$(".radio_js_bloc_number").tooltip();
+					var error;
+					$(".'.$pName_unique.'").on("click",function(){
+						val = $(this).html();
+						$(".'.$pName_unique.'").removeClass("selected");
+						$(this).addClass("selected");
+						$("#'.$pName_unique.'").val(val);
+					});
+					
+					$("#'.$pName_unique.'").closest("form").on("submit", function(){
+						$("#'.$pName_unique.'").each(function(){
+							if(this.value == "")
+							{
+								console.log("error"+this.value);
+								$(this).closest("td").animate({
+									backgroundColor:"#F78181"
+								}, 500, function(){
+									console.log("error"+this.value);
+								})
+								error=true;
+							}
+						});
+						if(error)
+						{
+							error=false;
+							$.jnotify("Vous devez saisir une note à chaque ligne !", "error");
+							return false;
+						}
+					});
+					'.$plusJs.'
+				});
+			</script>';
+			if(isset($plusCss)) $field .= '<style type="text/css">'.$plusCss.'</style>';
+		}
+		$field .= '
+		<script type="text/javascript">
+			$(document).ready(function(){
+				<!-- Insertion du css une seule fois -->
+				if (!$("link[href=\''.dol_buildpath('/abricot/includes/css/radio_js_number.css',1).'\']").length)
+				{
+	    			$(\'<link href="'.dol_buildpath('/abricot/includes/css/radio_js_number.css',1).'" rel="stylesheet">\').appendTo("head");
+	    		}
+			});
+		</script>';
 	    return $field;
 	}
 
