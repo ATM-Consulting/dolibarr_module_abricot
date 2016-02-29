@@ -656,6 +656,9 @@ function calendrier($pLib,$pName,$pVal,$pTaille=12,$pTailleMax=10,$plus='',$clas
   if(empty($pVal)) {
   	$dateValue='';
   }
+  else if((is_numeric($pVal) && $pVal<=0) || substr($pVal,0,10)=='0000-00-00') {
+  	$dateValue='';
+  }
   elseif(strpos($pVal,'-')!==false || strpos($pVal,'/')!==false ) {
   		$dateValue = $pVal;
   }
@@ -1498,9 +1501,8 @@ function combo_sexy($pLib,$pName,$pListe,$pDefault,$pTaille=1,$onChange='',$plus
 				});
 			});
 		   </script>';
-		   
-	$field .= $this->combo($pLib,$pName,$pListe,$pDefault,$pTaille,$onChange,$plus,$class,$id,$multiple,$showEmpty);
 	
+	$field .= $this->combo($pLib,$pName,$pListe,$pDefault,$pTaille,$onChange,$plus,$class,$id,$multiple,$showEmpty);
     return $field;
 }
 
@@ -2143,8 +2145,8 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus=""){
 			$field .= '<span class="radio_js_bloc_number '.$pName_unique.'">'.$pDefault.'</span>';
 		} else {
 			// Affichage edit/create
-			
-		    while ($i<=$pMax){
+			$j=0;
+			while ($i<=$pMax){
 		        
 		        if ($i == $pDefault){
 		            $checked = "selected";
@@ -2152,10 +2154,11 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus=""){
 				else{
 		            $checked = "";
 				}
-				$field .= '<span title="'.$trad[$i].'" class="radio_js_bloc_number '.$pName_unique.' '.$checked.'">'.$i.'</span>';
+				$field .= '<span title="'.$trad[$j].'" class="radio_js_bloc_number '.$pName_unique.' '.$checked.'">'.$i.'</span>';
 				
 				if($must_split && $i%$nb_split==0)$field.='<br/>';
 				$i++;
+				$j++;
 		    }
 	        $field .= '<input type="hidden" id="'.$pName_unique.'" name="'.$pName.'" value="'.$pDefault.'" />';
 			$field .= '
