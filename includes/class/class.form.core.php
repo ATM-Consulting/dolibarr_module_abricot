@@ -2115,10 +2115,12 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus=""){
 	 * @param $pStep	Valeur de l'incrèment entre min et max
 	 * @param $plusJs	Pour ajouter du JS
 	 * @param $plusCss	Pour ajouter du CSS
+	 * @param $trad		Pour ajouter une traduction à l'input (array de valeur dans l'ordre)
+	 * @param $controleSaisie	Pour forcer ou non la saisie du champs (défaut : true);
 	 *
 	 * @return Retourne l'input au complet
 	 */
-	function radio_js_bloc_number($pName,$pMin,$pMax,$pDefault,$pId=null,$pStep=1,$plusJs=null,$plusCss=null,$trad=array()){
+	function radio_js_bloc_number($pName,$pMin,$pMax,$pDefault,$pId=null,$pStep=1,$plusJs=null,$plusCss=null,$trad=array(),$controleSaisie=true){
 		// Exemple pour input en name tableau : name="TNote[1]" ...TNote[5]
 		// obligatoire si on à un tablea dynamique avec plusieurs de ce type
 		global $conf;
@@ -2165,15 +2167,24 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus=""){
 			<script type="text/javascript">
 				$(document).ready(function(){
 					$(".radio_js_bloc_number").tooltip();
-					var error;
+					var error,same;
 					$(".'.$pName_unique.'").on("click",function(){
+						same=false;
 						val = $(this).html();
+						if($(this).hasClass("selected"))same=true;
 						$(".'.$pName_unique.'").removeClass("selected");
-						$(this).addClass("selected");
-						$("#'.$pName_unique.'").val(val);
-					});
-					
-					$("#'.$pName_unique.'").closest("form").on("submit", function(){
+						if(same)
+						{
+							$("#'.$pName_unique.'").val("");
+						}else {
+							$(this).addClass("selected");
+							$("#'.$pName_unique.'").val(val);
+						}
+					});';
+			
+			if($controleSaisie)
+			{	
+				$field .= '$("#'.$pName_unique.'").closest("form").on("submit", function(){
 						$("#'.$pName_unique.'").each(function(){
 							if(this.value == "")
 							{
@@ -2192,7 +2203,9 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus=""){
 							$.jnotify("Vous devez saisir une note à chaque ligne !", "error");
 							return false;
 						}
-					});
+					});';
+			}
+			$field .= '
 					'.$plusJs.'
 				});
 			</script>';
