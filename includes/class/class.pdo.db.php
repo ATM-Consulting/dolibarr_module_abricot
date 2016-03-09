@@ -35,6 +35,8 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 	$this -> error = '';
     $this -> stopOnInsertOrUpdateError = true;
 
+	$this -> insertMode == 'INSERT';
+
 	global $conf;
 	
 	if(empty($conf->global->ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING)) {
@@ -285,7 +287,16 @@ function dbupdate($table,$value,$key){
         return $res;
 }
 function dbinsert($table,$value){
-        $fmtsql = 'INSERT INTO `'.$table.'` ( %s ) values( %s ) ';
+        	
+		if($this -> insertMode =='REPLACE') {
+			$fmtsql = 'REPLACE INTO `'.$table.'` ( %s ) values( %s ) ';
+		}
+		else{
+			$fmtsql = 'INSERT INTO `'.$table.'` ( %s ) values( %s ) ';	
+		}
+        
+		
+		
         foreach ($value as $k => $v) {
                 
                 $fields[] = $k;
