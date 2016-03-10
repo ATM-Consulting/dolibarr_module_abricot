@@ -244,6 +244,11 @@ function close() {
 	$this->db=null;
 }
 function dbupdate($table,$value,$key){
+	
+	   if($this -> insertMode =='REPLACE') {
+			return $this->dbinsert($table,$value);
+	   }
+	   
         $fmtsql = "UPDATE `$table` SET %s WHERE %s";
         foreach ($value as $k => $v) {
                 if(is_string($v)) $v=stripslashes($v);
