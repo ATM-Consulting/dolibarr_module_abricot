@@ -35,13 +35,23 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 	$this -> error = '';
     $this -> stopOnInsertOrUpdateError = true;
 
+	$this -> insertMode == 'INSERT';
 
-	$charset = ini_get('default_charset');
+	global $conf;
 	
-	if(empty($DB_OPTIONS[1002]) && ($charset  === 'iso-8859-1' || empty($charset))){
-		$DB_OPTIONS[1002]= 'SET NAMES \'UTF8\'';
+	if(empty($conf->global->ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING)) {
+		$charset = $conf->db->character_set;	
+	}	
+	else {
+		$charset = ini_get('default_charset');
+		
+		if(empty($DB_OPTIONS[1002]) && ($charset  === 'iso-8859-1' || empty($charset))){
+			$DB_OPTIONS[1002]= 'SET NAMES \'UTF8\'';
+		}
+		
 	}
-	
+
+
 	if(empty($connexionString)) {
 		if (($db_type == '') && (defined('DB_DRIVER')))
 			$db_type = DB_DRIVER;
@@ -63,7 +73,9 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 		    $this->Error('PDO DB ErrorConnexion : Paramètres de connexion impossible à utiliser (db:'.DB_NAME.'/user:'.DB_USER.')' );
 		}
 		
-		$this->connexionString = 'mysql:dbname='.DB_NAME.';host='.DB_HOST;
+		$this->connexionString = 'mysql:dbname='.DB_NAME.';host='.DB_HOST; 
+		if(!empty($charset) && empty($conf->global->ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING) )$this->connexionString.=';charset='.$charset;
+		
 		if(defined('DB_SOCKET') && constant('DB_SOCKET')!='') $this->connexionString .= ';unix_socket='.DB_SOCKET;
 		
 		try {
@@ -232,6 +244,11 @@ function close() {
 	$this->db=null;
 }
 function dbupdate($table,$value,$key){
+	
+	   if($this -> insertMode =='REPLACE') {
+			return $this->dbinsert($table,$value);
+	   }
+	   
         $fmtsql = "UPDATE `$table` SET %s WHERE %s";
         foreach ($value as $k => $v) {
                 if(is_string($v)) $v=stripslashes($v);
@@ -275,7 +292,16 @@ function dbupdate($table,$value,$key){
         return $res;
 }
 function dbinsert($table,$value){
-        $fmtsql = 'INSERT INTO `'.$table.'` ( %s ) values( %s ) ';
+        	
+		if($this -> insertMode =='REPLACE') {
+			$fmtsql = 'REPLACE INTO `'.$table.'` ( %s ) values( %s ) ';
+		}
+		else{
+			$fmtsql = 'INSERT INTO `'.$table.'` ( %s ) values( %s ) ';	
+		}
+        
+		
+		
         foreach ($value as $k => $v) {
                 
                 $fields[] = $k;
@@ -348,6 +374,7 @@ function ExecuteAsArray($sql, $TBind=array() ,$mode = PDO::FETCH_OBJ) {
 function Get_All($mode = PDO::FETCH_OBJ, $functionOrClassOrColumn=null) {
 			
 	if(!is_null($functionOrClassOrColumn))return $this->rs->fetchAll($mode,$functionOrClassOrColumn);
+	else if ($this->rs === false) return array();
 	else return $this->rs->fetchAll($mode);	
 	
 	

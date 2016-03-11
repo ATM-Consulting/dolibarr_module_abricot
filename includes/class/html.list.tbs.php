@@ -26,7 +26,7 @@
 			<td colspan="[liste.nb_columns]">[liste.head_search;strconv=no;magnet=tr]</td>
 		</tr>
 		<tr class="liste_titre">
-			<th class="liste_titre">[entete.libelle;block=th;strconv=no] 
+			<th style="width:[entete.width;];text-align:[entete.text-align]" class="liste_titre">[entete.libelle;block=th;strconv=no] 
 				<span>[onshow;block=span; when [entete.order]==1]<a href="javascript:TListTBS_OrderDown('[liste.id]','[entete.$;strconv=js]')">[liste.order_down;strconv=no]</a><a href="javascript:TListTBS_OrderUp('[liste.id]', '[entete.$;strconv=js]')">[liste.order_up;strconv=no]</a></span>
 			</th>
 		</tr>
@@ -39,11 +39,11 @@
 	<tbody>
 		<tr class="impair">
 			<!-- [champs.$;block=tr;sub1] -->
-			<td>[champs_sub1.val;block=td; strconv=no]</td>
+			<td field="[champs_sub1.$]">[champs_sub1.val;block=td; strconv=no]</td>
 		</tr>
 		<tr class="pair">
 			<!-- [champs.$;block=tr;sub1] -->
-			<td>[champs_sub1.val;block=td; strconv=no]</td>
+			<td field="[champs_sub1.$]">[champs_sub1.val;block=td; strconv=no]</td>
 		</tr>
 	</tbody>
 	<tfoot>
@@ -54,6 +54,10 @@
 	</tfoot>
 	
 </table>
+<div class="tabsAction">
+	[onshow;block=div; when [liste.haveExport]+-0 ]
+	<a href="javascript:TListTBS_downloadAs('[export.mode]','[export.url]','[export.token]','[export.session_name]');" class="butAction">[export.label;block=a;]</a>
+</div>
 <p align="center">
 	[liste.messageNothing;strconv=no] [onshow; block=p;  when [liste.totalNB]==0]
 </p>

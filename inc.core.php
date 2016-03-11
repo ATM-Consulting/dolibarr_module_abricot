@@ -60,10 +60,9 @@
 			   	require_once(CORECLASS.'class.pdo.db.php');
 		 	}
 		 	require_once(CORECLASS.'class.objet_std.php');
-		 	if(DOL_PACKAGE) {
-		 		require_once(CORECLASS.'class.objet_std_dolibarr.php');
-			}
+	 		require_once(CORECLASS.'class.objet_std_dolibarr.php');
 		 	require_once(CORECLASS.'class.trigger.php');
+		 	require_once(CORECLASS.'class.observer.php');
 		 	require_once(CORECLASS.'class.reponse.mail.php');
 		 	require_once(CORECLASS.'class.cache_file.php');
 		 	require_once(CORECLASS.'class.requete.core.php');
@@ -80,6 +79,10 @@
 			require_once(CORECLASS.'plugins/tbs_plugin_navbar.php');
 			require_once(CORECLASS.'class.template.tbs.php');
 			require_once(CORECLASS.'class.list.tbs.php');
+			
+			/* wkhtmltopdf */
+			require_once(CORECLASS.'Wkhtmltopdf.php');
+			
 			
 			if(defined('USE_EXTEND_CLASS')) {
 		 		require_once(CORECLASS.'class.photo.php');
@@ -103,7 +106,7 @@
 		 	}
 		 
 			define('ATM_CORE_INCLUDED', true);
-			define('ABRICOT_VERSION',1.4);
+			define('ABRICOT_VERSION',1.5);
 		}
 	
  

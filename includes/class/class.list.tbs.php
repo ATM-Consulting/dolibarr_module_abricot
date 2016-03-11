@@ -30,6 +30,8 @@ class TListviewTBS {
 		$this->TTotalTmp=array();
 		
 		$this->TBind=array();
+		
+		$this->sql = '';
 	}
 	private function init(&$TParam) {
 		
@@ -45,8 +47,8 @@ class TListviewTBS {
 			'messageNothing'=>"Il n'y a aucun élément à afficher."
 			,'picto_precedent'=>'&lt;'
 			,'picto_suivant'=>'&gt;'
-			,'order_down'=>'&#9660;'
-			,'order_up'=>'&#9650;'
+			,'order_down'=>img_down()
+			,'order_up'=>img_up()
 			,'noheader'=>0
 			,'image'=>''
 			,'titre'=>'Liste'
@@ -55,6 +57,7 @@ class TListviewTBS {
 			,'id'=>$this->id
 			,'picto_search'=>img_picto('Search', 'search.png')
 			,'head_search'=>''
+			,'export'=>array()
 		),$TParam['liste']);
 		
 		if(!isset($TParam['limit']))$TParam['limit']=array();
@@ -115,7 +118,7 @@ class TListviewTBS {
 									$this->TBind[$sBindKey.'_start'] = $valueDeb;
 								} 
 								else  {
-									$sql.=" AND ".$sKey." >= '".$valueDeb."'" ;
+									$sql.=" AND ".$sKey." >= '".$valueDeb." 00:00:00'" ;
 								}
 							}
 							if(!empty($value['fin'])) {
@@ -126,7 +129,7 @@ class TListviewTBS {
 									$this->TBind[$sBindKey.'_end'] = $valueFin;
 								} 
 								else  {
-									$sql.=" AND ".$sKey." <= '".$valueFin."'" ;	
+									$sql.=" AND ".$sKey." <= '".$valueFin." 23:59:59'" ;	
 								}
 							}
 							
@@ -147,8 +150,19 @@ class TListviewTBS {
 					else {
 						
 						if(isset($this->TBind[$sBindKey])) {
-							$this->TBind[$sBindKey] = '%'.$value.'%';
 							
+							if(isset($TParam['operator'][$key])) {
+								if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=') {
+									$this->TBind[$sBindKey] = $value;
+								}
+								else{
+									$this->TBind[$sBindKey] = '%'.$value.'%';	
+								}
+								
+							}
+							else {
+								$this->TBind[$sBindKey] = '%'.$value.'%';	
+							}
 						} 
 						else  {
 							$value = $this->getSearchValue($value);
@@ -182,7 +196,14 @@ class TListviewTBS {
 		
 		$TTotal=$this->get_total($TChamps, $TParam);
 		
-		return $this->renderList($TEntete, $TChamps,$TTotal, $TParam);
+		
+		if($TParam['type'] == 'chart') {
+			return $this->renderChart($TEntete, $TChamps,$TTotal, $TParam);	
+		}
+		else {
+			return $this->renderList($TEntete, $TChamps,$TTotal, $TParam);	
+		}
+		
 		
 	}
 	public function renderDataTableAjax(&$db,$sql,$TParam=array()) {
@@ -221,48 +242,71 @@ class TListviewTBS {
 		
 	}
 	private function setSearch(&$TEntete, &$TParam) {
+		global $langs;
+		
 		if(empty($TParam['search'])) return array();
 		
 		$TSearch=array();
 		$form=new TFormCore;
-		foreach($TEntete as $key=>$libelle) {
-			if(isset($TParam['search'][$key])) {
-				$value = isset($_REQUEST['TListTBS'][$this->id]['search'][$key]) ? $_REQUEST['TListTBS'][$this->id]['search'][$key] : '';
-				
-				$typeRecherche = (is_array($TParam['search'][$key]) && isset($TParam['search'][$key]['recherche'])) ? $TParam['search'][$key]['recherche'] : $TParam['search'][$key];  
-				
-				if(is_array($typeRecherche)) {
-					$TSearch[$key]=$form->combo('','TListTBS['.$this->id.'][search]['.$key.']',array_merge(array(''=>' '), $typeRecherche),$value);
-				}
-				else if($typeRecherche==='calendar') {
-					$TSearch[$key]=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.']',$value,10,10);	
-				}
-				else if($typeRecherche==='calendars') {
-					$TSearch[$key]=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.'][deb]',isset($value['deb'])?$value['deb']:'',10,10)
-						.' '.$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.'][fin]',isset($value['fin'])?$value['fin']:'',10,10);	
-				}
-				else if(is_string($typeRecherche)) {
-					$TSearch[$key]=$TParam['search'][$key];	
-				}
-				else {
-					$TSearch[$key]=$form->texte('','TListTBS['.$this->id.'][search]['.$key.']',$value,15,255);	
-				}
-					
+		
+		$nb_search_in_bar = 0;
+		
+		if(!empty($TParam['search'])) {
+			foreach($TEntete as $key=>$libelle) { // init
+				if(empty($TSearch[$key]))$TSearch[$key]='';
+			}
+		}		
+		
+		foreach($TParam['search'] as $key=>$param_search) {
+			
+		
+			$value = isset($_REQUEST['TListTBS'][$this->id]['search'][$key]) ? $_REQUEST['TListTBS'][$this->id]['search'][$key] : '';
+			
+			$typeRecherche = (is_array($param_search) && isset($param_search['recherche'])) ? $param_search['recherche'] : $param_search;  
+			
+			if(is_array($typeRecherche)) {
+				$typeRecherche = array(''=>' ') + $typeRecherche;
+				$fsearch=$form->combo('','TListTBS['.$this->id.'][search]['.$key.']', $typeRecherche,$value);
+			}
+			else if($typeRecherche==='calendar') {
+				$fsearch=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.']',$value,10,10);	
+			}
+			else if($typeRecherche==='calendars') {
+				$fsearch=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.'][deb]',isset($value['deb'])?$value['deb']:'',10,10)
+					.' '.$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.'][fin]',isset($value['fin'])?$value['fin']:'',10,10);	
+			}
+			else if(is_string($typeRecherche)) {
+				$fsearch=$TParam['search'][$key];	
 			}
 			else {
-				$TSearch[$key]='';
+				$fsearch=$form->texte('','TListTBS['.$this->id.'][search]['.$key.']',$value,15,255);	
 			}
-			
-		}
 
+			if(!empty($TEntete[$key]) || $TParam['type'] == 'chart') {
+				$TSearch[$key] = $fsearch;
+				$nb_search_in_bar++;
+			}
+			else {
+				
+				$libelle = !empty($TParam['title'][$key]) ? $TParam['title'][$key] : $key ;
+				$TParam['liste']['head_search'].='<div>'.$libelle.' '.$fsearch.'</div>';	
+			}
+				
+		}
+		
 		$search_button = ' <a href="#" onclick="TListTBS_submitSearch(this);" class="list-search-link">'.$TParam['liste']['picto_search'].'</a>';
 
 		if(!empty($TParam['liste']['head_search'])) {
-			$TParam['liste']['head_search'].=$search_button;
+			$TParam['liste']['head_search'].='<div align="right">'.$langs->trans('Search').' '.$search_button.'</div>';
 		}
 		
-		if(!empty($TParam['search']) && !empty($TSearch)) {
-			$TSearch[$key].= $search_button;
+		if($nb_search_in_bar>0) {
+			end($TSearch);
+			list($key,$v) = each($TSearch);
+			$TSearch[$key].=$search_button;
+		}
+		else{
+			$TSearch=array();
 		}
 		
 		return $TSearch;
@@ -280,11 +324,14 @@ class TListviewTBS {
 			foreach($TChamps[0] as $field=>$value) {
 				$TTotal[$field]='';	
 			}
-			
+		
 			foreach($TParam['math'] as $field=>$typeMath){
 
 				if($typeMath=='average') {
 					$TTotal[$field]=array_sum($this->TTotalTmp[$field]) / count($this->TTotalTmp[$field]);
+				}
+				elseif($typeMath=='count') {
+					$TTotal[$field]=count($this->TTotalTmp[$field]);
 				}
 				else {
 					$TTotal[$field]=array_sum($this->TTotalTmp[$field]);	
@@ -370,6 +417,165 @@ class TListviewTBS {
 		
 		return $javaScript;
 	}
+
+	private function setExport(&$TParam,$TChamps,$TEntete) {
+		global $langs;
+		
+		$Tab=array();
+		if(!empty($TParam['export'])) {
+			$token = md5($this->id.time().rand(1,9999));
+			$_SESSION['token_list_'.$token] = gzdeflate( serialize( array(
+				'title'=>$this->title
+				,'sql'=>$this->sql
+				,'TBind'=>$this->TBind
+				,'TChamps'=>$TChamps
+				,'TEntete'=>$TEntete
+			) ) );
+				
+			foreach($TParam['export'] as $mode_export) {
+				
+				$Tab[] = array(
+						'label'=>$langs->trans('Export'.$mode_export)
+						,'url'=>dol_buildpath('/abricot/downlist.php',1)
+						,'mode'=>$mode_export
+						,'token'=>$token
+						,'session_name'=>session_name()
+				);
+				
+			}
+			
+		}
+		
+		
+		return $Tab;
+	}
+
+	private function renderChart(&$TEntete, &$TChamps,&$TTotal, &$TParam) {
+		
+		$TData = array();
+		$header = '';
+		$first = true;
+		
+		$TSearch = $this->setSearch($TEntete, $TParam);
+		$TExport= $this->setExport($TParam, $TChamps, $TEntete);
+		
+		if(empty($TParam['xaxis']) && !empty($TEntete)) {
+			$fieldXaxis = key($TEntete);
+		}
+		else {
+			$fieldXaxis = $TParam['xaxis'];
+		}
+		
+		$TValue=array(); $key = null;
+		foreach($TEntete as $field=>&$entete) {
+			if($field!=$fieldXaxis)$TValue[] = addslashes($entete['libelle']);
+		}
+
+		$header='["'.addslashes( $TEntete[$fieldXaxis]['libelle'] ).'","'.implode('","', $TValue).'"]';
+		//var_dump($fieldXaxis, $TChamps);
+		foreach($TChamps as &$row) {
+			$TValue=array();
+			$key = null;
+			
+			foreach($row as $k=>$v) {
+				
+				if($k == $fieldXaxis) {
+					$key = $v;
+				}
+				else {
+					$TValue[] = (float)$v;
+				}
+				
+			}
+
+			if(!is_null($key)) {
+				if(!isset($TData[$key])) $TData[$key] = $TValue;
+				else {
+					foreach($TData[$key] as $k=>$v) {
+						$TData[$key][$k]+=(float)$TValue[$k];
+					}
+					
+				}
+			}
+			
+			
+		}
+		
+		$data = $header;
+		foreach($TData as $key=>$TValue) {
+			
+			$data .= ',[ "'.$key.'", ';
+			foreach($TValue as $v) {
+				$data.=(float)$v.',';
+			}
+			
+			$data.=' ]';
+		}
+		
+		$height = empty($TParam['height']) ? 500 : $TParam['height'];
+		$curveType= empty($TParam['curveType']) ? 'none': $TParam['curveType']; // none or function
+		$pieHole =  empty($TParam['pieHole']) ? 0: $TParam['pieHole']; // none or function
+		$hAxis = empty($TParam['hAxis']) ? array() : $TParam['hAxis']; // Array of params
+		$vAxis = empty($TParam['vAxis']) ? array() : $TParam['vAxis']; // Array of params
+		
+		// This feature is experimental and may change in future releases
+		$explorer = empty($TParam['explorer']) ? array() : $TParam['explorer']; // Note: The explorer only works with continuous axes (such as numbers or dates)
+		
+		$type = empty($TParam['chartType']) ? 'LineChart' : $TParam['chartType'];
+		
+		$html = '';
+		
+		if(!empty($TSearch)) {
+			
+			$html.='<table class="border searchbox">';
+			foreach($TSearch as $field=>$input) {
+				if(!empty($input)) {
+					$label = !empty($TParam['title'][$field]) ? $TParam['title'][$field] : $field;
+					$html.='<tr><td>'.$label.'</td><td>'.$input.'</td></tr>';	
+				}
+			}
+			
+			$html.='</table>';
+			
+		}
+		$javaScript = $this->getJS($TParam);
+		
+		$html.='<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+		<script type="text/javascript">
+		  
+		  	  google.load("visualization", "1", {"packages":["corechart"]});
+		      google.setOnLoadCallback(drawChart'.$this->id.');
+			
+			  function drawChart'.$this->id.'() {
+		        var data = google.visualization.arrayToDataTable([
+		          '.$data.'
+		        ]);
+	
+		        var options = {
+		          title: "'.addslashes($TParam['liste']['titre']).'"
+		          '.(!empty($curveType) ? ',curveType: "'.$curveType.'"' : '' ).'
+		          ,legend: { position: "bottom" }
+				  ,animation: { "startup": true }
+				  '.(!empty($explorer) ? ',explorer: '.json_encode($explorer) : '').'
+				  ,height : '.$height.'
+				  ,hAxis: '.json_encode($hAxis).'
+				  ,vAxis: '.json_encode($vAxis).'
+				  '.( $type == 'PieChart' && !empty($pieHole) ? ',pieHole: '.$pieHole : '').'
+				  '.( $type == 'AreaChart' ? ',isStacked: \'percent\'' : '').'
+		        };
+
+		        var chart = new google.visualization.'.$type.'(document.getElementById("div_query_chart'.$this->id.'"));
+		
+		        chart.draw(data, options);
+		      }
+		  
+	    </script>
+		<div id="div_query_chart'.$this->id.'"></div>
+		'.$javaScript; 
+		
+		return $html;
+	}
+
 	private function renderList(&$TEntete, &$TChamps, &$TTotal, &$TParam) {
 		$TBS = new TTemplateTBS;
 		
@@ -384,8 +590,8 @@ class TListviewTBS {
 			$TPagination=array();
 		}
 		
-		
 		$TSearch = $this->setSearch($TEntete, $TParam);
+		$TExport=$this->setExport($TParam, $TChamps, $TEntete);
 		
 		return $TBS->render($this->template
 			, array(
@@ -393,9 +599,10 @@ class TListviewTBS {
 				,'champs'=>$TChamps
 				,'recherche'=>$TSearch
 				,'total'=>$TTotal
+				,'export'=>$TExport
 			)
 			, array(
-				'liste'=>array_merge(array('id'=>$this->id, 'nb_columns'=>count($TEntete) ,'totalNB'=>count($TChamps), 'nbSearch'=>count($TSearch), 'haveTotal'=>(int)!empty($TTotal), 'havePage'=>(int)!empty($TPagination) ), $TParam['liste'])
+				'liste'=>array_merge(array('haveExport'=>count($TExport), 'id'=>$this->id, 'nb_columns'=>count($TEntete) ,'totalNB'=>count($TChamps), 'nbSearch'=>count($TSearch), 'haveTotal'=>(int)!empty($TTotal), 'havePage'=>(int)!empty($TPagination) ), $TParam['liste'])
 			)
 			, $TPagination
 			, array()
@@ -427,13 +634,23 @@ class TListviewTBS {
 		
 		$this->parse_array($TEntete, $TChamps, $TParam,$TField);
 		$TTotal=$this->get_total($TChamps, $TParam);
-		return $this->renderList($TEntete, $TChamps,$TTotal, $TParam);
+		
+		if($TParam['type'] == 'chart') {
+			return $this->renderChart($TEntete, $TChamps,$TTotal, $TParam);	
+		}
+		else {
+			return $this->renderList($TEntete, $TChamps,$TTotal, $TParam);	
+		}
 	}
 
 	private function order_by($sql, &$TParam) {
 		$first = true;	
 		//	print_r($TParam['orderBy']);
-		if(isset($TParam['orderBy'])) {
+		if(!empty($TParam['orderBy'])) {
+			
+			if(strpos($sql,'LIMIT ')!==false) {
+				list($sql, $sqlLIMIT) = explode('LIMIT ', $sql);
+			}
 			
 			$sql.=' ORDER BY '; 
 			foreach($TParam['orderBy'] as $field=>$order) {
@@ -447,6 +664,9 @@ class TListviewTBS {
 				
 				$first=false;
 			}
+			
+			if(!empty($sqlLIMIT))$sql.=' LIMIT '.$sqlLIMIT;
+			
 		}
 		
 		return $sql;
@@ -483,13 +703,16 @@ class TListviewTBS {
 
 	}
 	
-	private function init_entete(&$TEntete, &$TParam, $Tab) {
-		foreach ($Tab as $field => $value) {
+	private function init_entete(&$TEntete, &$TParam, $currentLine) {
+		foreach ($currentLine as $field => $value) {
+			
 			if(!in_array($field,$TParam['hide'])) {
 				$libelle = isset($TParam['title'][$field]) ? $TParam['title'][$field] : $field;
 				$TEntete[$field] = array(
 					'libelle'=>$libelle
 					,'order'=>((in_array($field, $TParam['orderby']['noOrder']) || $this->typeRender != 'sql') ? 0 : 1)
+					,'width'=>(!empty($TParam['size']['width'][$field]) ? $TParam['size']['width'][$field] : 'auto')
+					,'text-align'=>(!empty($TParam['position']['text-align'][$field]) ? $TParam['position']['text-align'][$field] : 'auto')
 				);
 				  
 			}
@@ -530,27 +753,34 @@ class TListviewTBS {
 				if(!in_array($field,$TParam['hide'])) {
 					$row[$field]=$value;
 					
-					if(isset($TParam['link'][$field])) {
-						if(empty($row[$field]) && $row[$field]!==0 && $row[$field]!=='0')$row[$field]='(vide)';
-						$row[$field]= strtr( $TParam['link'][$field],  array_merge( $trans, array('@val@'=>$row[$field])  )) ;
-					}
-					
-					if(isset($TParam['translate'][$field])) {
-						$row[$field] = strtr( $row[$field] , $TParam['translate'][$field]);
-					}
-					
 					if(isset($TParam['eval'][$field]) && in_array($field,array_keys($row))) {
 						$strToEval = 'return '.strtr( $TParam['eval'][$field] ,  array_merge( $trans, array('@val@'=>$row[$field])  )).';';
 						$row[$field] = eval($strToEval);
 					}
 					
 					if(isset($TParam['type'][$field])) {
-						if($TParam['type'][$field]=='date') { $row[$field] = date('d/m/Y', strtotime($row[$field])); }
+						if($TParam['type'][$field]=='date') {
+							if($row[$field] != '0000-00-00 00:00:00' && $row[$field] != '0000-00-00' && !empty($row[$field])) {
+								$row[$field] = date('d/m/Y', strtotime($row[$field]));
+							} else {
+								$row[$field] = '';
+							}
+						}
 						if($TParam['type'][$field]=='datetime') { $row[$field] = date('d/m/Y H:i:s', strtotime($row[$field])); }
 						if($TParam['type'][$field]=='hour') { $row[$field] = date('H:i', strtotime($row[$field])); }
 						if($TParam['type'][$field]=='money') { $row[$field] = '<div align="right">'.number_format((double)$row[$field],2,',',' ').'</div>'; }
 						if($TParam['type'][$field]=='number') { $row[$field] = '<div align="right">'.number_format((double)$row[$field],2,',',' ').'</div>'; }
 					}
+
+                                        if(isset($TParam['link'][$field])) {
+                                                if(empty($row[$field]) && $row[$field]!==0 && $row[$field]!=='0')$row[$field]='(vide)';
+                                                $row[$field]= strtr( $TParam['link'][$field],  array_merge( $trans, array('@val@'=>$row[$field])  )) ;
+                                        }
+                                        
+                                        if(isset($TParam['translate'][$field])) {
+                                                $row[$field] = strtr( $row[$field] , $TParam['translate'][$field]);
+                                        }
+
 
 				} 
 				
@@ -570,15 +800,17 @@ class TListviewTBS {
 		//$sql.=' LIMIT '.($TParam['limit']['page']*$TParam['limit']['nbLine']).','.$TParam['limit']['nbLine'];
 		$this->TTotalTmp=array();
 		
-		$db->Execute($sql, $this->TBind);
+		$this->sql = $sql;
+		
+		$res = $db->Execute($sql, $this->TBind);
 		$first=true;
-		while($db->Get_line()) {
+		while($currentLine = $db->Get_line()) {
 			if($first) {
-				$this->init_entete($TEntete, $TParam, $db->currentLine);
+				$this->init_entete($TEntete, $TParam, $currentLine);
 				$first = false;
 			}
 			
-			$this->set_line($TChamps, $TParam, $db->currentLine);
+			$this->set_line($TChamps, $TParam, $currentLine);
 			
 		}
 		

@@ -36,7 +36,7 @@ class Tools{
                 $version = $mod->version;
                 if($conf->global->$conf_name != $version) {
                     
-                    $message = "Your module wasn't updated. Please reload it or launch the update of database script";
+                    $message = "Your module wasn't updated (v".$conf->global->$conf_name." != ".$version."). Please reload it or launch the update of database script";
                     
                     accessforbidden($message); 
                 }
@@ -446,10 +446,29 @@ class Tools{
 	}
 	
 	static function string2num($s) {
-		return (double)strtr($s,array(
-			','=>'.'
-			,' '=>''
-		));
+		
+		if(is_string($s)) {
+			$r = ''; 
+			$l=strlen($s);
+			
+			for($i = 0;$i<$l;$i++) {
+				$c = $s[$i];	
+				if($c == ',') $c = '.';
+				if(ctype_digit($c) || $c == '.' || $c == '-') {
+					$r.=$c;
+				}
+				
+			}
+			
+			return (float)$r;
+		}
+		else if(empty($s)) {
+			return 0;	
+		}
+		else {
+			return $s;
+		}
+		
 		
 	}
 	

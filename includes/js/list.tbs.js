@@ -63,6 +63,22 @@ function TListTBS_submitSearch(obj) {
 	
 	//alert(.html());	
 }
+function TListTBS_downloadAs(mode,url,token,session_name) {
+	$('div#listTBSdAS').remove();
+	
+	$('body').append('<div id="listTBSdAS" style="display:none;"><iframe id="listTBSdAS_iframe" src=""></iframe></div>');
+	$('div#listTBSdAS').append('<form action="'+url+'" method="post" target="listTBSdAS_iframe"></form>');
+	$('div#listTBSdAS form').append('<input type="hidden" name="mode" value="'+mode+'" />');
+	$('div#listTBSdAS form').append('<input type="hidden" name="token" value="'+token+'" />');
+	$('div#listTBSdAS form').append('<input type="hidden" name="session_name" value="'+session_name+'" />');
+	
+	
+    $('div#listTBSdAS form').submit();
+}
+function postToIframe(data,url,target){
+ 
+    
+}
 
 $(document).ready(function() {
 	$('tr.barre-recherche input').keypress(function(e) {

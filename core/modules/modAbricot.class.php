@@ -61,7 +61,7 @@ class modAbricot extends DolibarrModules
         // (where XXX is value of numeric property 'numero' of module)
         $this->description = "Collection of specific ATM functions and classes";
         // Possible values for version are: 'development', 'experimental' or version
-        $this->version = '1.3';
+        $this->version = '1.6';
         // Key used in llx_const table to save module status enabled/disabled
         // (where MYMODULE is value of property name of module in uppercase)
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -105,7 +105,7 @@ class modAbricot extends DolibarrModules
 
         // Config pages. Put here list of php pages
         // stored into mymodule/admin directory, used to setup module.
-        $this->config_page_url = false;
+        $this->config_page_url = 'abricot_setup.php@abricot';
 
         // Dependencies
         // List of modules id that must be enabled if this module is enabled

@@ -80,12 +80,12 @@ class TTemplateTBS {
 		}
 		
 		if($isOPENTBS_PLUGIN) {
-			if($extension==".odt" || $extension=='.docx') {	$TBS->PlugIn(OPENTBS_DELETE_COMMENTS); } 
+			if($extension=='.odt' || $extension=='.docx' || $extension=='.ods' || $extension=='.xlsx') {	$TBS->PlugIn(OPENTBS_DELETE_COMMENTS); } 
 			//$TBS->PlugIn(OPENTBS_DEBUG_XML_SHOW);
 			if(!isset($TParam['outFile']))$TBS->Show(isset($TParam['TBS_OUTPUT']) ? $TParam['TBS_OUTPUT'] : OPENTBS_DOWNLOAD);
 			else $TBS->Show(OPENTBS_FILE, $TParam['outFile']);
 			
-			if($extension == ".odt" && !empty($TParam['convertToPDF']) && !empty($TParam['outFile'])) {
+			if(($extension=='.odt' || $extension=='.docx' || $extension=='.ods' || $extension=='.xlsx') && !empty($TParam['convertToPDF']) && !empty($TParam['outFile'])) {
 				$this->convertToPDF($TParam['outFile']);
 				if(!empty($TParam['deleteSrc'])) unlink($TParam['outFile']);
 			}
@@ -93,8 +93,23 @@ class TTemplateTBS {
 			return $TParam['outFile'];
 		}
 		else {
-			$TBS->Show( isset($TParam['TBS_OUTPUT']) ? $TParam['TBS_OUTPUT'] : TBS_NOTHING );
-			return $TBS->Source;
+			
+			if(($extension == '.html' || $extension == '.php') && !empty($TParam['outFile'])) {
+				$res =$TBS->Show(TBS_NOTHING);
+				file_put_contents($TParam['outFile'], $TBS->Source);
+				
+				if( !empty($TParam['convertToPDF']) ) {
+					$this->convertToPDF($TParam['outFile'], $extension);	
+				}
+				
+				if(!empty($TParam['deleteSrc'])) unlink($TParam['outFile']);
+				
+				return $TParam['outFile'];
+			}
+			else {
+				$TBS->Show( isset($TParam['TBS_OUTPUT']) ? $TParam['TBS_OUTPUT'] : TBS_NOTHING );
+				return $TBS->Source;	
+			}
 		}
 		
 	}
@@ -105,7 +120,7 @@ class TTemplateTBS {
 		return $ext;
 	}
 	
-	private function convertToPDF($file) {
+	private function convertToPDF($file,$extension='') {
 		global $conf;
 		
 		$infos = pathinfo($file);
@@ -119,6 +134,7 @@ class TTemplateTBS {
 			        'f1Data' => file_get_contents($file)
 					,'f1'=>basename($file)
 			    )
+			    ,'','&', PHP_QUERY_RFC1738
 			);
 			
 			$opts = array('http' =>
@@ -141,15 +157,26 @@ class TTemplateTBS {
 		}	
 		else {
 		
-			$cmd_print = empty($conf->global->ABRICOT_CONVERTPDF_CMD) ? 'libreoffice --invisible --norestore --headless --convert-to pdf --outdir' : $conf->global->ABRICOT_CONVERTPDF_CMD;
-		
-			// Transformation en PDF
-			$cmd = 'export HOME=/tmp'."\n";
-			$cmd.= $cmd_print.' "'.$filepath.'" "'.$file.'"';
+			if($extension == '.html' || $extension == '.php') {
+				$cmd_print = empty($conf->global->ABRICOT_WKHTMLTOPDF_CMD) ? 'wkhtmltopdf' : $conf->global->ABRICOT_WKHTMLTOPDF_CMD;
+				
+				$cmd = 'export HOME=/tmp'."\n";
+				$cmd.= $cmd_print.' "'.$file.'" "'.substr($file, 0, strrpos( $file, '.' ) ) .'.pdf"';
+			}
+			else {
+				$cmd_print = empty($conf->global->ABRICOT_CONVERTPDF_CMD) ? 'libreoffice --invisible --norestore --headless --convert-to pdf --outdir' : $conf->global->ABRICOT_CONVERTPDF_CMD;	
+			
+				// Transformation en PDF
+				$cmd = 'export HOME=/tmp'."\n";
+				$cmd.= $cmd_print.' "'.$filepath.'" "'.$file.'"';
+			
+			}
+			
 			ob_start();
 			system($cmd);
 			$res = ob_get_clean();
-			return $res;
+			return $res;		
+			
 		}
 	}
 }
