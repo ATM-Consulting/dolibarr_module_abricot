@@ -808,7 +808,7 @@ class TListviewTBS {
 		$TBind = array();
 		foreach($this->TBind as $k=>$v) {
 			if(!empty($TParam['operator'][$k]) && $TParam['operator'][$k] == 'IN') {
-				if(empty($v))$TBind[$k] =array('?');
+				if($v==='')$TBind[$k] =array("'0'");
 				else $TBind[$k] =explode(',', $v);
 			}
 			else{
