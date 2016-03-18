@@ -43,6 +43,7 @@ class TObjetStd {
 	 */
 	function set_table($nom_table){
     	$this->table=$nom_table;
+		//TODO $this->table_element
     }
 	/**
 	  * @param boolean $create_new When true returns a new stdClass.
@@ -457,7 +458,8 @@ function _no_save_vars($lst_chp) {
 	
   }
   function load(&$db,$id,$loadChild=true){
-		if((int)$id==0) return false;
+  	//TODO add oldcopy for history module
+  		if(empty($id)) return false;
 			
 		$db->Execute( 'SELECT '.$this->_get_field_list().OBJETSTD_DATECREATE.','.OBJETSTD_DATEUPDATE.' 
 						FROM '.$this->get_table().' 
