@@ -46,6 +46,7 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 		$charset = ini_get('default_charset');
 		
 	}
+	
 	if(empty($DB_OPTIONS[1002]) && ($charset  === 'iso-8859-1' || $charset  === 'latin1' || empty($charset))){
 			$DB_OPTIONS[1002]= 'SET NAMES \'UTF8\'';
 	}
@@ -196,6 +197,18 @@ private function Error($message, $showTrace=true) {
 		
 }
 
+function bind($k,$v) {
+	
+	if(is_array($v)) {
+		foreach($v as $kk=>$vv)$this->bind($k, $vv);
+	}
+	else{
+		$this->rs->bindValue($k, $v);
+	}
+	
+	
+}
+
 function Execute ($sql, $TBind=array()){
         $mt_start = microtime(true)*1000;
 		 
@@ -209,7 +222,7 @@ function Execute ($sql, $TBind=array()){
 		if(!empty($TBind)) {
 			$this->rs = $this->db->prepare( $this->query);
 			foreach($TBind as $k=>$v) {
-				$this->rs->bindParam($k, $v);
+				$this->bind($k, $v);
 			}
 			
 			$this->rs->execute();

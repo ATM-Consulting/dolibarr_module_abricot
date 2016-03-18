@@ -803,14 +803,54 @@ class TListviewTBS {
 			$TChamps[] = $row;	
 	}
 	
+	private function getBind(&$TParam) {
+		
+		$TBind = array();
+		foreach($this->TBind as $k=>$v) {
+			if(!empty($TParam['operator'][$k]) && $TParam['operator'][$k] == 'IN') {
+				if(empty($v))$TBind[$k] =array('?');
+				else $TBind[$k] =explode(',', $v);
+			}
+			else{
+				$TBind[$k] = $v;
+			}
+			
+		}
+		
+		return $TBind;
+	}
+	
+	private function getSQL(&$PDOdb,$sql,&$TParam) {
+		//AA oui c'est moche mais le bindParam ne prends pas en compte les tableaux pour le IN ce qui est super pénélisant. En attendant de refaire mieux ou d'un coup de main
+		$TBind = $this->getBind($TParam);
+		
+		foreach($TBind as $k => $v) {
+			
+			if(is_array($v)) {
+				$sql=strtr($sql,array(
+					':'.$k=>implode(',',$v)
+				));
+			}
+			else{
+				$sql=strtr($sql,array(
+					':'.$k=>$PDOdb->quote($v)
+				));
+				
+			}
+			
+		}
+		
+		return $sql;
+	}
+	
 	private function parse_sql(&$PDOdb, &$TEntete, &$TChamps,&$TParam, $sql, $TBind=array()) {
 		
 		//$sql.=' LIMIT '.($TParam['limit']['page']*$TParam['limit']['nbLine']).','.$TParam['limit']['nbLine'];
 		$this->TTotalTmp=array();
 		
-		$this->sql = $sql;
-		
-		$res = $PDOdb->Execute($sql, $this->TBind);
+		$this->sql = $this->getSQL($PDOdb,$sql,$TParam);
+		//var_dump($this->sql);
+		$res = $PDOdb->Execute($this->sql);
 		$first=true;
 		while($currentLine = $PDOdb->Get_line()) {
 			if($first) {
