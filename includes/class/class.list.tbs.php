@@ -153,7 +153,7 @@ class TListviewTBS {
 						if(isset($this->TBind[$sBindKey])) {
 							
 							if(isset($TParam['operator'][$key])) {
-								if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=') {
+								if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=' || $TParam['operator'][$key]=='IN') {
 									$this->TBind[$sBindKey] = $value;
 								}
 								else{
@@ -178,6 +178,11 @@ class TListviewTBS {
 			if($sqlGROUPBY!='')	$sql.=' GROUP BY '.$sqlGROUPBY;
 			
 		}
+
+		if(isset($_REQUEST['DEBUG'])) {
+			var_dump($this->TBind,$TParam['operator']);
+		}
+
 		return $sql;
 	}
 	public function render(&$db,$sql,$TParam=array(),$TBind=array()) {
