@@ -876,54 +876,7 @@ class TSSRenderControler {
 		print $lst->render($db, $sql, $TParam);
 		
 	}
-	/*
-	function liste ($TList=array()) {
-		
-			if(!empty($TList)) $this->TList = array_merge( $this->TList, $TList );
-		
-			$form=new TFormCore;
 	
-			$listname = "list_".$this->object->get_table();
-			$lst = new Tlistview($listname);
-			
-		    $ordertype = isset($_REQUEST["orderTyp"])?$_REQUEST["orderTyp"]:"D";
-		    $pagenumber = isset($_REQUEST["pageNumber"])?$_REQUEST["pageNumber"]:0;
-		 	$ordercolumn = isset($_REQUEST["orderColumn"])?$_REQUEST["orderColumn"]:'Création' ;
-		
-			$lst->Set_nbLinesPerPage(30);
-				
-			$fields='';	
-			foreach($this->TList['Fields'] as $k=>$v) {
-				$fields.=",`$k` as '".addslashes($v)."'";
-			}	
-				
-			$sql=strtr($this->sql, array('@Champs@'=>$fields));
-				
-		 	$lst->Set_query($sql);
-			$lst->Load_query($ordercolumn,$ordertype);
-			$lst->Set_pagenumber($pagenumber);
-			$lst->Set_Key("ID",'id');
-			
-			$lst->Set_columnType('Création', 'DATE');
-			$lst->Set_columnType('Modification', 'DATE');
-			
-			$lst->Set_OnClickAction('OpenForm','?action=view');
-			
-			foreach($this->TList['ColumnType'] as $field=>$type) {
-				$lst->Set_columnType($field, $type);	
-			}
-			
-			 
-			echo '<h1>'.$this->TList['titre'].'</h1>';
-			
-			echo $lst->Render($this->TList['nothing']); 	
-		 
-			echo "<p align=\"center\">";	
-			echo $form->bt("Nouveau",'bt_new','onClick="document.location.href=\'?action=new\'"');
-			echo "</p>";
-		 
-		
-	}*/
 }
 
 /**

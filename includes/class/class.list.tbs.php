@@ -32,6 +32,7 @@ class TListviewTBS {
 		$this->TBind=array();
 		
 		$this->sql = '';
+
 	}
 	private function init(&$TParam) {
 		
@@ -725,6 +726,8 @@ class TListviewTBS {
 	}
 	private function set_line(&$TChamps, &$TParam, $currentLine) {
 		
+			global $conf;
+		
 			$row=array(); $trans = array();
 			foreach($currentLine as $field=>$value) {
 				
@@ -734,7 +737,7 @@ class TListviewTBS {
 				} 
 				
 				if(isset($TParam['subQuery'][$field])) {
-					$dbSub = new Tdb;
+					$dbSub = new TPDOdb; //TODO finish it
 					$dbSub->Execute( strtr($TParam['subQuery'][$field], array_merge( $trans, array('@val@'=>$value)  )) );
 					$subResult = '';
 					while($dbSub->Get_line()) {
@@ -795,16 +798,16 @@ class TListviewTBS {
 			$TChamps[] = $row;	
 	}
 	
-	private function parse_sql(&$db, &$TEntete, &$TChamps,&$TParam, $sql, $TBind=array()) {
+	private function parse_sql(&$PDOdb, &$TEntete, &$TChamps,&$TParam, $sql, $TBind=array()) {
 		
 		//$sql.=' LIMIT '.($TParam['limit']['page']*$TParam['limit']['nbLine']).','.$TParam['limit']['nbLine'];
 		$this->TTotalTmp=array();
 		
 		$this->sql = $sql;
 		
-		$res = $db->Execute($sql, $this->TBind);
+		$res = $PDOdb->Execute($sql, $this->TBind);
 		$first=true;
-		while($currentLine = $db->Get_line()) {
+		while($currentLine = $PDOdb->Get_line()) {
 			if($first) {
 				$this->init_entete($TEntete, $TParam, $currentLine);
 				$first = false;

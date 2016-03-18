@@ -45,13 +45,11 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 	else {
 		$charset = ini_get('default_charset');
 		
-		if(empty($DB_OPTIONS[1002]) && ($charset  === 'iso-8859-1' || empty($charset))){
-			$DB_OPTIONS[1002]= 'SET NAMES \'UTF8\'';
-		}
-		
 	}
-
-
+	if(empty($DB_OPTIONS[1002]) && ($charset  === 'iso-8859-1' || $charset  === 'latin1' || empty($charset))){
+			$DB_OPTIONS[1002]= 'SET NAMES \'UTF8\'';
+	}
+	
 	if(empty($connexionString)) {
 		if (($db_type == '') && (defined('DB_DRIVER')))
 			$db_type = DB_DRIVER;
@@ -197,6 +195,7 @@ private function Error($message, $showTrace=true) {
 	}
 		
 }
+
 function Execute ($sql, $TBind=array()){
         $mt_start = microtime(true)*1000;
 		 
