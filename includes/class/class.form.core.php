@@ -1443,7 +1443,7 @@ function combo($pLib,$pName,$pListe,$pDefault,$pTaille=1,$onChange='',$plus='',$
 	$field.="<!-- options -->";
     if ($showEmpty)
     {
-    	echo 'test';
+    	//echo 'test';
     	$textforempty=' ';
     	if (! empty($conf->use_javascript_ajax)) $textforempty='&nbsp;';	// If we use ajaxcombo, we need &nbsp; here to avoid to have an empty element that is too small.
         $valueofempty=-1;
