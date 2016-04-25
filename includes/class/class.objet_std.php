@@ -140,9 +140,9 @@ function _no_save_vars($lst_chp) {
 				if($this->_is_int($info)) {
 					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` int(11) NOT NULL DEFAULT \''.(!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0').'\'');	
 				}else if($this->_is_date($info)) 
-					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` datetime NOT NULL DEFAULT \''.(!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0000-00-00 00:00:00').'\'');	
+					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` datetime NOT NULL DEFAULT \''.(!empty($info['default']) ? $info['default'] : '0000-00-00 00:00:00').'\'');	
 				else if($this->_is_float($info)) 
-					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` DOUBLE NOT NULL DEFAULT \''.(!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0').'\'');
+					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` DOUBLE NOT NULL DEFAULT \''.(!empty($info['default']) ? $info['default'] : '0').'\'');
 				else if($this->_is_tableau($info) || $this->_is_text($info)) 
 					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` LONGTEXT');
 				else 
