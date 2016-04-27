@@ -52,35 +52,46 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 	}
 	
 	if(empty($connexionString)) {
-		if (($db_type == '') && (defined('DB_DRIVER')))
+		/* intégration configuration Dolibarr */
+		$db_type = $conf->db->type;
+		$db = $conf->db->name;
+		$host = $conf->db->host;
+		$usr = $conf->db->user;
+		$pass = $conf->db->pass;
+		$port = $conf->db->port;
+		
+		if (($db_type == '') && (defined('DB_DRIVER'))) {
 			$db_type = DB_DRIVER;
+		}
 		else {
 			if ($db_type == 'mysql')
 				$db_type = 'mysql';
 			else
 				$db_type = 'mysqli';
 		}
-	
+		
+		
 		if (defined('DB_NAME') && constant('DB_NAME')!='') {
 			$db = DB_NAME;
 			$usr = DB_USER;
 			$pass = DB_PASS;
 			$host = DB_HOST;
 		}
-		else {
+		elseif(empty($db)) {
 			$this->debug=true;
-		    $this->Error('PDO DB ErrorConnexion : Paramètres de connexion impossible à utiliser (db:'.DB_NAME.'/user:'.DB_USER.')' );
+		    $this->Error('PDO DB ErrorConnexion : Paramètres de connexion impossible à utiliser (db:'.$db.'/user:'.$usr.')' );
 		}
 		
-		$this->connexionString = 'mysql:dbname='.DB_NAME.';host='.DB_HOST; 
+		$this->connexionString = 'mysql:dbname='.$db.';host='.$host; 
+		if(!empty($port))$this->connexionString .= ';port='.$port;
 		if(!empty($charset) && empty($conf->global->ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING) )$this->connexionString.=';charset='.$charset;
 		
 		if(defined('DB_SOCKET') && constant('DB_SOCKET')!='') $this->connexionString .= ';unix_socket='.DB_SOCKET;
 		
 		try {
-		    $this -> db = new PDO($this->connexionString, DB_USER, DB_PASS, $DB_OPTIONS);
+			$this -> db = new PDO($this->connexionString, $usr, $pass, $DB_OPTIONS);
 		} catch (PDOException $e) {
-		    $this->Error('PDO DB ErrorConnexion : '.$e->getMessage().' ( '. $this->connexionString.' - '.DB_USER .' )' );
+		    $this->Error('PDO DB ErrorConnexion : '.$e->getMessage().' ( '. $this->connexionString.' - '.$usr .' )' );
 		}
 		
 	}
