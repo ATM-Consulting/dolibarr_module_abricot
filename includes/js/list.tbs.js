@@ -50,18 +50,9 @@ function TListTBS_GoToPage(idListe,pageNumber){
 	document.location.href=TListTBS_modifyUrl(document.location.href,"TListTBS["+encodeURIComponent(idListe)+"][page]",pageNumber);
 }
 function TListTBS_submitSearch(obj) {
-	$parent = $(obj).parent();
-//alert($parent.prop('tagName'));
-	var cpt=0;
-	while($parent.prop('tagName').toLowerCase()!='form' && cpt<30) {
-		//alert($parent.prop('tagName'));
-		$parent = $parent.parent(); 
-		cpt++;
-	}
-
-	$parent.get(0).submit();
 	
-	//alert(.html());	
+	$(obj).closest('form').submit();
+	//console.log($(obj).closest('form'));
 }
 function TListTBS_downloadAs(mode,url,token,session_name) {
 	$('div#listTBSdAS').remove();

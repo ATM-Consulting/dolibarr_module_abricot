@@ -43,6 +43,7 @@ class TObjetStd {
 	 */
 	function set_table($nom_table){
     	$this->table=$nom_table;
+		//TODO $this->table_element
     }
 	/**
 	  * @param boolean $create_new When true returns a new stdClass.
@@ -135,13 +136,17 @@ function _no_save_vars($lst_chp) {
 		$TChamps = array_merge(array(OBJETSTD_DATECREATE=>'type=date;',OBJETSTD_DATEUPDATE=>'type=date;'),$this->TChamps);
 	
 	  	foreach($TChamps as $champs=>$info) {
-	  		
 			if(!in_array($champs, $Tab)) {
-				if($this->_is_int($info)) $db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` int(11) NOT NULL DEFAULT \'0\'');	
-				else if($this->_is_date($info)) $db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` datetime NOT NULL DEFAULT \'0000-00-00 00:00:00\'');	
-				else if($this->_is_float($info)) $db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` DOUBLE NOT NULL DEFAULT \'0\'');
-				else if($this->_is_tableau($info) || $this->_is_text($info)) $db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` LONGTEXT');
-				else $db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` VARCHAR('.(is_array($info) && !empty($info['length']) ? $info['length']: 255 ).')');
+				if($this->_is_int($info)) {
+					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` int(11) NOT NULL DEFAULT \''.(!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0').'\'');	
+				}else if($this->_is_date($info)) 
+					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` datetime NOT NULL DEFAULT \''.(!empty($info['default']) ? $info['default'] : '0000-00-00 00:00:00').'\'');	
+				else if($this->_is_float($info)) 
+					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` DOUBLE NOT NULL DEFAULT \''.(!empty($info['default']) ? $info['default'] : '0').'\'');
+				else if($this->_is_tableau($info) || $this->_is_text($info)) 
+					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` LONGTEXT');
+				else 
+					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` VARCHAR('.(is_array($info) && !empty($info['length']) ? $info['length']: 255 ).')');
 				
 				if($this->_is_index($info)) {
 					 $db->Execute('ALTER TABLE '.$this->get_table().' ADD INDEX `'.$champs.'`(`'.$champs.'`)');
@@ -875,54 +880,7 @@ class TSSRenderControler {
 		print $lst->render($db, $sql, $TParam);
 		
 	}
-	/*
-	function liste ($TList=array()) {
-		
-			if(!empty($TList)) $this->TList = array_merge( $this->TList, $TList );
-		
-			$form=new TFormCore;
 	
-			$listname = "list_".$this->object->get_table();
-			$lst = new Tlistview($listname);
-			
-		    $ordertype = isset($_REQUEST["orderTyp"])?$_REQUEST["orderTyp"]:"D";
-		    $pagenumber = isset($_REQUEST["pageNumber"])?$_REQUEST["pageNumber"]:0;
-		 	$ordercolumn = isset($_REQUEST["orderColumn"])?$_REQUEST["orderColumn"]:'Création' ;
-		
-			$lst->Set_nbLinesPerPage(30);
-				
-			$fields='';	
-			foreach($this->TList['Fields'] as $k=>$v) {
-				$fields.=",`$k` as '".addslashes($v)."'";
-			}	
-				
-			$sql=strtr($this->sql, array('@Champs@'=>$fields));
-				
-		 	$lst->Set_query($sql);
-			$lst->Load_query($ordercolumn,$ordertype);
-			$lst->Set_pagenumber($pagenumber);
-			$lst->Set_Key("ID",'id');
-			
-			$lst->Set_columnType('Création', 'DATE');
-			$lst->Set_columnType('Modification', 'DATE');
-			
-			$lst->Set_OnClickAction('OpenForm','?action=view');
-			
-			foreach($this->TList['ColumnType'] as $field=>$type) {
-				$lst->Set_columnType($field, $type);	
-			}
-			
-			 
-			echo '<h1>'.$this->TList['titre'].'</h1>';
-			
-			echo $lst->Render($this->TList['nothing']); 	
-		 
-			echo "<p align=\"center\">";	
-			echo $form->bt("Nouveau",'bt_new','onClick="document.location.href=\'?action=new\'"');
-			echo "</p>";
-		 
-		
-	}*/
 }
 
 /**

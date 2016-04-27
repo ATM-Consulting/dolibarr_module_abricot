@@ -7,14 +7,15 @@
 			<td class="nobordernopadding"><div class="titre">[liste.titre; strconv=no]</div></td>
 			[onshow;block=end]
 			<td class="nobordernopadding" align="right" valign="middle">
-				<div> 
+				<div class="pagination"> 
 					[onshow;block=div; when [liste.havePage]+-0 ]
-				<!-- [onshow;block=div;when [pagination.last]+-1 ] -->
-				    <a class="precedent" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.prev])"><!-- [pagination.prev;endpoint;magnet=a] -->[liste.picto_precedent;strconv=no]</a>
-				    Page
-				    <a class="page" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.page;navsize=15;navpos=centred])"> [pagination.page;block=a] </a>
-				    <u>[pagination.page;block=u;currpage]</u>
-				    <a class="suivant" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.next])"><!-- [pagination.last;endpoint;magnet=a] -->[liste.picto_suivant;strconv=no]</a>
+					<!-- [onshow;block=div;when [pagination.last]+-1 ] -->
+					<ul>
+						<li class="pagination"><a class="paginationprevious" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.prev])"><!-- [pagination.prev;endpoint;magnet=li] --> [liste.picto_precedent;strconv=no] </a></li>
+						<li class="pagination"><a class="page" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.page;navsize=15;navpos=centred])"> [pagination.page;block=li] </a></li>
+						<li class="pagination"><span class="active"> [pagination.page;block=li;currpage] </span></li>
+						<li class="pagination"><a class="paginationnext" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.next])"><!-- [pagination.last;endpoint;magnet=li] --> [liste.picto_suivant;strconv=no] </a></li>
+					</ul>
 				</div>
 			</td>
 		</tr>

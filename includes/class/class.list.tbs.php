@@ -32,6 +32,7 @@ class TListviewTBS {
 		$this->TBind=array();
 		
 		$this->sql = '';
+
 	}
 	private function init(&$TParam) {
 		
@@ -152,7 +153,7 @@ class TListviewTBS {
 						if(isset($this->TBind[$sBindKey])) {
 							
 							if(isset($TParam['operator'][$key])) {
-								if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=') {
+								if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=' || $TParam['operator'][$key]=='IN') {
 									$this->TBind[$sBindKey] = $value;
 								}
 								else{
@@ -177,6 +178,11 @@ class TListviewTBS {
 			if($sqlGROUPBY!='')	$sql.=' GROUP BY '.$sqlGROUPBY;
 			
 		}
+
+		if(isset($_REQUEST['DEBUG'])) {
+			var_dump($this->TBind,$TParam['operator']);
+		}
+
 		return $sql;
 	}
 	public function render(&$db,$sql,$TParam=array(),$TBind=array()) {
@@ -725,6 +731,8 @@ class TListviewTBS {
 	}
 	private function set_line(&$TChamps, &$TParam, $currentLine) {
 		
+			global $conf;
+		
 			$row=array(); $trans = array();
 			foreach($currentLine as $field=>$value) {
 				
@@ -734,7 +742,7 @@ class TListviewTBS {
 				} 
 				
 				if(isset($TParam['subQuery'][$field])) {
-					$dbSub = new Tdb;
+					$dbSub = new TPDOdb; //TODO finish it
 					$dbSub->Execute( strtr($TParam['subQuery'][$field], array_merge( $trans, array('@val@'=>$value)  )) );
 					$subResult = '';
 					while($dbSub->Get_line()) {
@@ -795,16 +803,56 @@ class TListviewTBS {
 			$TChamps[] = $row;	
 	}
 	
-	private function parse_sql(&$db, &$TEntete, &$TChamps,&$TParam, $sql, $TBind=array()) {
+	private function getBind(&$TParam) {
+		
+		$TBind = array();
+		foreach($this->TBind as $k=>$v) {
+			if(!empty($TParam['operator'][$k]) && $TParam['operator'][$k] == 'IN') {
+				if($v==='')$TBind[$k] =array("'0'");
+				else $TBind[$k] =explode(',', $v);
+			}
+			else{
+				$TBind[$k] = $v;
+			}
+			
+		}
+		
+		return $TBind;
+	}
+	
+	private function getSQL(&$PDOdb,$sql,&$TParam) {
+		//AA oui c'est moche mais le bindParam ne prends pas en compte les tableaux pour le IN ce qui est super pénélisant. En attendant de refaire mieux ou d'un coup de main
+		$TBind = $this->getBind($TParam);
+		
+		foreach($TBind as $k => $v) {
+			
+			if(is_array($v)) {
+				$sql=strtr($sql,array(
+					':'.$k=>implode(',',$v)
+				));
+			}
+			else{
+				$sql=strtr($sql,array(
+					':'.$k=>$PDOdb->quote($v)
+				));
+				
+			}
+			
+		}
+		
+		return $sql;
+	}
+	
+	private function parse_sql(&$PDOdb, &$TEntete, &$TChamps,&$TParam, $sql, $TBind=array()) {
 		
 		//$sql.=' LIMIT '.($TParam['limit']['page']*$TParam['limit']['nbLine']).','.$TParam['limit']['nbLine'];
 		$this->TTotalTmp=array();
 		
-		$this->sql = $sql;
-		
-		$res = $db->Execute($sql, $this->TBind);
+		$this->sql = $this->getSQL($PDOdb,$sql,$TParam);
+		//var_dump($this->sql);
+		$res = $PDOdb->Execute($this->sql);
 		$first=true;
-		while($currentLine = $db->Get_line()) {
+		while($currentLine = $PDOdb->Get_line()) {
 			if($first) {
 				$this->init_entete($TEntete, $TParam, $currentLine);
 				$first = false;
