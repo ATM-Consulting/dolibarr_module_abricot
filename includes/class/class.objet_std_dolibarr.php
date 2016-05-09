@@ -2,6 +2,11 @@
 
 class TObjetStdDolibarr extends TObjetStd {
 	
+	/**
+	 * 
+	 * @param unknown $id
+	 * @return boolean
+	 */
 	function fetch($id) {
 		
 		$sql = 'SELECT '.$this->_get_field_list().' rowid FROM '.$this->get_table().' WHERE '.OBJETSTD_MASTERKEY.'='.$id;
@@ -15,7 +20,12 @@ class TObjetStdDolibarr extends TObjetStd {
 		return true;		
 	}
 	
-	function save(&$db = null) {
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see TObjetStd::save()
+	 */
+	function save(&$db) {
 		
 		$query = array();
 		$this->_set_save_query($query);
@@ -151,7 +161,7 @@ class TObjetStdDolibarr extends TObjetStd {
 				
 		}
 	}
-	function get_newid(&$db=null){
+	function get_newid(&$db){
 		$sql="SELECT max(".OBJETSTD_MASTERKEY.") as 'maxi' FROM ".$this->get_table();
 		$res = $this->db->query($sql);
 		$object = $this->db->fetch_object($res);
