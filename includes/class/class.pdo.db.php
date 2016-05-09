@@ -244,8 +244,8 @@ function Execute ($sql, $TBind=array()){
 		
         $mt_end = microtime(true)*1000;
 		
-		if (mysql_errno()) {
-			if($this->debug) $this->Error("PDO DB ErrorExecute : " . print_r($this ->db-> errorInfo(),true).' '.$this -> query);
+		if ($this->db->errorCode) {
+			if($this->debug) $this->Error("PDO DB ErrorExecute : " . print_r($this ->db->errorInfo(),true).' '.$this->query);
 			//return(mysql_errno());
 		}
 		
