@@ -15,7 +15,7 @@ class TObjetStdDolibarr extends TObjetStd {
 		return true;		
 	}
 	
-	function save() {
+	function save(&$db = null) {
 		
 		$query = array();
 		$this->_set_save_query($query);
@@ -151,7 +151,7 @@ class TObjetStdDolibarr extends TObjetStd {
 				
 		}
 	}
-	function get_newid(){
+	function get_newid(&$db=null){
 		$sql="SELECT max(".OBJETSTD_MASTERKEY.") as 'maxi' FROM ".$this->get_table();
 		$res = $this->db->query($sql);
 		$object = $this->db->fetch_object($res);
