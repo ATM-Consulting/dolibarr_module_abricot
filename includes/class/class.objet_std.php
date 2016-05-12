@@ -52,7 +52,7 @@ class TObjetStd {
 	  */
 	function add_champs($nom, $infos=array(),$constraint=array()){
 		
-		if(is_string($infos))$infos = strtolower($infos); // deprecated
+		if(is_string($infos)) $infos = $this->_to_info_array($infos); // deprecated
 		
         if($nom!=''){
 	        $var = explode(',', $nom);
@@ -65,6 +65,26 @@ class TObjetStd {
     	}
     
   	}
+	
+	private function _to_info_array($info) {
+		$info = strtolower($info);
+		
+		$TInfo=array();
+		
+		if($this->_is_date($info)) $TInfo['type'] = 'date';
+		else if($this->_is_array($info)) $TInfo['type'] = 'array';
+		else if($this->_is_float($info)) $TInfo['type'] = 'float';
+		else if($this->_is_int($info)) $TInfo['type'] = 'integer';
+		else if($this->_is_null($info)) $TInfo['type'] = 'null';
+		else if($this->_is_text($info)) $TInfo['type'] = 'text';
+		else $TInfo['type'] = 'string';
+		
+		if($this->_is_index($info))$TInfo['index']=true;
+		
+		return $TInfo;
+		
+	}
+	
   function get_table(){
     return $this->table;
   }
@@ -133,15 +153,17 @@ function _no_save_vars($lst_chp) {
 			$Tab[] = $db->Get_field('Field');
 		}
 	
-		$TChamps = array_merge(array(OBJETSTD_DATECREATE=>'type=date;',OBJETSTD_DATEUPDATE=>'type=date;'),$this->TChamps);
+		$TChamps = array_merge(array(OBJETSTD_DATECREATE=>array('type'=>'date'),OBJETSTD_DATEUPDATE=>array('type'=>'date')),$this->TChamps);
 	
 	  	foreach($TChamps as $champs=>$info) {
-			if(!in_array($champs, $Tab)) {
+	  
+	  		if(!in_array($champs, $Tab)) {
 				if($this->_is_int($info)) {
 					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` int(11) NOT NULL DEFAULT \''.(!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0').'\'');	
-				}else if($this->_is_date($info)) 
-					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` datetime NOT NULL DEFAULT \''.(!empty($info['default']) ? $info['default'] : '0000-00-00 00:00:00').'\'');	
-				else if($this->_is_float($info)) 
+				}else if($this->_is_date($info)) {
+					
+	  				$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` datetime NOT NULL DEFAULT \''.(!empty($info['default']) ? $info['default'] : '0000-00-00 00:00:00').'\'');	
+				}else if($this->_is_float($info)) 
 					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` DOUBLE NOT NULL DEFAULT \''.(!empty($info['default']) ? $info['default'] : '0').'\'');
 				else if($this->_is_tableau($info) || $this->_is_text($info)) 
 					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` LONGTEXT');
@@ -263,7 +285,7 @@ function _no_save_vars($lst_chp) {
 		return $this->{$nom_champ};
 	}
 	
-  function _is_date($info){
+  function _is_date(&$info){
   	
 	if(is_array($info)) {
 		if(isset($info['type']) && $info['type']=='date') return true;
@@ -271,8 +293,12 @@ function _no_save_vars($lst_chp) {
 	}
 	else {
 	    $pos = strpos($info,'type=date;'); // deprecated
-	    if($pos===false)return false;
-	    else return true;
+	    if($pos===false) {
+	    	return false;
+		}
+	    else {
+	    	return true;
+		}
 		
 	}
   }
