@@ -334,8 +334,12 @@ class TListviewTBS {
 				else {
 					$targetField = $field;
 				}
-var_dump($typeMath,$field,$targetField);
-				if($typeMath=='average') {
+
+				if($typeMath == 'groupsum') {
+					$TTotal['@groupsum'][$field] = $this->TTotalTmp['@groupsum'][$targetField];
+					var_dump($this->TTotalTmp,$field);exit;
+				}
+				else if($typeMath=='average') {
 					$TTotal[$field]=array_sum($this->TTotalTmp[$targetField]) / count($this->TTotalTmp[$targetField]);
 				}
 				elseif($typeMath=='count') {
@@ -757,7 +761,8 @@ var_dump($typeMath,$field,$targetField);
 				$trans['@'.$field.'@'] = $value;
 				
 				if(!empty($TParam['math'][$field])) {
-					$this->TTotalTmp[$field][] = (double)strip_tags($value);
+					$float_value = (double)strip_tags($value);
+					$this->TTotalTmp[$field][] = $float_value;
 				}
 				
 				if(!in_array($field,$TParam['hide'])) {
@@ -797,11 +802,14 @@ var_dump($typeMath,$field,$targetField);
 				
 			} 
 
-			/*if(!empty($TParam['search']) && !empty($row)) {
-				$row['actions']= '';
-			}*/
-		
-
+			foreach($row as $field=>$value) {
+				if(!empty($TParam['math'][$field]) && is_array($TParam['math'][$field])) {
+						$toField = $TParam['math'][$field][1];
+						$float_value = (double)strip_tags($value);
+						$this->TTotalTmp['@groupsum'][$toField][ $row[$field]  ] +=$float_value;	
+				}
+			}
+				
 			$TChamps[] = $row;	
 	}
 	
