@@ -61,18 +61,12 @@ class TListviewTBS {
 			,'export'=>array()
 		),$TParam['liste']);
 		
-		if(!isset($TParam['limit']))$TParam['limit']=array();
+		if(empty($TParam['limit']))$TParam['limit']=array();
 		if(!empty($_REQUEST['TListTBS'][$this->id]['page'])) $TParam['limit']['page'] = $_REQUEST['TListTBS'][$this->id]['page'];
 		
-		$TParam['limit']=array_merge(array('page'=>1, 'nbLine'=>30), $TParam['limit']);
+		$TParam['limit']=array_merge(array('page'=>1, 'nbLine'=>30, 'global'=>0), $TParam['limit']);
 		
 		if(!empty($_REQUEST['TListTBS'][$this->id]['orderBy'])) {
-			/*
-			 	$TParam['orderBy'] = array();	
-				foreach($_REQUEST['TListTBS'][$this->id]['orderBy'] as $asc=>$field) {
-					$TParam['orderBy'][$field]=$asc;
-				}
-			 */
 			$TParam['orderBy'] = $_REQUEST['TListTBS'][$this->id]['orderBy']; 
 		}
 		
@@ -843,9 +837,22 @@ class TListviewTBS {
 		return $sql;
 	}
 	
+	private function limitSQL($sql,&$TParam) {
+		
+		if(!empty($TParam['limit']['global']) && strpos($sql,'LIMIT ')===false ) {
+			
+			$sql.=' LIMIT '.(int)$TParam['limit']['global'];
+			
+		}
+		
+		return $sql;
+	}
+	
 	private function parse_sql(&$PDOdb, &$TEntete, &$TChamps,&$TParam, $sql, $TBind=array()) {
 		
 		//$sql.=' LIMIT '.($TParam['limit']['page']*$TParam['limit']['nbLine']).','.$TParam['limit']['nbLine'];
+		$sql = $this->limitSQL($sql, $TParam);
+		
 		$this->TTotalTmp=array();
 		
 		$this->sql = $this->getSQL($PDOdb,$sql,$TParam);
