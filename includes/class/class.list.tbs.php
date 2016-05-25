@@ -194,14 +194,14 @@ class TListviewTBS {
 		
 		$this->parse_sql($db, $TEntete, $TChamps, $TParam, $sql);	
 		
-		$TTotal=$this->get_total($TChamps, $TParam);
+		list($TTotal, $TTotalGroup)=$this->get_total($TChamps, $TParam);
 		
 		
 		if($TParam['type'] == 'chart') {
 			return $this->renderChart($TEntete, $TChamps,$TTotal, $TParam);	
 		}
 		else {
-			return $this->renderList($TEntete, $TChamps,$TTotal, $TParam);	
+			return $this->renderList($TEntete, $TChamps,$TTotal,$TTotalGroup, $TParam);	
 		}
 		
 		
@@ -221,9 +221,9 @@ class TListviewTBS {
 		$sql = $this->order_by($sql, $TParam);		
 		
 		$this->parse_sql($db, $TEntete, $TChamps, $TParam, $sql);	
-		$TTotal=$this->get_total($TChamps, $TParam);
+		list($TTotal, $TTotalGroup)=$this->get_total($TChamps, $TParam);
 		
-		return $this->renderList($TEntete, $TChamps,$TTotal, $TParam);
+		return $this->renderList($TEntete, $TChamps,$TTotal,$TTotalGroup, $TParam);
 		
 	}
 	public function renderXML(&$db,$xmlString, $TParam=array()) {
@@ -236,9 +236,9 @@ class TListviewTBS {
 		
 		$this->parse_xml($db, $TEntete, $TChamps, $TParam,$xmlString);
 		
-		$TTotal=$this->get_total($TChamps, $TParam);
+		list($TTotal, $TTotalGroup)=$this->get_total($TChamps, $TParam);
 		
-		return $this->renderList($TEntete, $TChamps,$TTotal, $TParam);
+		return $this->renderList($TEntete, $TChamps,$TTotal,$TTotalGroup, $TParam);
 		
 	}
 	private function setSearch(&$TEntete, &$TParam) {
@@ -323,6 +323,7 @@ class TListviewTBS {
 			
 			foreach($TChamps[0] as $field=>$value) {
 				$TTotal[$field]='';	
+				$TTotalGroup[$field] = '';
 			}
 		
 			foreach($TParam['math'] as $field=>$typeMath){
@@ -336,8 +337,8 @@ class TListviewTBS {
 				}
 
 				if($typeMath == 'groupsum') {
-					$TTotal['@groupsum'][$field] = $this->TTotalTmp['@groupsum'][$targetField];
-					var_dump($this->TTotalTmp,$field);exit;
+					$TTotalGroup[$field] = array('target'=>$targetField, 'values'=> $this->TTotalTmp['@groupsum'][$targetField]);
+					
 				}
 				else if($typeMath=='average') {
 					$TTotal[$field]=array_sum($this->TTotalTmp[$targetField]) / count($this->TTotalTmp[$targetField]);
@@ -354,7 +355,7 @@ class TListviewTBS {
 		
 		}
 		
-		return $TTotal;
+		return array($TTotal,$TTotalGroup);
 	}
 
 	private function getJS(&$TParam) {
@@ -588,7 +589,50 @@ class TListviewTBS {
 		return $html;
 	}
 
-	private function renderList(&$TEntete, &$TChamps, &$TTotal, &$TParam) {
+	private function addTotalGroup($TChamps,$TTotalGroup) {
+		
+		$Tab=array();
+		
+		$proto_total_line = array();
+		
+		foreach($TChamps as &$line) {
+				
+			$Tab[] = $line;
+			if(empty($proto_total_line)) {
+				foreach($line as $field=>$value) {
+					$proto_total_line[$field] = '';
+				}
+				
+			}
+			
+			$empty_line = $proto_total_line;
+			$addGroupLine = false;
+			
+			foreach($line as $field=>$value) {
+				
+				if(!empty($TTotalGroup[$field])) {
+					
+					$empty_line[$field] = '<div style="text-align:right; font-weight:bold; color:#552266;">'.$value.' : </div>';
+					$empty_line[$TTotalGroup[$field]['target']] = '<div style="text-align:right; font-weight:bold; color:#552266;">'.price($TTotalGroup[$field]['values'][$value]).'</div>';
+					$addGroupLine = true;
+					
+					//var_dump($empty_line,$TTotalGroup[$field]);exit;
+				}
+				
+			}
+			
+			if($addGroupLine) {
+				$Tab[] = $empty_line;
+			}
+			
+			
+		}
+		
+		
+		return $Tab;
+	}
+
+	private function renderList(&$TEntete, &$TChamps, &$TTotal,&$TTotalGroup, &$TParam) {
 		$TBS = new TTemplateTBS;
 		
 		$javaScript = $this->getJS($TParam);
@@ -604,6 +648,7 @@ class TListviewTBS {
 		
 		$TSearch = $this->setSearch($TEntete, $TParam);
 		$TExport=$this->setExport($TParam, $TChamps, $TEntete);
+		$TChamps = $this->addTotalGroup($TChamps,$TTotalGroup);
 		
 		return $TBS->render($this->template
 			, array(
@@ -632,8 +677,8 @@ class TListviewTBS {
 		$this->init($TParam);
 		
 		$this->parse_array($TEntete, $TChamps, $TParam,$TField);
-		$TTotal=$this->get_total($TChamps, $TParam);
-		return $this->renderList($TEntete, $TChamps, $TTotal,$TParam);
+		list($TTotal, $TTotalGroup)=$this->get_total($TChamps, $TParam);
+		return $this->renderList($TEntete, $TChamps, $TTotal,$TTotalGroup,$TParam);
 		
 	}
 	public function renderArray(&$db,$TField, $TParam=array()) {
@@ -645,13 +690,13 @@ class TListviewTBS {
 		$this->init($TParam);
 		
 		$this->parse_array($TEntete, $TChamps, $TParam,$TField);
-		$TTotal=$this->get_total($TChamps, $TParam);
+		list($TTotal, $TTotalGroup)=$this->get_total($TChamps, $TParam);
 		
 		if($TParam['type'] == 'chart') {
 			return $this->renderChart($TEntete, $TChamps,$TTotal, $TParam);	
 		}
 		else {
-			return $this->renderList($TEntete, $TChamps,$TTotal, $TParam);	
+			return $this->renderList($TEntete, $TChamps,$TTotal,$TTotalGroup, $TParam);	
 		}
 	}
 
@@ -783,8 +828,8 @@ class TListviewTBS {
 						}
 						if($TParam['type'][$field]=='datetime') { $row[$field] = date('d/m/Y H:i:s', strtotime($row[$field])); }
 						if($TParam['type'][$field]=='hour') { $row[$field] = date('H:i', strtotime($row[$field])); }
-						if($TParam['type'][$field]=='money') { $row[$field] = '<div align="right">'.number_format((double)$row[$field],2,',',' ').'</div>'; }
-						if($TParam['type'][$field]=='number') { $row[$field] = '<div align="right">'.number_format((double)$row[$field],2,',',' ').'</div>'; }
+						if($TParam['type'][$field]=='money') { $row[$field] = '<div align="right">'.price($row[$field]).'</div>'; }
+						if($TParam['type'][$field]=='number') { $row[$field] = '<div align="right">'.price($row[$field]).'</div>'; }
 					}
 
                                         if(isset($TParam['link'][$field])) {
@@ -805,8 +850,9 @@ class TListviewTBS {
 			foreach($row as $field=>$value) {
 				if(!empty($TParam['math'][$field]) && is_array($TParam['math'][$field])) {
 						$toField = $TParam['math'][$field][1];
-						$float_value = (double)strip_tags($value);
-						$this->TTotalTmp['@groupsum'][$toField][ $row[$field]  ] +=$float_value;	
+						$float_value = (double)strip_tags($row[$toField]);
+						$this->TTotalTmp['@groupsum'][$toField][ $row[$field]  ] +=$float_value;
+						
 				}
 			}
 				
