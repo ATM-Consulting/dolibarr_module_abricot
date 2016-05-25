@@ -318,7 +318,7 @@ class TListviewTBS {
 	 */
 	private function get_total(&$TChamps, &$TParam) {
 		$TTotal=array();	
-			
+		
 		if(!empty($TParam['math']) && !empty($TChamps[0])) {
 			
 			foreach($TChamps[0] as $field=>$value) {
@@ -327,14 +327,22 @@ class TListviewTBS {
 		
 			foreach($TParam['math'] as $field=>$typeMath){
 
-				if($typeMath=='average') {
-					$TTotal[$field]=array_sum($this->TTotalTmp[$field]) / count($this->TTotalTmp[$field]);
-				}
-				elseif($typeMath=='count') {
-					$TTotal[$field]=count($this->TTotalTmp[$field]);
+				if(is_array($typeMath)) {
+					$targetField = $typeMath[1];
+					$typeMath = $typeMath[0];
 				}
 				else {
-					$TTotal[$field]=array_sum($this->TTotalTmp[$field]);	
+					$targetField = $field;
+				}
+var_dump($typeMath,$field,$targetField);
+				if($typeMath=='average') {
+					$TTotal[$field]=array_sum($this->TTotalTmp[$targetField]) / count($this->TTotalTmp[$targetField]);
+				}
+				elseif($typeMath=='count') {
+					$TTotal[$field]=count($this->TTotalTmp[$targetField]);
+				}
+				else {
+					$TTotal[$field]=array_sum($this->TTotalTmp[$targetField]);	
 				}
 								
 			}
