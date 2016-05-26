@@ -590,42 +590,55 @@ class TListviewTBS {
 	}
 
 	private function addTotalGroup($TChamps,$TTotalGroup) {
+		global $langs;
 		
 		$Tab=array();
 		
 		$proto_total_line = array();
 		
-		foreach($TChamps as &$line) {
+		$tagbase = $old_tagbase = null;
+		
+		$addGroupLine = false;
+		
+		foreach($TChamps as $k=>&$line) {
 				
-			$Tab[] = $line;
 			if(empty($proto_total_line)) {
 				foreach($line as $field=>$value) {
 					$proto_total_line[$field] = '';
 				}
-				
+				$group_line = $proto_total_line;	
 			}
 			
-			$empty_line = $proto_total_line;
 			$addGroupLine = false;
 			
+			$tagbase = '';
 			foreach($line as $field=>$value) {
 				
 				if(!empty($TTotalGroup[$field])) {
-					
-					$empty_line[$field] = '<div style="text-align:right; font-weight:bold; color:#552266;">'.$value.' : </div>';
-					$empty_line[$TTotalGroup[$field]['target']] = '<div style="text-align:right; font-weight:bold; color:#552266;">'.price($TTotalGroup[$field]['values'][$value]).'</div>';
+					$tagbase.=$value.'|';
+					$group_line[$field] = '<div style="text-align:right; font-weight:bold; color:#552266;">'.(empty($value) ? $langs->trans('Empty') : $value ).' : </div>';
+					$group_line[$TTotalGroup[$field]['target']] = '<div style="text-align:right; font-weight:bold; color:#552266;">'.price($TTotalGroup[$field]['values'][$value]).'</div>';
 					$addGroupLine = true;
-					
-					//var_dump($empty_line,$TTotalGroup[$field]);exit;
 				}
 				
 			}
 			
-			if($addGroupLine) {
-				$Tab[] = $empty_line;
+			if(!is_null($old_tagbase) && $old_tagbase!=$tagbase && $addGroupLine) {
+			//	var_dump(array($k,$tagbase,$old_tagbase,$empty_line));
+				$Tab[] = $previous_group_line;
 			}
 			
+			$old_tagbase = $tagbase;
+			$previous_group_line = $group_line;
+			$group_line = $proto_total_line;
 			
+			$Tab[] = $line;
+			
+			
+			
+		}
+		if($addGroupLine) {
+			$Tab[] = $previous_group_line;
 		}
 		
 		
