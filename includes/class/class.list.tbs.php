@@ -317,7 +317,7 @@ class TListviewTBS {
 	 * Supporté : sum, average
 	 */
 	private function get_total(&$TChamps, &$TParam) {
-		$TTotal=array();	
+		$TTotal=$TTotalGroup=array();	
 		
 		if(!empty($TParam['math']) && !empty($TChamps[0])) {
 			
