@@ -403,7 +403,7 @@ function _no_save_vars($lst_chp) {
       }
       else if($this->_is_date($info)){
 		if(empty($this->{$nom_champ})){
-			$query[$nom_champ] = '0000-00-00 00:00:00';
+			$query[$nom_champ] = 'null';
 		}
 		else{
 			$date = date('Y-m-d H:i:s',$this->{$nom_champ});
