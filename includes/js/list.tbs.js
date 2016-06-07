@@ -1,12 +1,21 @@
 var TListTBS_include = true;
 
 function TListTBS_OrderDown(idListe, column) {
-	url = TListTBS_removeParam(document.location.href,'TListTBS['+encodeURIComponent(idListe)+'][orderBy]');
-	document.location.href=TListTBS_modifyUrl(url,"TListTBS["+encodeURIComponent(idListe)+"][orderBy]["+encodeURIComponent(column)+"]","DESC");
+	var base_url = document.location.href;
+	
+	base_url = TListTBS_recup_form_param(idListe,base_url);
+	base_url = TListTBS_removeParam(base_url,'TListTBS['+encodeURIComponent(idListe)+'][orderBy]');
+	
+	document.location.href=TListTBS_modifyUrl(base_url,"TListTBS["+encodeURIComponent(idListe)+"][orderBy]["+encodeURIComponent(column)+"]","DESC");
 }
 function TListTBS_OrderUp(idListe, column) {
-	url = TListTBS_removeParam(document.location.href,'TListTBS['+encodeURIComponent(idListe)+'][orderBy]');
-	document.location.href=TListTBS_modifyUrl(url,"TListTBS["+encodeURIComponent(idListe)+"][orderBy]["+encodeURIComponent(column)+"]","ASC");
+	
+	var base_url = document.location.href;
+	
+	base_url = TListTBS_recup_form_param(idListe,base_url);
+	base_url = TListTBS_removeParam(base_url,'TListTBS['+encodeURIComponent(idListe)+'][orderBy]');
+	
+	document.location.href=TListTBS_modifyUrl(base_url,"TListTBS["+encodeURIComponent(idListe)+"][orderBy]["+encodeURIComponent(column)+"]","ASC");
 }
 function TListTBS_modifyUrl(strURL,paramName,paramNewValue){
 	    if (strURL.indexOf(paramName+'=')!=-1){
@@ -46,8 +55,26 @@ function TListTBS_removeParam(strURL, paramMask) {
 	 
 	 return url;
 }
+
+function TListTBS_recup_form_param(idListe,base_url) {
+	
+	$('#'+idListe+' tr.barre-recherche [listviewtbs]').each(function(i,item) {
+		
+		base_url = TListTBS_modifyUrl(base_url, $(item).attr("name") , $(item).val());
+		
+	});
+	
+	return base_url;
+}
+
 function TListTBS_GoToPage(idListe,pageNumber){
-	document.location.href=TListTBS_modifyUrl(document.location.href,"TListTBS["+encodeURIComponent(idListe)+"][page]",pageNumber);
+	
+	var base_url = document.location.href;
+	
+	base_url = TListTBS_recup_form_param(idListe,base_url);
+	base_url =TListTBS_modifyUrl(base_url,"TListTBS["+encodeURIComponent(idListe)+"][page]",pageNumber);
+	
+	document.location.href=base_url;
 }
 function TListTBS_submitSearch(obj) {
 	

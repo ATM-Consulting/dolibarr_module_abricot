@@ -36,6 +36,8 @@ class TListviewTBS {
 	}
 	private function init(&$TParam) {
 		
+		global $conf;
+		
 		if(!isset($TParam['hide']))$TParam['hide']=array();
 		if(!isset($TParam['link']))$TParam['link']=array();
 		if(!isset($TParam['subQuery']))$TParam['subQuery']=array();
@@ -64,7 +66,7 @@ class TListviewTBS {
 		if(empty($TParam['limit']))$TParam['limit']=array();
 		if(!empty($_REQUEST['TListTBS'][$this->id]['page'])) $TParam['limit']['page'] = $_REQUEST['TListTBS'][$this->id]['page'];
 		
-		$TParam['limit']=array_merge(array('page'=>1, 'nbLine'=>30, 'global'=>0), $TParam['limit']);
+		$TParam['limit']=array_merge(array('page'=>1, 'nbLine'=>$conf->liste_limit, 'global'=>0), $TParam['limit']);
 		
 		if(!empty($_REQUEST['TListTBS'][$this->id]['orderBy'])) {
 			$TParam['orderBy'] = $_REQUEST['TListTBS'][$this->id]['orderBy']; 
@@ -266,20 +268,20 @@ class TListviewTBS {
 			
 			if(is_array($typeRecherche)) {
 				$typeRecherche = array(''=>' ') + $typeRecherche;
-				$fsearch=$form->combo('','TListTBS['.$this->id.'][search]['.$key.']', $typeRecherche,$value);
+				$fsearch=$form->combo('','TListTBS['.$this->id.'][search]['.$key.']', $typeRecherche,$value,0,'',' listviewtbs="combo" ');
 			}
 			else if($typeRecherche==='calendar') {
-				$fsearch=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.']',$value,10,10);	
+				$fsearch=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.']',$value,10,10,' listviewtbs="calendar" ');	
 			}
 			else if($typeRecherche==='calendars') {
-				$fsearch=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.'][deb]',isset($value['deb'])?$value['deb']:'',10,10)
-					.' '.$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.'][fin]',isset($value['fin'])?$value['fin']:'',10,10);	
+				$fsearch=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.'][deb]',isset($value['deb'])?$value['deb']:'',10,10,' listviewtbs="calendars" ')
+					.' '.$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.'][fin]',isset($value['fin'])?$value['fin']:'',10,10,' listviewtbs="calendars" ');	
 			}
 			else if(is_string($typeRecherche)) {
 				$fsearch=$TParam['search'][$key];	
 			}
 			else {
-				$fsearch=$form->texte('','TListTBS['.$this->id.'][search]['.$key.']',$value,15,255);	
+				$fsearch=$form->texte('','TListTBS['.$this->id.'][search]['.$key.']',$value,15,255,' listviewtbs="input" ');	
 			}
 
 			if(!empty($TEntete[$key]) || $TParam['type'] == 'chart') {
