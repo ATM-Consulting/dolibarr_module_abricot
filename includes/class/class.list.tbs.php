@@ -892,6 +892,12 @@ class TListviewTBS {
 	}
 	
 	private function getSQL(&$PDOdb,$sql,&$TParam) {
+		global $user,$conf;
+
+		$sql=strtr($sql,array(
+			'@current_user@'=>$user->id
+		));
+
 		//AA oui c'est moche mais le bindParam ne prends pas en compte les tableaux pour le IN ce qui est super pénélisant. En attendant de refaire mieux ou d'un coup de main
 		$TBind = $this->getBind($TParam);
 		
@@ -910,7 +916,7 @@ class TListviewTBS {
 			}
 			
 		}
-		
+//		echo $sql;
 		return $sql;
 	}
 	
