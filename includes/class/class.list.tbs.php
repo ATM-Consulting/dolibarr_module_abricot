@@ -362,8 +362,9 @@ class TListviewTBS {
 
 		if($this->typeRender=='dataTable') {
 			
-			$javaScript.='<script language="javascript">
-			
+			$javaScript.='<!-- datatable  -->
+			<script language="javascript">
+					
 					if(typeof(TListTBS_dataTable_include)=="undefined") {
 						var TListTBS_dataTable_include=true;	
 						document.write("<script type=\"text/javascript\" src=\"'.COREHTTP.'includes/js/dataTable/js/jquery.dataTables.min.js\"></scr");
@@ -384,7 +385,8 @@ class TListviewTBS {
 			$TPagination=array();
 		}
 		elseif($this->typeRender=='dataTableAjax') {
-			$javaScript.='<script language="javascript">
+			$javaScript.='<!-- datatable  -->
+			<script language="javascript">
 			
 					if(typeof(TListTBS_dataTable_include)=="undefined") {
 						var TListTBS_dataTable_include=true;
