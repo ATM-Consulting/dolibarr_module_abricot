@@ -797,72 +797,102 @@ class TListviewTBS {
 		}*/
 		
 	}
+	
+	private function in_view(&$TParam, $line_number) {
+		global $conf;
+		
+		$page_number = !empty($TParam['limit']['page']) ? $TParam['limit']['page'] : 1;
+		$line_per_page = !empty($TParam['limit']['nbLine']) ? $TParam['limit']['nbLine'] : $conf->liste_limit;
+		
+		$start = ($page_number-1) * $line_per_page;
+		$end = ($page_number* $line_per_page) -1;
+		
+		if($line_number>=$start && $line_number<=$end) return true;
+		else return false;
+	}
+	
 	private function set_line(&$TChamps, &$TParam, $currentLine) {
 		
 			global $conf;
 		
-			$row=array(); $trans = array();
-			foreach($currentLine as $field=>$value) {
+			$line_number = count($TChamps);
+			
+			if($this->in_view($TParam,$line_number)) {
 				
-				if(is_object($value)) {
-					if(get_class($value)=='stdClass') {$value=print_r($value, true);}
-					else $value=(string)$value;
-				} 
-				
-				if(isset($TParam['subQuery'][$field])) {
-					$dbSub = new TPDOdb; //TODO finish it
-					$dbSub->Execute( strtr($TParam['subQuery'][$field], array_merge( $trans, array('@val@'=>$value)  )) );
-					$subResult = '';
-					while($dbSub->Get_line()) {
-						$subResult.= implode(', ',$dbSub->currentLine).'<br />';
-					}
-					$value=$subResult;
-					$dbSub->close();
-				}
-				
-				$trans['@'.$field.'@'] = $value;
-				
-				if(!empty($TParam['math'][$field])) {
-					$float_value = (double)strip_tags($value);
-					$this->TTotalTmp[$field][] = $float_value;
-				}
-				
-				if(!in_array($field,$TParam['hide'])) {
-					$row[$field]=$value;
+				$row=array(); $trans = array();
+				foreach($currentLine as $field=>$value) {
 					
-					if(isset($TParam['eval'][$field]) && in_array($field,array_keys($row))) {
-						$strToEval = 'return '.strtr( $TParam['eval'][$field] ,  array_merge( $trans, array('@val@'=>$row[$field])  )).';';
-						$row[$field] = eval($strToEval);
-					}
+					if(is_object($value)) {
+						if(get_class($value)=='stdClass') {$value=print_r($value, true);}
+						else $value=(string)$value;
+					} 
 					
-					if(isset($TParam['type'][$field])) {
-						if($TParam['type'][$field]=='date') {
-							if($row[$field] != '0000-00-00 00:00:00' && $row[$field] != '0000-00-00' && !empty($row[$field])) {
-								$row[$field] = date('d/m/Y', strtotime($row[$field]));
-							} else {
-								$row[$field] = '';
-							}
+					if(isset($TParam['subQuery'][$field])) {
+						$dbSub = new TPDOdb; //TODO finish it
+						$dbSub->Execute( strtr($TParam['subQuery'][$field], array_merge( $trans, array('@val@'=>$value)  )) );
+						$subResult = '';
+						while($dbSub->Get_line()) {
+							$subResult.= implode(', ',$dbSub->currentLine).'<br />';
 						}
-						if($TParam['type'][$field]=='datetime') { $row[$field] = date('d/m/Y H:i:s', strtotime($row[$field])); }
-						if($TParam['type'][$field]=='hour') { $row[$field] = date('H:i', strtotime($row[$field])); }
-						if($TParam['type'][$field]=='money') { $row[$field] = '<div align="right">'.price($row[$field]).'</div>'; }
-						if($TParam['type'][$field]=='number') { $row[$field] = '<div align="right">'.price($row[$field]).'</div>'; }
+						$value=$subResult;
+						$dbSub->close();
 					}
-
-                                        if(isset($TParam['link'][$field])) {
-                                                if(empty($row[$field]) && $row[$field]!==0 && $row[$field]!=='0')$row[$field]='(vide)';
-                                                $row[$field]= strtr( $TParam['link'][$field],  array_merge( $trans, array('@val@'=>$row[$field])  )) ;
-                                        }
-                                        
-                                        if(isset($TParam['translate'][$field])) {
-                                                $row[$field] = strtr( $row[$field] , $TParam['translate'][$field]);
-                                        }
-
-
+					
+					$trans['@'.$field.'@'] = $value;
+					
+					if(!empty($TParam['math'][$field])) {
+						$float_value = (double)strip_tags($value);
+						$this->TTotalTmp[$field][] = $float_value;
+					}
+					
+					if(!in_array($field,$TParam['hide'])) {
+						$row[$field]=$value;
+						
+						if(isset($TParam['eval'][$field]) && in_array($field,array_keys($row))) {
+							$strToEval = 'return '.strtr( $TParam['eval'][$field] ,  array_merge( $trans, array('@val@'=>$row[$field])  )).';';
+							$row[$field] = eval($strToEval);
+						}
+						
+						if(isset($TParam['type'][$field])) {
+							if($TParam['type'][$field]=='date') {
+								if($row[$field] != '0000-00-00 00:00:00' && $row[$field] != '0000-00-00' && !empty($row[$field])) {
+									$row[$field] = date('d/m/Y', strtotime($row[$field]));
+								} else {
+									$row[$field] = '';
+								}
+							}
+							if($TParam['type'][$field]=='datetime') { $row[$field] = date('d/m/Y H:i:s', strtotime($row[$field])); }
+							if($TParam['type'][$field]=='hour') { $row[$field] = date('H:i', strtotime($row[$field])); }
+							if($TParam['type'][$field]=='money') { $row[$field] = '<div align="right">'.price($row[$field]).'</div>'; }
+							if($TParam['type'][$field]=='number') { $row[$field] = '<div align="right">'.price($row[$field]).'</div>'; }
+						}
+	
+	                                        if(isset($TParam['link'][$field])) {
+	                                                if(empty($row[$field]) && $row[$field]!==0 && $row[$field]!=='0')$row[$field]='(vide)';
+	                                                $row[$field]= strtr( $TParam['link'][$field],  array_merge( $trans, array('@val@'=>$row[$field])  )) ;
+	                                        }
+	                                        
+	                                        if(isset($TParam['translate'][$field])) {
+	                                                $row[$field] = strtr( $row[$field] , $TParam['translate'][$field]);
+	                                        }
+	
+	
+					} 
+					
+					
 				} 
-				
-				
-			} 
+			}
+			else{
+				$row=array(); 
+				foreach($currentLine as $field=>$value) {
+					if(!empty($TParam['math'][$field])) {
+						$float_value = (double)strip_tags($value);
+						$this->TTotalTmp[$field][] = $float_value;
+					}
+					
+					$row[$field] = $value;
+				}
+			}
 
 			foreach($row as $field=>$value) {
 				if(!empty($TParam['math'][$field]) && is_array($TParam['math'][$field])) {
@@ -941,7 +971,7 @@ class TListviewTBS {
 		$this->TTotalTmp=array();
 		
 		$this->sql = $this->getSQL($PDOdb,$sql,$TParam);
-		//var_dump($this->sql);
+		
 		$res = $PDOdb->Execute($this->sql);
 		$first=true;
 		while($currentLine = $PDOdb->Get_line()) {
