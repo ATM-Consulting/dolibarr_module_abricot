@@ -537,7 +537,20 @@ function _no_save_vars($lst_chp) {
 		}
 		return false;
 	}
-	function addChild(&$db, $tabName, $id=0, $key=OBJETSTD_MASTERKEY) {
+	
+	function searchChild($tabName, $id=0, $key=OBJETSTD_MASTERKEY) {
+		
+		if($id>0) {
+			foreach($this->{$tabName} as $k=>&$object) {
+				if($object->{$key} == $id) return $k;
+
+			}
+		}
+		
+		return false;
+	}
+	
+	function addChild(&$db, $tabName, $id=0, $key=OBJETSTD_MASTERKEY, $try_to_load = false) {
 		if($id>0) {
 			foreach($this->{$tabName} as $k=>&$object) {
 				if($object->{$key} == $id) return $k;
@@ -551,7 +564,7 @@ function _no_save_vars($lst_chp) {
 
 		if(empty($className))$className = $tabName;
 		$this->{$tabName}[$k] = new $className;
-		if($id>0) { $this->{$tabName}[$k]->load($db, $id); }
+		if($id>0 && $try_to_load) { $this->{$tabName}[$k]->loadBy($db, $id,$key); }
 
 
 		return $k;
