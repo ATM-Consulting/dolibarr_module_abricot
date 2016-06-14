@@ -78,9 +78,9 @@ class TListviewTBS {
 	private function getSearchKey($key, &$TParam) {
 				
 		$prefixe='';	
-		if(isset($TParam['search'][$key]['table']))$prefixe='`'.$TParam['search'][$key]['table'].'`.';
+		if(!empty($TParam['search'][$key]['table']))$prefixe='`'.$TParam['search'][$key]['table'].'`.';
 		
-		if(isset($TParam['search'][$key]['field']))$key =$prefixe.'`'. $TParam['search'][$key]['field'] .'`';
+		if(!empty($TParam['search'][$key]['field']))$key =$prefixe.'`'. $TParam['search'][$key]['field'] .'`';
 		else $key =$prefixe.'`'. strtr($key,';','*').'`';
 			
 		return $key;
@@ -801,6 +801,8 @@ class TListviewTBS {
 	private function in_view(&$TParam, $line_number) {
 		global $conf;
 		
+		if(!empty($TParam['export'])) return true; // doit être dans la vue
+
 		$page_number = !empty($TParam['limit']['page']) ? $TParam['limit']['page'] : 1;
 		$line_per_page = !empty($TParam['limit']['nbLine']) ? $TParam['limit']['nbLine'] : $conf->liste_limit;
 		
