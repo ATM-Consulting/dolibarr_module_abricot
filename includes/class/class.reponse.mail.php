@@ -48,6 +48,8 @@ class TReponseMail{
 	function send($html=true,$encoding='iso-8859-1'){
 		global $conf;
 		
+		if(!empty($conf->global->MAIN_DISABLE_ALL_MAILS)) return false; // désactivé globalement
+		
 		if($this->reply_to==""){
 			$this->reply_to = $this->emailfrom;
 		}
