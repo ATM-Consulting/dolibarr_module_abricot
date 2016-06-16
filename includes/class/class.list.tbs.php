@@ -876,6 +876,7 @@ class TListviewTBS {
 	                                        }
 	                                        
 	                                        if(isset($TParam['translate'][$field])) {
+							if(isset($TParam['translate'][$field][''])) unset($TParam['translate'][$field]['']);
 	                                                $row[$field] = strtr( $row[$field] , $TParam['translate'][$field]);
 	                                        }
 	
