@@ -10,11 +10,11 @@
 				<div class="pagination"> 
 					[onshow;block=div; when [liste.havePage]+-0 ]
 					<!-- [onshow;block=div;when [pagination.last]+-1 ] -->
-					<ul>
-						<li class="pagination"><a class="paginationprevious" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.prev])"><!-- [pagination.prev;endpoint;magnet=li] --> [liste.picto_precedent;strconv=no] </a></li>
-						<li class="pagination"><a class="page" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.page;navsize=15;navpos=centred])"> [pagination.page;block=li] </a></li>
-						<li class="pagination"><span class="active"> [pagination.page;block=li;currpage] </span></li>
-						<li class="pagination"><a class="paginationnext" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.next])"><!-- [pagination.last;endpoint;magnet=li] --> [liste.picto_suivant;strconv=no] </a></li>
+					<ul style="display: inline-block; list-style: outside none none;">
+						<li class="pagination" style="display: inline-block;"><a class="paginationprevious" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.prev])"><!-- [pagination.prev;endpoint;magnet=li] --> [liste.picto_precedent;strconv=no] </a></li>
+						<li class="pagination" style="display: inline-block;"><a class="page" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.page;navsize=15;navpos=centred])"> [pagination.page;block=li] </a></li>
+						<li class="pagination" style="display: inline-block;"><span class="active"> [pagination.page;block=li;currpage] </span></li>
+						<li class="pagination" style="display: inline-block;"><a class="paginationnext" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.next])"><!-- [pagination.last;endpoint;magnet=li] --> [liste.picto_suivant;strconv=no] </a></li>
 					</ul>
 				</div>
 			</td>
