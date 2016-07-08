@@ -1884,6 +1884,7 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus="", $enLigne=true){
 	function radio($pLib,$pName,$pListe,$pDefault, $plus="",$class='',$id='', $enligne = true){
 	    $lib   = "<b> $pLib </b>";
 	    $field ="<TABLE class='form' BORDER=0><TR>\n";
+		if($enLigne == true) $field.="<TR>\n";
 	    while (list ($val, $libelle) = each ($pListe)){
 	        $field .= "<TD>$libelle</TD>";
 	        if ($val == $pDefault){
@@ -1893,9 +1894,9 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus="", $enLigne=true){
 	            $checked = " ";
 			}
 	        $field .= "<TD><INPUT TYPE='RADIO' NAME='$pName' VALUE=\"$val\" ". " $checked $plus> </TD>\n";
-			if(empty($enligne))$field.="\n</TR>\n";
+			if($enligne == false)$field.="\n</TR>\n";
 		}
-		if(!empty($enligne))$field.="\n</TR>";
+		if($enligne == true)$field.="\n</TR>";
   		$field .= "</TABLE>";
 	    if ($this->type_aff =='VIEW'){
 	      $field = $pListe[$pDefault];
