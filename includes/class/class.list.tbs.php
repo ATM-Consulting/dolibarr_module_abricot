@@ -855,7 +855,7 @@ class TListviewTBS {
 							$row[$field] = eval($strToEval);
 						}
 						
-						if(isset($TParam['type'][$field])) {
+						if(isset($TParam['type'][$field]) && !isset($TParam['eval'][$field])) {
 							if($TParam['type'][$field]=='date') {
 								if($row[$field] != '0000-00-00 00:00:00' && $row[$field] != '0000-00-00' && !empty($row[$field])) {
 									$row[$field] = date('d/m/Y', strtotime($row[$field]));
