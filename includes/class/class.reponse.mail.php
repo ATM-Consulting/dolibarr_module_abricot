@@ -70,7 +70,7 @@ class TReponseMail{
 				foreach($this->TPiece as &$piece) {
 					$TFilePath[] = $piece['file'];
 					$TMimeType[] = $piece['mimetype'];
-					$TFileName[] = basename($piece['file']);
+					$TFileName[] = !empty($piece['name']) ? $piece['name'] : basename($piece['file']);
 				}
 																												//,$filepath,$mimetype,$filename
 				$mail=new CMailFile($this->titre, $this->emailto, $this->emailfrom, $this->corps,$TFilePath,$TMimeType,$TFileName,'',$this->emailtoBcc,0,$html );
@@ -129,6 +129,7 @@ class TReponseMail{
 		$fichier=chunk_split( base64_encode($fichier) );
 		//$boundary = md5($fichier);
 		//écriture de la pièce jointe
+		
 		$body = "--" .$this->boundary. "\n";
 		$body .="Content-Type: $type; name=\"$nom_fichier\"\n";
 		$body .="Content-Transfer-Encoding: base64\n";
@@ -139,7 +140,7 @@ class TReponseMail{
 			'file'=>$chemin_fichier
 			,'mimetype'=>$type
 			,'data'=>$piece
-			
+			,'name'=>$nom_fichier
 		);
 	
 	}

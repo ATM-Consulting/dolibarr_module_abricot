@@ -114,6 +114,18 @@ echo ajax_constantonoff('ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING');
 print '</form>';
 print '</td></tr>';
 
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("set_ABRICOT_USE_OLD_EMPTY_DATE_FORMAT").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="set_ABRICOT_USE_OLD_EMPTY_DATE_FORMAT">';
+echo ajax_constantonoff('ABRICOT_USE_OLD_EMPTY_DATE_FORMAT');
+print '</form>';
+print '</td></tr>';
+
 print '</table>';
 
 llxFooter();

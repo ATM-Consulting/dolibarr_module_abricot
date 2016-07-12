@@ -26,6 +26,7 @@ class TObjetStd {
 	 * constructeur
 	 **/
 	function __construct(){
+		global $conf;
 
 		$this->table=''; /* table contenant les données */
 		$this->{OBJETSTD_MASTERKEY}=0; /* clef primaire */
@@ -37,6 +38,9 @@ class TObjetStd {
 		$this->TConstraint=array();
 
 		$this->errors=array();
+		
+		
+		$this->date_0 = empty($conf->global->ABRICOT_USE_OLD_EMPTY_DATE_FORMAT) ? '1000-01-01 00:00:00' : '0000-00-00 00:00:00';
 	}
 	/**
 	 * change la table
@@ -162,7 +166,7 @@ function _no_save_vars($lst_chp) {
 					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` int(11) NOT NULL DEFAULT \''.(!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0').'\'');
 				}else if($this->_is_date($info)) {
 
-	  				$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` datetime NOT NULL DEFAULT \''.(!empty($info['default']) ? $info['default'] : '1000-01-01 00:00:00').'\'');
+	  				$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` datetime NOT NULL DEFAULT \''.(!empty($info['default']) ? $info['default'] : $this->date_0).'\'');
 				}else if($this->_is_float($info))
 					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` DOUBLE NOT NULL DEFAULT \''.(!empty($info['default']) ? $info['default'] : '0').'\'');
 				else if($this->_is_tableau($info) || $this->_is_text($info))
@@ -181,21 +185,29 @@ function _no_save_vars($lst_chp) {
   }
 
   function init_db_by_vars(&$db) {
+	global $conf;
+	
   	$db->Execute("SHOW TABLES FROM `".DB_NAME."` LIKE '".$this->get_table()."'");
 	if(!$db->Get_line()) {
 		/*
 		 * La table n'existe pas, on la crée
 		 */
-
+		if(empty($conf->global->ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING)) {
+			$charset = $conf->db->character_set;	
+		}	
+		else {
+			$charset = ini_get('default_charset');
+			
+		}
 		$sql = "CREATE TABLE `".$this->get_table()."` (
  				`".OBJETSTD_MASTERKEY."` int(11) NOT NULL DEFAULT '0'
- 				,`".OBJETSTD_DATECREATE."` datetime NOT NULL DEFAULT '1000-01-01 00:00:00'
- 				,`".OBJETSTD_DATEUPDATE."` datetime NOT NULL DEFAULT '1000-01-01 00:00:00'
+ 				,`".OBJETSTD_DATECREATE."` datetime NOT NULL DEFAULT '".$this->date_0."'
+ 				,`".OBJETSTD_DATEUPDATE."` datetime NOT NULL DEFAULT '".$this->date_0."'
 
  				,PRIMARY KEY (`".OBJETSTD_MASTERKEY."`)
  				,KEY `".OBJETSTD_DATECREATE."` (`".OBJETSTD_DATECREATE."`)
  				,KEY `".OBJETSTD_DATEUPDATE."` (`".OBJETSTD_DATEUPDATE."`)
- 				) ENGINE=MyISAM DEFAULT CHARSET=utf8"; //TODO default charset from dolibarr ?
+ 				) ENGINE=MyISAM DEFAULT CHARSET=".$charset;
 
 		$db->Execute($sql);
 	}
@@ -403,7 +415,7 @@ function _no_save_vars($lst_chp) {
       }
       else if($this->_is_date($info)){
 		if(empty($this->{$nom_champ})){
-			$query[$nom_champ] = '1000-01-01 00:00:00';
+			$query[$nom_champ] = $this->date_0;
 		}
 		else{
 			$date = date('Y-m-d H:i:s',$this->{$nom_champ});

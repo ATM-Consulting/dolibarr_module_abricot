@@ -1669,7 +1669,7 @@ function comboOptGroup($pLib,$pName,$pListe,$pDefault,$pTaille=1,$onChange='',$p
  */
 function checkbox($pLib,$pName,$pListe,$pDefault, $plus="", $enLigne=true){
   $lib   = "<b> $pLib </b>";
-  $field ="<TABLE class='form' BORDER=0><TR>\n";
+  $field ="<TABLE class='form' BORDER=0>\n";
   if($enLigne) $field.="<TR>\n";
   while (list ($val, $libelle) = each ($pListe))
   {
@@ -1881,10 +1881,12 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus="", $enLigne=true){
 
 
 	
-	function radio($pLib,$pName,$pListe,$pDefault, $plus="",$class='',$id=''){
+	function radio($pLib,$pName,$pListe,$pDefault, $plus="",$class='',$id='', $enligne = true){
 	    $lib   = "<b> $pLib </b>";
-	    $field ="<TABLE class='form' BORDER=0><TR>\n";
+	    $field ="<TABLE class='form' BORDER=0>\n";
+		if($enligne == true) $field.="<TR>\n";
 	    while (list ($val, $libelle) = each ($pListe)){
+	    	if($enligne == false) $field.="<TR>\n";
 	        $field .= "<TD>$libelle</TD>";
 	        if ($val == $pDefault){
 	            $checked = "CHECKED";
@@ -1893,8 +1895,10 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus="", $enLigne=true){
 	            $checked = " ";
 			}
 	        $field .= "<TD><INPUT TYPE='RADIO' NAME='$pName' VALUE=\"$val\" ". " $checked $plus> </TD>\n";
-	    }
-	    $field .= "</TR></TABLE>";
+			if($enligne == false)$field.="\n</TR>\n";
+		}
+		if($enligne == true)$field.="\n</TR>";
+  		$field .= "</TABLE>";
 	    if ($this->type_aff =='VIEW'){
 	      $field = $pListe[$pDefault];
 		}  

@@ -856,14 +856,16 @@ class TListviewTBS {
 						}
 						
 						if(isset($TParam['type'][$field]) && !isset($TParam['eval'][$field])) {
-							if($TParam['type'][$field]=='date') {
-								if($row[$field] != '0000-00-00 00:00:00' && $row[$field] != '0000-00-00' && !empty($row[$field])) {
-									$row[$field] = date('d/m/Y', strtotime($row[$field]));
+							if($TParam['type'][$field]=='date' 
+								|| $TParam['type'][$field]=='datetime' ) {
+
+								if($row[$field] != '0000-00-00 00:00:00' && $row[$field] != '1000-01-01 00:00:00' && $row[$field] != '0000-00-00' && !empty($row[$field])) {
+									if($TParam['type'][$field]=='datetime')$row[$field] = dol_print_date(strtotime($row[$field]),'dayhoursec');
+									else $row[$field] = dol_print_date(strtotime($row[$field]),'day');
 								} else {
 									$row[$field] = '';
 								}
 							}
-							if($TParam['type'][$field]=='datetime') { $row[$field] = date('d/m/Y H:i:s', strtotime($row[$field])); }
 							if($TParam['type'][$field]=='hour') { $row[$field] = date('H:i', strtotime($row[$field])); }
 							if($TParam['type'][$field]=='money') { $row[$field] = '<div align="right">'.price($row[$field]).'</div>'; }
 							if($TParam['type'][$field]=='number') { $row[$field] = '<div align="right">'.price($row[$field]).'</div>'; }
