@@ -39,8 +39,8 @@ class TObjetStd {
 
 		$this->errors=array();
 		
+		$this->start();
 		
-		$this->date_0 = empty($conf->global->ABRICOT_USE_OLD_EMPTY_DATE_FORMAT) ? '1000-01-01 00:00:00' : '0000-00-00 00:00:00';
 	}
 	/**
 	 * change la table
@@ -187,18 +187,13 @@ function _no_save_vars($lst_chp) {
   function init_db_by_vars(&$db) {
 	global $conf;
 	
-  	$db->Execute("SHOW TABLES FROM `".DB_NAME."` LIKE '".$this->get_table()."'");
+	$db->Execute("SHOW TABLES FROM `".DB_NAME."` LIKE '".$this->get_table()."'");
 	if(!$db->Get_line()) {
 		/*
 		 * La table n'existe pas, on la crée
 		 */
-		if(empty($conf->global->ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING)) {
-			$charset = $conf->db->character_set;	
-		}	
-		else {
-			$charset = ini_get('default_charset');
-			
-		}
+		$charset = $conf->db->character_set;	
+		
 		$sql = "CREATE TABLE `".$this->get_table()."` (
  				`".OBJETSTD_MASTERKEY."` int(11) NOT NULL DEFAULT '0'
  				,`".OBJETSTD_DATECREATE."` datetime NOT NULL DEFAULT '".$this->date_0."'
@@ -467,6 +462,8 @@ function _no_save_vars($lst_chp) {
 			$this->init_db_by_vars($db);
 			$db->close();
 	 }
+	 
+	 $this->date_0 = empty($conf->global->ABRICOT_USE_OLD_EMPTY_DATE_FORMAT) ? '1000-01-01 00:00:00' : '0000-00-00 00:00:00';
 
   }
 	function run_trigger(&$ATMdb, $state)
