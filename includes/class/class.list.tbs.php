@@ -72,7 +72,6 @@ class TListviewTBS {
 			$TParam['orderBy'] = $_REQUEST['TListTBS'][$this->id]['orderBy']; 
 		}
 		
-		
 	//	print_r($TParam);
 	}
 	private function getSearchKey($key, &$TParam) {
@@ -258,7 +257,6 @@ class TListviewTBS {
 				if(empty($TSearch[$key]))$TSearch[$key]='';
 			}
 		}		
-		
 		foreach($TParam['search'] as $key=>$param_search) {
 			
 		
@@ -778,19 +776,92 @@ class TListviewTBS {
 	}
 	
 	private function init_entete(&$TEntete, &$TParam, $currentLine) {
+		
+		$TField=$TFieldVisibility=array();
+		
 		foreach ($currentLine as $field => $value) {
+			$TField[$field]=true;
+		}
+		
+		global $user;
+		
+		$contextpage=md5($_SERVER['PHP_SELF']);
+		if((float)DOL_VERSION>=4.0) {
 			
-			if(!in_array($field,$TParam['hide'])) {
-				$libelle = isset($TParam['title'][$field]) ? $TParam['title'][$field] : $field;
+			dol_include_once('/core/class/html.form.class.php');
+			
+			global $db,$conf,$user;
+			$form=new Form($db);
+				
+			$selectedfields = GETPOST('TListTBS_'.$this->id.'_selectedfields');
+			
+			if(!empty($selectedfields)) {
+				include_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
+				$tabparam['MAIN_SELECTEDFIELDS_'.$contextpage]=$selectedfields;
+	    		$result=dol_set_user_param($db, $conf, $user, $tabparam);
+			}
+			
+			$tmpvar='MAIN_SELECTEDFIELDS_'.$contextpage;
+			if (! empty($user->conf->$tmpvar)) {
+				$tmparray=explode(',', $user->conf->$tmpvar);
+				$TParam['hide']=array();
+		        foreach($TField as $field=>$dummy)
+		        {
+		          	$libelle = isset($TParam['title'][$field]) ? $TParam['title'][$field] : $field;
+
+					if(!in_array($field,$tmparray)) {
+				  		$TParam['hide'][] = $field;
+						$visible = 0;
+				  	}
+					else{
+						$visible = 1;
+					}
+		            
+					$TFieldVisibility[$field]=array(
+						'label'=>$libelle
+						,'checked'=>$visible
+					);
+					
+					
+		        }
+			}
+			else{
+				foreach($TField as $field=>$dummy)
+		        {
+		        	$libelle = isset($TParam['title'][$field]) ? $TParam['title'][$field] : $field;
+					$visible = (!in_array($field,$TParam['hide'])) ? 1 : 0;	
+					$TFieldVisibility[$field]=array(
+						'label'=>$libelle
+						,'checked'=>$visible
+					);
+				}
+			}	
+
+			$selectedfields=$form->multiSelectArrayWithCheckbox('TListTBS_'.$this->id.'_selectedfields', $TFieldVisibility, $contextpage);	// This also change content of $arrayfields_0
+			
+		}
+		
+		foreach ($currentLine as $field => $value) {
+			$libelle = isset($TParam['title'][$field]) ? $TParam['title'][$field] : $field;
+			$visible = (!in_array($field,$TParam['hide'])) ? 1 : 0;	
+			
+			if($visible) {
+				$lastfield = $field;
 				$TEntete[$field] = array(
 					'libelle'=>$libelle
 					,'order'=>((in_array($field, $TParam['orderby']['noOrder']) || $this->typeRender != 'sql') ? 0 : 1)
 					,'width'=>(!empty($TParam['size']['width'][$field]) ? $TParam['size']['width'][$field] : 'auto')
 					,'text-align'=>(!empty($TParam['position']['text-align'][$field]) ? $TParam['position']['text-align'][$field] : 'auto')
+					,'more'=>''
 				);
 				  
 			}
 		}
+		
+		if(!empty($selectedfields) && !empty($lastfield)) {
+			$TEntete[$lastfield]['more']='<div style="float:right">'.$selectedfields.'</div>';
+		}
+		
 		
 		/*if(!empty($TParam['search']) && !empty($TEntete)) {
 			$TEntete['actions']=array('libelle'=>'<!-- actions -->', 'order'=>0);
