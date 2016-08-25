@@ -441,13 +441,14 @@ function Get_columns($table) {
 	return $this->ExecuteAsArray($sql);
 }
 
-function Get_column_list($table, $alias) {
+function Get_column_list($table, $alias = '') {
 	
 	$TColumns = $this->Get_columns($table);
 	
 	$TFields = array();
 	foreach ($TColumns as $col) {
-		$TFields[] = $alias . '.' . $col->Field . ' AS "' . $alias . '.' . $col->Field.'"'; 
+		if(!empty($alias)) $TFields[] = $alias . '.' . $col->Field . ' AS "' . $alias . '.' . $col->Field.'"'; 
+		else $TFields[] = $col->Field;
 	}
 	
 	return implode(', ', $TFields);
