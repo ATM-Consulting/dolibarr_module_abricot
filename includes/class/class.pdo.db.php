@@ -436,4 +436,21 @@ function Get_field($pField){
 
 }
 
+function Get_columns($table) {
+	$sql = 'SHOW COLUMNS FROM ' . $table;
+	return $this->ExecuteAsArray($sql);
+}
+
+function Get_column_list($table, $alias) {
+	
+	$TColumns = $this->Get_columns($table);
+	
+	$TFields = array();
+	foreach ($TColumns as $col) {
+		$TFields[] = $alias . '.' . $col->Field . ' AS "' . $alias . '.' . $col->Field.'"'; 
+	}
+	
+	return implode(', ', $TFields);
+}
+
 }
