@@ -786,7 +786,7 @@ class TListviewTBS {
 		global $user;
 		
 		$contextpage=md5($_SERVER['PHP_SELF']);
-		if((float)DOL_VERSION>=4.0) {
+		if((float)DOL_VERSION>=4.0 && empty($TParam['no-select'])) {
 			
 			dol_include_once('/core/class/html.form.class.php');
 			

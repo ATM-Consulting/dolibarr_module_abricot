@@ -436,4 +436,27 @@ function Get_field($pField){
 
 }
 
+function Get_columns($table) {
+	$sql = 'SHOW COLUMNS FROM ' . $table;
+	if($this->type == 'sqlsrv') {
+		$sql = 'SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = \''.$table.'\'';
+	}
+	return $this->ExecuteAsArray($sql);
+}
+
+function Get_column_list($table, $alias = '') {
+	$colfield = 'Field';
+	if($this->type == 'sqlsrv') $colfield = 'COLUMN_NAME';
+	
+	$TColumns = $this->Get_columns($table);
+	
+	$TFields = array();
+	foreach ($TColumns as $col) {
+		if(!empty($alias)) $TFields[] = $alias . '.' . $col->{$colfield} . ' AS "' . $alias . '.' . $col->{$colfield}.'"'; 
+		else $TFields[] = $col->{$colfield};
+	}
+	
+	return implode(', ', $TFields);
+}
+
 }
