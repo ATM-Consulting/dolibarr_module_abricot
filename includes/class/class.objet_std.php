@@ -505,6 +505,7 @@ function _no_save_vars($lst_chp) {
 						WHERE '.OBJETSTD_MASTERKEY.'='.$id );
 		if($db->Get_line()) {
 				$this->{OBJETSTD_MASTERKEY}=$id;
+				if(OBJETSTD_MASTERKEY!=='id') $this->id = $id;// finalement plus simple que getId()
 
 				$this->_set_vars_by_db($db);
 
