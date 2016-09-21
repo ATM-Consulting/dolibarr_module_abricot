@@ -32,8 +32,11 @@ class TListviewTBS {
 		$this->TBind=array();
 		
 		$this->sql = '';
+
 	}
 	private function init(&$TParam) {
+		
+		global $conf;
 		
 		if(!isset($TParam['hide']))$TParam['hide']=array();
 		if(!isset($TParam['link']))$TParam['link']=array();
@@ -60,30 +63,23 @@ class TListviewTBS {
 			,'export'=>array()
 		),$TParam['liste']);
 		
-		if(!isset($TParam['limit']))$TParam['limit']=array();
+		if(empty($TParam['limit']))$TParam['limit']=array();
 		if(!empty($_REQUEST['TListTBS'][$this->id]['page'])) $TParam['limit']['page'] = $_REQUEST['TListTBS'][$this->id]['page'];
 		
-		$TParam['limit']=array_merge(array('page'=>1, 'nbLine'=>30), $TParam['limit']);
+		$TParam['limit']=array_merge(array('page'=>1, 'nbLine'=>$conf->liste_limit, 'global'=>0), $TParam['limit']);
 		
 		if(!empty($_REQUEST['TListTBS'][$this->id]['orderBy'])) {
-			/*
-			 	$TParam['orderBy'] = array();	
-				foreach($_REQUEST['TListTBS'][$this->id]['orderBy'] as $asc=>$field) {
-					$TParam['orderBy'][$field]=$asc;
-				}
-			 */
 			$TParam['orderBy'] = $_REQUEST['TListTBS'][$this->id]['orderBy']; 
 		}
-		
 		
 	//	print_r($TParam);
 	}
 	private function getSearchKey($key, &$TParam) {
 				
 		$prefixe='';	
-		if(isset($TParam['search'][$key]['table']))$prefixe='`'.$TParam['search'][$key]['table'].'`.';
+		if(!empty($TParam['search'][$key]['table']))$prefixe='`'.$TParam['search'][$key]['table'].'`.';
 		
-		if(isset($TParam['search'][$key]['field']))$key =$prefixe.'`'. $TParam['search'][$key]['field'] .'`';
+		if(!empty($TParam['search'][$key]['field']))$key =$prefixe.'`'. $TParam['search'][$key]['field'] .'`';
 		else $key =$prefixe.'`'. strtr($key,';','*').'`';
 			
 		return $key;
@@ -152,7 +148,7 @@ class TListviewTBS {
 						if(isset($this->TBind[$sBindKey])) {
 							
 							if(isset($TParam['operator'][$key])) {
-								if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=') {
+								if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=' || $TParam['operator'][$key]=='IN') {
 									$this->TBind[$sBindKey] = $value;
 								}
 								else{
@@ -177,6 +173,11 @@ class TListviewTBS {
 			if($sqlGROUPBY!='')	$sql.=' GROUP BY '.$sqlGROUPBY;
 			
 		}
+
+		if(isset($_REQUEST['DEBUG'])) {
+			var_dump($this->TBind,$TParam['operator']);
+		}
+
 		return $sql;
 	}
 	public function render(&$db,$sql,$TParam=array(),$TBind=array()) {
@@ -194,14 +195,14 @@ class TListviewTBS {
 		
 		$this->parse_sql($db, $TEntete, $TChamps, $TParam, $sql);	
 		
-		$TTotal=$this->get_total($TChamps, $TParam);
+		list($TTotal, $TTotalGroup)=$this->get_total($TChamps, $TParam);
 		
 		
 		if($TParam['type'] == 'chart') {
 			return $this->renderChart($TEntete, $TChamps,$TTotal, $TParam);	
 		}
 		else {
-			return $this->renderList($TEntete, $TChamps,$TTotal, $TParam);	
+			return $this->renderList($TEntete, $TChamps,$TTotal,$TTotalGroup, $TParam);	
 		}
 		
 		
@@ -221,9 +222,9 @@ class TListviewTBS {
 		$sql = $this->order_by($sql, $TParam);		
 		
 		$this->parse_sql($db, $TEntete, $TChamps, $TParam, $sql);	
-		$TTotal=$this->get_total($TChamps, $TParam);
+		list($TTotal, $TTotalGroup)=$this->get_total($TChamps, $TParam);
 		
-		return $this->renderList($TEntete, $TChamps,$TTotal, $TParam);
+		return $this->renderList($TEntete, $TChamps,$TTotal,$TTotalGroup, $TParam);
 		
 	}
 	public function renderXML(&$db,$xmlString, $TParam=array()) {
@@ -236,9 +237,9 @@ class TListviewTBS {
 		
 		$this->parse_xml($db, $TEntete, $TChamps, $TParam,$xmlString);
 		
-		$TTotal=$this->get_total($TChamps, $TParam);
+		list($TTotal, $TTotalGroup)=$this->get_total($TChamps, $TParam);
 		
-		return $this->renderList($TEntete, $TChamps,$TTotal, $TParam);
+		return $this->renderList($TEntete, $TChamps,$TTotal,$TTotalGroup, $TParam);
 		
 	}
 	private function setSearch(&$TEntete, &$TParam) {
@@ -256,7 +257,6 @@ class TListviewTBS {
 				if(empty($TSearch[$key]))$TSearch[$key]='';
 			}
 		}		
-		
 		foreach($TParam['search'] as $key=>$param_search) {
 			
 		
@@ -266,20 +266,20 @@ class TListviewTBS {
 			
 			if(is_array($typeRecherche)) {
 				$typeRecherche = array(''=>' ') + $typeRecherche;
-				$fsearch=$form->combo('','TListTBS['.$this->id.'][search]['.$key.']', $typeRecherche,$value);
+				$fsearch=$form->combo('','TListTBS['.$this->id.'][search]['.$key.']', $typeRecherche,$value,0,'',' listviewtbs="combo" ');
 			}
 			else if($typeRecherche==='calendar') {
-				$fsearch=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.']',$value,10,10);	
+				$fsearch=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.']',$value,10,10,' listviewtbs="calendar" ');	
 			}
 			else if($typeRecherche==='calendars') {
-				$fsearch=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.'][deb]',isset($value['deb'])?$value['deb']:'',10,10)
-					.' '.$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.'][fin]',isset($value['fin'])?$value['fin']:'',10,10);	
+				$fsearch=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.'][deb]',isset($value['deb'])?$value['deb']:'',10,10,' listviewtbs="calendars" ')
+					.' '.$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.'][fin]',isset($value['fin'])?$value['fin']:'',10,10,' listviewtbs="calendars" ');	
 			}
 			else if(is_string($typeRecherche)) {
 				$fsearch=$TParam['search'][$key];	
 			}
 			else {
-				$fsearch=$form->texte('','TListTBS['.$this->id.'][search]['.$key.']',$value,15,255);	
+				$fsearch=$form->texte('','TListTBS['.$this->id.'][search]['.$key.']',$value,15,255,' listviewtbs="input" ');	
 			}
 
 			if(!empty($TEntete[$key]) || $TParam['type'] == 'chart') {
@@ -317,24 +317,37 @@ class TListviewTBS {
 	 * Supporté : sum, average
 	 */
 	private function get_total(&$TChamps, &$TParam) {
-		$TTotal=array();	
-			
+		$TTotal=$TTotalGroup=array();	
+		
 		if(!empty($TParam['math']) && !empty($TChamps[0])) {
 			
 			foreach($TChamps[0] as $field=>$value) {
 				$TTotal[$field]='';	
+				$TTotalGroup[$field] = '';
 			}
 		
 			foreach($TParam['math'] as $field=>$typeMath){
 
-				if($typeMath=='average') {
-					$TTotal[$field]=array_sum($this->TTotalTmp[$field]) / count($this->TTotalTmp[$field]);
-				}
-				elseif($typeMath=='count') {
-					$TTotal[$field]=count($this->TTotalTmp[$field]);
+				if(is_array($typeMath)) {
+					$targetField = $typeMath[1];
+					$typeMath = $typeMath[0];
 				}
 				else {
-					$TTotal[$field]=array_sum($this->TTotalTmp[$field]);	
+					$targetField = $field;
+				}
+
+				if($typeMath == 'groupsum') {
+					$TTotalGroup[$field] = array('target'=>$targetField, 'values'=> $this->TTotalTmp['@groupsum'][$targetField]);
+					
+				}
+				else if($typeMath=='average') {
+					$TTotal[$field]=array_sum($this->TTotalTmp[$targetField]) / count($this->TTotalTmp[$targetField]);
+				}
+				elseif($typeMath=='count') {
+					$TTotal[$field]=count($this->TTotalTmp[$targetField]);
+				}
+				else {
+					$TTotal[$field]=array_sum($this->TTotalTmp[$targetField]);	
 				}
 								
 			}
@@ -342,7 +355,7 @@ class TListviewTBS {
 		
 		}
 		
-		return $TTotal;
+		return array($TTotal,$TTotalGroup);
 	}
 
 	private function getJS(&$TParam) {
@@ -356,8 +369,9 @@ class TListviewTBS {
 
 		if($this->typeRender=='dataTable') {
 			
-			$javaScript.='<script language="javascript">
-			
+			$javaScript.='<!-- datatable  -->
+			<script language="javascript">
+					
 					if(typeof(TListTBS_dataTable_include)=="undefined") {
 						var TListTBS_dataTable_include=true;	
 						document.write("<script type=\"text/javascript\" src=\"'.COREHTTP.'includes/js/dataTable/js/jquery.dataTables.min.js\"></scr");
@@ -378,7 +392,8 @@ class TListviewTBS {
 			$TPagination=array();
 		}
 		elseif($this->typeRender=='dataTableAjax') {
-			$javaScript.='<script language="javascript">
+			$javaScript.='<!-- datatable  -->
+			<script language="javascript">
 			
 					if(typeof(TListTBS_dataTable_include)=="undefined") {
 						var TListTBS_dataTable_include=true;
@@ -576,7 +591,63 @@ class TListviewTBS {
 		return $html;
 	}
 
-	private function renderList(&$TEntete, &$TChamps, &$TTotal, &$TParam) {
+	private function addTotalGroup($TChamps,$TTotalGroup) {
+		global $langs;
+		
+		$Tab=array();
+		
+		$proto_total_line = array();
+		
+		$tagbase = $old_tagbase = null;
+		
+		$addGroupLine = false;
+		
+		foreach($TChamps as $k=>&$line) {
+				
+			if(empty($proto_total_line)) {
+				foreach($line as $field=>$value) {
+					$proto_total_line[$field] = '';
+				}
+				$group_line = $proto_total_line;	
+			}
+			
+			$addGroupLine = false;
+			
+			$tagbase = '';
+			foreach($line as $field=>$value) {
+				
+				if(!empty($TTotalGroup[$field])) {
+					$tagbase.=$value.'|';
+					$group_line[$field] = '<div style="text-align:right; font-weight:bold; color:#552266;">'.(empty($value) ? $langs->trans('Empty') : $value ).' : </div>';
+					$group_line[$TTotalGroup[$field]['target']] = '<div style="text-align:right; font-weight:bold; color:#552266;">'.price($TTotalGroup[$field]['values'][$value]).'</div>';
+					$addGroupLine = true;
+				}
+				
+			}
+			
+			if(!is_null($old_tagbase) && $old_tagbase!=$tagbase && $addGroupLine) {
+			//	var_dump(array($k,$tagbase,$old_tagbase,$empty_line));
+				$Tab[] = $previous_group_line;
+			}
+			
+			$old_tagbase = $tagbase;
+			$previous_group_line = $group_line;
+			$group_line = $proto_total_line;
+			
+			$Tab[] = $line;
+			
+			
+			
+		}
+		if($addGroupLine) {
+			$Tab[] = $previous_group_line;
+		}
+		
+		
+		return $Tab;
+	}
+
+	private function renderList(&$TEntete, &$TChamps, &$TTotal,&$TTotalGroup, &$TParam) {
 		$TBS = new TTemplateTBS;
 		
 		$javaScript = $this->getJS($TParam);
@@ -592,6 +663,7 @@ class TListviewTBS {
 		
 		$TSearch = $this->setSearch($TEntete, $TParam);
 		$TExport=$this->setExport($TParam, $TChamps, $TEntete);
+		$TChamps = $this->addTotalGroup($TChamps,$TTotalGroup);
 		
 		return $TBS->render($this->template
 			, array(
@@ -620,8 +692,8 @@ class TListviewTBS {
 		$this->init($TParam);
 		
 		$this->parse_array($TEntete, $TChamps, $TParam,$TField);
-		$TTotal=$this->get_total($TChamps, $TParam);
-		return $this->renderList($TEntete, $TChamps, $TTotal,$TParam);
+		list($TTotal, $TTotalGroup)=$this->get_total($TChamps, $TParam);
+		return $this->renderList($TEntete, $TChamps, $TTotal,$TTotalGroup,$TParam);
 		
 	}
 	public function renderArray(&$db,$TField, $TParam=array()) {
@@ -633,13 +705,13 @@ class TListviewTBS {
 		$this->init($TParam);
 		
 		$this->parse_array($TEntete, $TChamps, $TParam,$TField);
-		$TTotal=$this->get_total($TChamps, $TParam);
+		list($TTotal, $TTotalGroup)=$this->get_total($TChamps, $TParam);
 		
 		if($TParam['type'] == 'chart') {
 			return $this->renderChart($TEntete, $TChamps,$TTotal, $TParam);	
 		}
 		else {
-			return $this->renderList($TEntete, $TChamps,$TTotal, $TParam);	
+			return $this->renderList($TEntete, $TChamps,$TTotal,$TTotalGroup, $TParam);	
 		}
 	}
 
@@ -704,107 +776,282 @@ class TListviewTBS {
 	}
 	
 	private function init_entete(&$TEntete, &$TParam, $currentLine) {
+		
+		$TField=$TFieldVisibility=array();
+		
 		foreach ($currentLine as $field => $value) {
+			$TField[$field]=true;
+		}
+		
+		global $user;
+		
+		$contextpage=md5($_SERVER['PHP_SELF']);
+		if((float)DOL_VERSION>=4.0 && empty($TParam['no-select'])) {
 			
-			if(!in_array($field,$TParam['hide'])) {
-				$libelle = isset($TParam['title'][$field]) ? $TParam['title'][$field] : $field;
+			dol_include_once('/core/class/html.form.class.php');
+			
+			global $db,$conf,$user;
+			$form=new Form($db);
+				
+			$selectedfields = GETPOST('TListTBS_'.$this->id.'_selectedfields');
+			
+			if(!empty($selectedfields)) {
+				include_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
+				$tabparam['MAIN_SELECTEDFIELDS_'.$contextpage]=$selectedfields;
+	    		$result=dol_set_user_param($db, $conf, $user, $tabparam);
+			}
+			
+			$tmpvar='MAIN_SELECTEDFIELDS_'.$contextpage;
+			if (! empty($user->conf->$tmpvar)) {
+				$tmparray=explode(',', $user->conf->$tmpvar);
+				$TParam['hide']=array();
+		        foreach($TField as $field=>$dummy)
+		        {
+		          	$libelle = isset($TParam['title'][$field]) ? $TParam['title'][$field] : $field;
+
+					if(!in_array($field,$tmparray)) {
+				  		$TParam['hide'][] = $field;
+						$visible = 0;
+				  	}
+					else{
+						$visible = 1;
+					}
+		            
+					$TFieldVisibility[$field]=array(
+						'label'=>$libelle
+						,'checked'=>$visible
+					);
+					
+					
+		        }
+			}
+			else{
+				foreach($TField as $field=>$dummy)
+		        {
+		        	$libelle = isset($TParam['title'][$field]) ? $TParam['title'][$field] : $field;
+					$visible = (!in_array($field,$TParam['hide'])) ? 1 : 0;	
+					$TFieldVisibility[$field]=array(
+						'label'=>$libelle
+						,'checked'=>$visible
+					);
+				}
+			}	
+
+			$selectedfields=$form->multiSelectArrayWithCheckbox('TListTBS_'.$this->id.'_selectedfields', $TFieldVisibility, $contextpage);	// This also change content of $arrayfields_0
+			
+		}
+		
+		foreach ($currentLine as $field => $value) {
+			$libelle = isset($TParam['title'][$field]) ? $TParam['title'][$field] : $field;
+			$visible = (!in_array($field,$TParam['hide'])) ? 1 : 0;	
+			
+			if($visible) {
+				$lastfield = $field;
 				$TEntete[$field] = array(
 					'libelle'=>$libelle
 					,'order'=>((in_array($field, $TParam['orderby']['noOrder']) || $this->typeRender != 'sql') ? 0 : 1)
 					,'width'=>(!empty($TParam['size']['width'][$field]) ? $TParam['size']['width'][$field] : 'auto')
 					,'text-align'=>(!empty($TParam['position']['text-align'][$field]) ? $TParam['position']['text-align'][$field] : 'auto')
+					,'more'=>''
 				);
 				  
 			}
 		}
+		
+		if(!empty($selectedfields) && !empty($lastfield)) {
+			$TEntete[$lastfield]['more']='<div style="float:right">'.$selectedfields.'</div>';
+		}
+		
 		
 		/*if(!empty($TParam['search']) && !empty($TEntete)) {
 			$TEntete['actions']=array('libelle'=>'<!-- actions -->', 'order'=>0);
 		}*/
 		
 	}
+	
+	private function in_view(&$TParam, $line_number) {
+		global $conf;
+		
+		if(!empty($TParam['export'])) return true; // doit être dans la vue
+
+		$page_number = !empty($TParam['limit']['page']) ? $TParam['limit']['page'] : 1;
+		$line_per_page = !empty($TParam['limit']['nbLine']) ? $TParam['limit']['nbLine'] : $conf->liste_limit;
+		
+		$start = ($page_number-1) * $line_per_page;
+		$end = ($page_number* $line_per_page) -1;
+		
+		if($line_number>=$start && $line_number<=$end) return true;
+		else return false;
+	}
+	
 	private function set_line(&$TChamps, &$TParam, $currentLine) {
 		
-			$row=array(); $trans = array();
-			foreach($currentLine as $field=>$value) {
-				
-				if(is_object($value)) {
-					if(get_class($value)=='stdClass') {$value=print_r($value, true);}
-					else $value=(string)$value;
-				} 
-				
-				if(isset($TParam['subQuery'][$field])) {
-					$dbSub = new Tdb;
-					$dbSub->Execute( strtr($TParam['subQuery'][$field], array_merge( $trans, array('@val@'=>$value)  )) );
-					$subResult = '';
-					while($dbSub->Get_line()) {
-						$subResult.= implode(', ',$dbSub->currentLine).'<br />';
-					}
-					$value=$subResult;
-					$dbSub->close();
-				}
-				
-				$trans['@'.$field.'@'] = $value;
-				
-				if(!empty($TParam['math'][$field])) {
-					$this->TTotalTmp[$field][] = (double)strip_tags($value);
-				}
-				
-				if(!in_array($field,$TParam['hide'])) {
-					$row[$field]=$value;
-					
-					if(isset($TParam['eval'][$field]) && in_array($field,array_keys($row))) {
-						$strToEval = 'return '.strtr( $TParam['eval'][$field] ,  array_merge( $trans, array('@val@'=>$row[$field])  )).';';
-						$row[$field] = eval($strToEval);
-					}
-					
-					if(isset($TParam['type'][$field])) {
-						if($TParam['type'][$field]=='date') {
-							if($row[$field] != '0000-00-00 00:00:00' && $row[$field] != '0000-00-00' && !empty($row[$field])) {
-								$row[$field] = date('d/m/Y', strtotime($row[$field]));
-							} else {
-								$row[$field] = '';
-							}
-						}
-						if($TParam['type'][$field]=='datetime') { $row[$field] = date('d/m/Y H:i:s', strtotime($row[$field])); }
-						if($TParam['type'][$field]=='hour') { $row[$field] = date('H:i', strtotime($row[$field])); }
-						if($TParam['type'][$field]=='money') { $row[$field] = '<div align="right">'.number_format((double)$row[$field],2,',',' ').'</div>'; }
-						if($TParam['type'][$field]=='number') { $row[$field] = '<div align="right">'.number_format((double)$row[$field],2,',',' ').'</div>'; }
-					}
-
-                                        if(isset($TParam['link'][$field])) {
-                                                if(empty($row[$field]) && $row[$field]!==0 && $row[$field]!=='0')$row[$field]='(vide)';
-                                                $row[$field]= strtr( $TParam['link'][$field],  array_merge( $trans, array('@val@'=>$row[$field])  )) ;
-                                        }
-                                        
-                                        if(isset($TParam['translate'][$field])) {
-                                                $row[$field] = strtr( $row[$field] , $TParam['translate'][$field]);
-                                        }
-
-
-				} 
-				
-				
-			} 
-
-			/*if(!empty($TParam['search']) && !empty($row)) {
-				$row['actions']= '';
-			}*/
+			global $conf;
 		
+			$line_number = count($TChamps);
+			
+			if($this->in_view($TParam,$line_number)) {
+				
+				$row=array(); $trans = array();
+				foreach($currentLine as $field=>$value) {
+					
+					if(is_object($value)) {
+						if(get_class($value)=='stdClass') {$value=print_r($value, true);}
+						else $value=(string)$value;
+					} 
+					
+					if(isset($TParam['subQuery'][$field])) {
+						$dbSub = new TPDOdb; //TODO finish it
+						$dbSub->Execute( strtr($TParam['subQuery'][$field], array_merge( $trans, array('@val@'=>$value)  )) );
+						$subResult = '';
+						while($dbSub->Get_line()) {
+							$subResult.= implode(', ',$dbSub->currentLine).'<br />';
+						}
+						$value=$subResult;
+						$dbSub->close();
+					}
+					
+					$trans['@'.$field.'@'] = $value;
+					
+					if(!empty($TParam['math'][$field])) {
+						$float_value = (double)strip_tags($value);
+						$this->TTotalTmp[$field][] = $float_value;
+					}
+					
+					if(!in_array($field,$TParam['hide'])) {
+						$row[$field]=$value;
+						
+						if(isset($TParam['eval'][$field]) && in_array($field,array_keys($row))) {
+							$strToEval = 'return '.strtr( $TParam['eval'][$field] ,  array_merge( $trans, array('@val@'=>$row[$field])  )).';';
+							$row[$field] = eval($strToEval);
+						}
+						
+						if(isset($TParam['type'][$field]) && !isset($TParam['eval'][$field])) {
+							if($TParam['type'][$field]=='date' 
+								|| $TParam['type'][$field]=='datetime' ) {
 
+								if($row[$field] != '0000-00-00 00:00:00' && $row[$field] != '1000-01-01 00:00:00' && $row[$field] != '0000-00-00' && !empty($row[$field])) {
+									if($TParam['type'][$field]=='datetime')$row[$field] = dol_print_date(strtotime($row[$field]),'dayhoursec');
+									else $row[$field] = dol_print_date(strtotime($row[$field]),'day');
+								} else {
+									$row[$field] = '';
+								}
+							}
+							if($TParam['type'][$field]=='hour') { $row[$field] = date('H:i', strtotime($row[$field])); }
+							if($TParam['type'][$field]=='money') { $row[$field] = '<div align="right">'.price($row[$field]).'</div>'; }
+							if($TParam['type'][$field]=='number') { $row[$field] = '<div align="right">'.price($row[$field]).'</div>'; }
+							if($TParam['type'][$field]=='integer') { $row[$field] = '<div align="right">'.(int)$row[$field].'</div>'; }
+						}
+	
+	                                        if(isset($TParam['link'][$field])) {
+	                                                if(empty($row[$field]) && $row[$field]!==0 && $row[$field]!=='0')$row[$field]='(vide)';
+	                                                $row[$field]= strtr( $TParam['link'][$field],  array_merge( $trans, array('@val@'=>$row[$field])  )) ;
+	                                        }
+	                                        
+	                                        if(isset($TParam['translate'][$field])) {
+							if(isset($TParam['translate'][$field][''])) unset($TParam['translate'][$field]['']);
+	                                                $row[$field] = strtr( $row[$field] , $TParam['translate'][$field]);
+	                                        }
+	
+	
+					} 
+					
+					
+				} 
+			}
+			else{
+				$row=array(); 
+				foreach($currentLine as $field=>$value) {
+					if(!empty($TParam['math'][$field])) {
+						$float_value = (double)strip_tags($value);
+						$this->TTotalTmp[$field][] = $float_value;
+					}
+					
+					$row[$field] = $value;
+				}
+			}
+
+			foreach($row as $field=>$value) {
+				if(!empty($TParam['math'][$field]) && is_array($TParam['math'][$field])) {
+						$toField = $TParam['math'][$field][1];
+						$float_value = (double)strip_tags($row[$toField]);
+						$this->TTotalTmp['@groupsum'][$toField][ $row[$field]  ] +=$float_value;
+						
+				}
+			}
+				
 			$TChamps[] = $row;	
 	}
 	
-	private function parse_sql(&$db, &$TEntete, &$TChamps,&$TParam, $sql, $TBind=array()) {
+	private function getBind(&$TParam) {
+		
+		$TBind = array();
+		foreach($this->TBind as $k=>$v) {
+			if(!empty($TParam['operator'][$k]) && $TParam['operator'][$k] == 'IN') {
+				if($v==='')$TBind[$k] =array("'0'");
+				else $TBind[$k] =explode(',', $v);
+			}
+			else{
+				$TBind[$k] = $v;
+			}
+			
+		}
+		
+		return $TBind;
+	}
+	
+	private function getSQL(&$PDOdb,$sql,&$TParam) {
+		global $user,$conf;
+
+		$sql=strtr($sql,array(
+			'@current_user@'=>$user->id
+		));
+
+		//AA oui c'est moche mais le bindParam ne prends pas en compte les tableaux pour le IN ce qui est super pénélisant. En attendant de refaire mieux ou d'un coup de main
+		$TBind = $this->getBind($TParam);
+		
+		foreach($TBind as $k => $v) {
+			
+			if(is_array($v)) {
+				$sql=strtr($sql,array(
+					':'.$k=>implode(',',$v)
+				));
+			}
+			else{
+				$sql=strtr($sql,array(
+					':'.$k=>$PDOdb->quote($v)
+				));
+				
+			}
+			
+		}
+//		echo $sql;
+		return $sql;
+	}
+	
+	private function limitSQL($sql,&$TParam) {
+		
+		if(!empty($TParam['limit']['global']) && strpos($sql,'LIMIT ')===false ) {
+			
+			$sql.=' LIMIT '.(int)$TParam['limit']['global'];
+			
+		}
+		
+		return $sql;
+	}
+	
+	private function parse_sql(&$PDOdb, &$TEntete, &$TChamps,&$TParam, $sql, $TBind=array()) {
 		
 		//$sql.=' LIMIT '.($TParam['limit']['page']*$TParam['limit']['nbLine']).','.$TParam['limit']['nbLine'];
+		$sql = $this->limitSQL($sql, $TParam);
+		
 		$this->TTotalTmp=array();
 		
-		$this->sql = $sql;
+		$this->sql = $this->getSQL($PDOdb,$sql,$TParam);
 		
-		$res = $db->Execute($sql, $this->TBind);
+		$res = $PDOdb->Execute($this->sql);
 		$first=true;
-		while($currentLine = $db->Get_line()) {
+		while($currentLine = $PDOdb->Get_line()) {
 			if($first) {
 				$this->init_entete($TEntete, $TParam, $currentLine);
 				$first = false;

@@ -45,43 +45,53 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 	else {
 		$charset = ini_get('default_charset');
 		
-		if(empty($DB_OPTIONS[1002]) && ($charset  === 'iso-8859-1' || empty($charset))){
-			$DB_OPTIONS[1002]= 'SET NAMES \'UTF8\'';
-		}
-		
 	}
-
-
+	
+	if(empty($DB_OPTIONS[1002]) && ($charset  === 'iso-8859-1' || $charset  === 'latin1' || empty($charset))){
+			$DB_OPTIONS[1002]= 'SET NAMES \'UTF8\'';
+	}
+	
 	if(empty($connexionString)) {
-		if (($db_type == '') && (defined('DB_DRIVER')))
+		/* intégration configuration Dolibarr */
+		$db_type = $conf->db->type;
+		$db = $conf->db->name;
+		$host = $conf->db->host;
+		$usr = $conf->db->user;
+		$pass = $conf->db->pass;
+		$port = $conf->db->port;
+		
+		if (($db_type == '') && (defined('DB_DRIVER'))) {
 			$db_type = DB_DRIVER;
+		}
 		else {
 			if ($db_type == 'mysql')
 				$db_type = 'mysql';
 			else
 				$db_type = 'mysqli';
 		}
-	
+		
+		
 		if (defined('DB_NAME') && constant('DB_NAME')!='') {
 			$db = DB_NAME;
 			$usr = DB_USER;
 			$pass = DB_PASS;
 			$host = DB_HOST;
 		}
-		else {
+		elseif(empty($db)) {
 			$this->debug=true;
-		    $this->Error('PDO DB ErrorConnexion : Paramètres de connexion impossible à utiliser (db:'.DB_NAME.'/user:'.DB_USER.')' );
+		    $this->Error('PDO DB ErrorConnexion : Paramètres de connexion impossible à utiliser (db:'.$db.'/user:'.$usr.')' );
 		}
 		
-		$this->connexionString = 'mysql:dbname='.DB_NAME.';host='.DB_HOST; 
+		$this->connexionString = 'mysql:dbname='.$db.';host='.$host; 
+		if(!empty($port))$this->connexionString .= ';port='.$port;
 		if(!empty($charset) && empty($conf->global->ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING) )$this->connexionString.=';charset='.$charset;
 		
 		if(defined('DB_SOCKET') && constant('DB_SOCKET')!='') $this->connexionString .= ';unix_socket='.DB_SOCKET;
 		
 		try {
-		    $this -> db = new PDO($this->connexionString, DB_USER, DB_PASS, $DB_OPTIONS);
+			$this -> db = new PDO($this->connexionString, $usr, $pass, $DB_OPTIONS);
 		} catch (PDOException $e) {
-		    $this->Error('PDO DB ErrorConnexion : '.$e->getMessage().' ( '. $this->connexionString.' - '.DB_USER .' )' );
+		    $this->Error('PDO DB ErrorConnexion : '.$e->getMessage().' ( '. $this->connexionString.' - '.$usr .' )' );
 		}
 		
 	}
@@ -197,6 +207,19 @@ private function Error($message, $showTrace=true) {
 	}
 		
 }
+
+function bind($k,$v) {
+	
+	if(is_array($v)) {
+		foreach($v as $kk=>$vv)$this->bind($k, $vv);
+	}
+	else{
+		$this->rs->bindValue($k, $v);
+	}
+	
+	
+}
+
 function Execute ($sql, $TBind=array()){
         $mt_start = microtime(true)*1000;
 		 
@@ -210,7 +233,7 @@ function Execute ($sql, $TBind=array()){
 		if(!empty($TBind)) {
 			$this->rs = $this->db->prepare( $this->query);
 			foreach($TBind as $k=>$v) {
-				$this->rs->bindParam($k, $v);
+				$this->bind($k, $v);
 			}
 			
 			$this->rs->execute();
@@ -221,8 +244,8 @@ function Execute ($sql, $TBind=array()){
 		
         $mt_end = microtime(true)*1000;
 		
-		if (mysql_errno()) {
-			if($this->debug) $this->Error("PDO DB ErrorExecute : " . print_r($this ->db-> errorInfo(),true).' '.$this -> query);
+		if ($this->db->errorCode) {
+			if($this->debug) $this->Error("PDO DB ErrorExecute : " . print_r($this ->db->errorInfo(),true).' '.$this->query);
 			//return(mysql_errno());
 		}
 		
@@ -411,6 +434,29 @@ function Get_field($pField){
 		if(isset($this->currentLine->{$pField})) return $this->currentLine->{$pField};
 		else return false;
 
+}
+
+function Get_columns($table) {
+	$sql = 'SHOW COLUMNS FROM ' . $table;
+	if($this->type == 'sqlsrv') {
+		$sql = 'SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = \''.$table.'\'';
+	}
+	return $this->ExecuteAsArray($sql);
+}
+
+function Get_column_list($table, $alias = '') {
+	$colfield = 'Field';
+	if($this->type == 'sqlsrv') $colfield = 'COLUMN_NAME';
+	
+	$TColumns = $this->Get_columns($table);
+	
+	$TFields = array();
+	foreach ($TColumns as $col) {
+		if(!empty($alias)) $TFields[] = $alias . '.' . $col->{$colfield} . ' AS "' . $alias . '.' . $col->{$colfield}.'"'; 
+		else $TFields[] = $col->{$colfield};
+	}
+	
+	return implode(', ', $TFields);
 }
 
 }

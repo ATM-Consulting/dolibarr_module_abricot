@@ -1426,6 +1426,9 @@ function combo($pLib,$pName,$pListe,$pDefault,$pTaille=1,$onChange='',$plus='',$
 	if ($onChange!='') {
 	  $field.=" onChange=\"".$onChange."\"";
 	}
+	if ($multiple!='false') {
+	  $field.=" multiple";
+	}
 	if($class!=''){
 		$field.=' class="'.$class.'"';
 	}
@@ -1443,7 +1446,7 @@ function combo($pLib,$pName,$pListe,$pDefault,$pTaille=1,$onChange='',$plus='',$
 	$field.="<!-- options -->";
     if ($showEmpty)
     {
-    	echo 'test';
+    	//echo 'test';
     	$textforempty=' ';
     	if (! empty($conf->use_javascript_ajax)) $textforempty='&nbsp;';	// If we use ajaxcombo, we need &nbsp; here to avoid to have an empty element that is too small.
         $valueofempty=-1;
@@ -1664,11 +1667,13 @@ function comboOptGroup($pLib,$pName,$pListe,$pDefault,$pTaille=1,$onChange='',$p
  *
  * @return Retourne le formulaire
  */
-function checkbox($pLib,$pName,$pListe,$pDefault, $plus=""){
+function checkbox($pLib,$pName,$pListe,$pDefault, $plus="", $enLigne=true){
   $lib   = "<b> $pLib </b>";
-  $field ="<TABLE class='form' BORDER=0><TR>\n";
+  $field ="<TABLE class='form' BORDER=0>\n";
+  if($enLigne) $field.="<TR>\n";
   while (list ($val, $libelle) = each ($pListe))
   {
+  	if(!$enLigne) $field.="<TR>\n";
     $field .= "<TD>$libelle</TD>";
     if ($val == $pDefault) 
        $checked = "CHECKED";
@@ -1676,8 +1681,10 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus=""){
        $checked = " ";
     $field .= "<TD><INPUT TYPE='CHECKBOX' NAME='$pName' VALUE=\"$val\" "
                   . " $checked $plus> </TD>\n";
+  	if(!$enLigne) $field.="\n</TR>\n";
   }
-  $field .= "</TR></TABLE>";
+  if($enLigne) $field.="\n</TR>";
+  $field .= "</TABLE>";
   return $lib." ".$field;
 }
 	
@@ -1874,10 +1881,12 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus=""){
 
 
 	
-	function radio($pLib,$pName,$pListe,$pDefault, $plus="",$class='',$id=''){
+	function radio($pLib,$pName,$pListe,$pDefault, $plus="",$class='',$id='', $enligne = true){
 	    $lib   = "<b> $pLib </b>";
-	    $field ="<TABLE class='form' BORDER=0><TR>\n";
+	    $field ="<TABLE class='form' BORDER=0>\n";
+		if($enligne == true) $field.="<TR>\n";
 	    while (list ($val, $libelle) = each ($pListe)){
+	    	if($enligne == false) $field.="<TR>\n";
 	        $field .= "<TD>$libelle</TD>";
 	        if ($val == $pDefault){
 	            $checked = "CHECKED";
@@ -1886,8 +1895,10 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus=""){
 	            $checked = " ";
 			}
 	        $field .= "<TD><INPUT TYPE='RADIO' NAME='$pName' VALUE=\"$val\" ". " $checked $plus> </TD>\n";
-	    }
-	    $field .= "</TR></TABLE>";
+			if($enligne == false)$field.="\n</TR>\n";
+		}
+		if($enligne == true)$field.="\n</TR>";
+  		$field .= "</TABLE>";
 	    if ($this->type_aff =='VIEW'){
 	      $field = $pListe[$pDefault];
 		}  

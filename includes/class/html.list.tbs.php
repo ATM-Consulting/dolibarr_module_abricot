@@ -7,14 +7,15 @@
 			<td class="nobordernopadding"><div class="titre">[liste.titre; strconv=no]</div></td>
 			[onshow;block=end]
 			<td class="nobordernopadding" align="right" valign="middle">
-				<div> 
+				<div class="pagination"> 
 					[onshow;block=div; when [liste.havePage]+-0 ]
-				<!-- [onshow;block=div;when [pagination.last]+-1 ] -->
-				    <a class="precedent" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.prev])"><!-- [pagination.prev;endpoint;magnet=a] -->[liste.picto_precedent;strconv=no]</a>
-				    Page
-				    <a class="page" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.page;navsize=15;navpos=centred])"> [pagination.page;block=a] </a>
-				    <u>[pagination.page;block=u;currpage]</u>
-				    <a class="suivant" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.next])"><!-- [pagination.last;endpoint;magnet=a] -->[liste.picto_suivant;strconv=no]</a>
+					<!-- [onshow;block=div;when [pagination.last]+-1 ] -->
+					<ul style="display: inline-block; list-style: outside none none;">
+						<li class="pagination" style="display: inline-block;"><a class="paginationprevious" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.prev])"><!-- [pagination.prev;endpoint;magnet=li] --> [liste.picto_precedent;strconv=no] </a></li>
+						<li class="pagination" style="display: inline-block;"><a class="page" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.page;navsize=15;navpos=centred])"> [pagination.page;block=li] </a></li>
+						<li class="pagination" style="display: inline-block;"><span class="active"> [pagination.page;block=li;currpage] </span></li>
+						<li class="pagination" style="display: inline-block;"><a class="paginationnext" href="javascript:TListTBS_GoToPage('[liste.id]',[pagination.next])"><!-- [pagination.last;endpoint;magnet=li] --> [liste.picto_suivant;strconv=no] </a></li>
+					</ul>
 				</div>
 			</td>
 		</tr>
@@ -28,6 +29,7 @@
 		<tr class="liste_titre">
 			<th style="width:[entete.width;];text-align:[entete.text-align]" class="liste_titre">[entete.libelle;block=th;strconv=no] 
 				<span>[onshow;block=span; when [entete.order]==1]<a href="javascript:TListTBS_OrderDown('[liste.id]','[entete.$;strconv=js]')">[liste.order_down;strconv=no]</a><a href="javascript:TListTBS_OrderUp('[liste.id]', '[entete.$;strconv=js]')">[liste.order_up;strconv=no]</a></span>
+				[entete.more;strconv=no;]
 			</th>
 		</tr>
 		
