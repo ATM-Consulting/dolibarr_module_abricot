@@ -197,7 +197,6 @@ class TListviewTBS {
 		
 		list($TTotal, $TTotalGroup)=$this->get_total($TChamps, $TParam);
 		
-		
 		if($TParam['type'] == 'chart') {
 			return $this->renderChart($TEntete, $TChamps,$TTotal, $TParam);	
 		}
@@ -962,12 +961,14 @@ class TListviewTBS {
 			else{
 				$row=array(); 
 				foreach($currentLine as $field=>$value) {
-					if(!empty($TParam['math'][$field])) {
-						$float_value = (double)strip_tags($value);
-						$this->TTotalTmp[$field][] = $float_value;
+					if(!in_array($field,$TParam['hide'])) {
+						if(!empty($TParam['math'][$field])) {
+							$float_value = (double)strip_tags($value);
+							$this->TTotalTmp[$field][] = $float_value;
+						}
+						
+						$row[$field] = $value;
 					}
-					
-					$row[$field] = $value;
 				}
 			}
 
