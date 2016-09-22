@@ -23,7 +23,7 @@
 
 <table id="[liste.id]" class="liste" width="100%">
 	<thead>
-		<tr class="liste_titre">
+		<tr class="liste_titre barre-recherche-head">
 			<td colspan="[liste.nb_columns]">[liste.head_search;strconv=no;magnet=tr]</td>
 		</tr>
 		<tr class="liste_titre">

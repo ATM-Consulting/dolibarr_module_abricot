@@ -58,9 +58,10 @@ function TListTBS_removeParam(strURL, paramMask) {
 
 function TListTBS_recup_form_param(idListe,base_url) {
 	
-	$('#'+idListe+' tr.barre-recherche [listviewtbs]').each(function(i,item) {
-		
-		base_url = TListTBS_modifyUrl(base_url, $(item).attr("name") , $(item).val());
+	$('#'+idListe+' tr.barre-recherche [listviewtbs],#'+idListe+' tr.barre-recherche-head input,#'+idListe+' tr.barre-recherche-head select').each(function(i,item) {
+		if($(item).attr("name")) {
+			base_url = TListTBS_modifyUrl(base_url, $(item).attr("name") , $(item).val());
+		}
 		
 	});
 	
