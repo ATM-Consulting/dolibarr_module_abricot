@@ -89,6 +89,16 @@ class TListviewTBS {
 			
 		return $value;
 	}
+	
+	private function dateToSQLDate($date) {
+		
+		list($dd,$mm,$aaaa) = explode('/', substr($date,0,10));
+		
+		$value = date('Y-m-d', mktime(0,0,0,$mm,$dd,$aaaa));
+		
+		return $value;
+	}
+	
 	private function search($sql,&$TParam) {
 	
 		if(!empty($_REQUEST['TListTBS'][$this->id]['search'])) {
@@ -104,11 +114,11 @@ class TListviewTBS {
 					$sKey = $this->getSearchKey($key, $TParam);
 					$sBindKey = strtr($sKey,array('.'=>'_' ,'`'=>''));
 					
-					if(isset($TParam['type'][$key]) && $TParam['type'][$key]==='date') {
+					if(isset($TParam['type'][$key]) && ($TParam['type'][$key]==='date' || $TParam['type'][$key]==='datetime')) {
 						if(is_array($value)) {
 							if(!empty($value['deb'])) {
-								list($dd,$mm,$aaaa) = explode('/', $value['deb']);
-								$valueDeb = date('Y-m-d', mktime(0,0,0,$mm,$dd,$aaaa));
+								
+								$valueDeb = $this->dateToSQLDate($value['deb']);
 								
 								if(isset($this->TBind[$sBindKey.'_start'])) {
 									$this->TBind[$sBindKey.'_start'] = $valueDeb;
@@ -118,9 +128,8 @@ class TListviewTBS {
 								}
 							}
 							if(!empty($value['fin'])) {
-								list($dd,$mm,$aaaa) = explode('/', $value['fin']);
-								$valueFin = date('Y-m-d', mktime(0,0,0,$mm,$dd,$aaaa));
 								
+								$valueFin = $this->dateToSQLDate($value['fin']);
 								if(isset($this->TBind[$sBindKey.'_end'])) {
 									$this->TBind[$sBindKey.'_end'] = $valueFin;
 								} 
@@ -131,9 +140,7 @@ class TListviewTBS {
 							
 						}	
 						else {
-							list($dd,$mm,$aaaa) = explode('/', $value);
-							$value = date('Y-m-d', mktime(0,0,0,$mm,$dd,$aaaa)).'%';
-							
+							$value = $this->dateToSQLDate($value);
 							if(isset($this->TBind[$sBindKey])) {
 								$this->TBind[$sBindKey] = $value.'%';
 							} 
