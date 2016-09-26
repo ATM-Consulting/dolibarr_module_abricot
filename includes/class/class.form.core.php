@@ -1450,8 +1450,12 @@ function combo($pLib,$pName,$pListe,$pDefault,$pTaille=1,$onChange='',$plus='',$
     	$textforempty=' ';
     	if (! empty($conf->use_javascript_ajax)) $textforempty='&nbsp;';	// If we use ajaxcombo, we need &nbsp; here to avoid to have an empty element that is too small.
         $valueofempty=-1;
-		if($showEmpty<0)$valueofempty=$showEmpty;
-        $field.='<option value="'.($show_empty < 0 ? $show_empty : -1).'"'.($pDefault==$valueofempty?' selected':'').'>'.$textforempty.'</option>'."\n";     // id is -2 because -1 is already "do not contact"
+		
+		if($showEmpty<0){
+			$valueofempty=$showEmpty;
+		}
+		
+        $field.='<option value="'.($show_empty < 0 ? $show_empty : -1).'"'.( $pDefault==$valueofempty ?' selected':'').'>'.$textforempty.'</option>'."\n";     // id is -2 because -1 is already "do not contact"
     }
   	
   	$field.=$this->_combo_option($pListe, $pDefault);

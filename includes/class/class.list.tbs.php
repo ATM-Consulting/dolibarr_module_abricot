@@ -110,7 +110,7 @@ class TListviewTBS {
 			if(strpos($sql,'WHERE ')===false)$sql.=' WHERE 1 ';
 			
 			foreach($_REQUEST['TListTBS'][$this->id]['search'] as $key=>$value) {
-				if(!empty($value)) {
+				if($value!='') { // pas empty car biensûr le statut = 0 existe dans de nombreux cas
 					$sKey = $this->getSearchKey($key, $TParam);
 					$sBindKey = strtr($sKey,array('.'=>'_' ,'`'=>''));
 					
@@ -255,6 +255,7 @@ class TListviewTBS {
 		
 		$TSearch=array();
 		$form=new TFormCore;
+		$form->strict_string_compare = true;
 		
 		$nb_search_in_bar = 0;
 		
@@ -272,7 +273,7 @@ class TListviewTBS {
 			
 			if(is_array($typeRecherche)) {
 				$typeRecherche = array(''=>' ') + $typeRecherche;
-				$fsearch=$form->combo('','TListTBS['.$this->id.'][search]['.$key.']', $typeRecherche,$value,0,'',' listviewtbs="combo" ');
+				$fsearch=$form->combo('','TListTBS['.$this->id.'][search]['.$key.']', $typeRecherche,$value,0,'',' listviewtbs="combo" init-value="'.$value.'" ');
 			}
 			else if($typeRecherche==='calendar') {
 				$fsearch=$form->calendrier('','TListTBS['.$this->id.'][search]['.$key.']',$value,10,10,' listviewtbs="calendar" ');	
