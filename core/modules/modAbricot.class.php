@@ -116,7 +116,7 @@ class modAbricot extends DolibarrModules
         $this->phpmin = array(5, 3);
         // Minimum version of Dolibarr required by module
         $this->need_dolibarr_version = array(3, 2);
-        $this->langfiles = false; // langfiles@mymodule
+        $this->langfiles = 'abricot@abricot'; // langfiles@mymodule
         // Constants
         // List of particular constants to add when module is enabled
         // (key, 'chaine', value, desc, visible, 'current' or 'allentities', deleteonunactive)
