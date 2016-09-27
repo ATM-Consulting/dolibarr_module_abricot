@@ -324,7 +324,7 @@ class TListviewTBS {
 
 			if(!empty($param_search['allow_is_null'])) {
 				$valueNull = isset($_REQUEST['TListTBS'][$this->id]['search_on_null'][$key]) ? 1 : 0;
-				$fsearch.=' '.$form->checkbox1('', 'TListTBS['.$this->id.'][search_on_null]['.$key.']',1, $valueNull).img_help(1, $langs->trans('SearchOnNUllValue'));
+				$fsearch.=' '.$form->checkbox1('', 'TListTBS['.$this->id.'][search_on_null]['.$key.']',1, $valueNull,' onclick=" if($(this).is(\':checked\')){ $(this).prev().val(\'\'); }" ').img_help(1, $langs->trans('SearchOnNUllValue'));
 			}
 			
 
