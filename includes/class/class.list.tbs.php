@@ -113,7 +113,6 @@ class TListviewTBS {
 			if(strpos($sql,'WHERE ')===false)$sql.=' WHERE 1 ';
 			
 			foreach($_REQUEST['TListTBS'][$this->id]['search'] as $key=>$value) {
-				
 				$sKey = $this->getSearchKey($key, $TParam);
 				$sBindKey = strtr($sKey,array('.'=>'_' ,'`'=>''));
 				
@@ -126,6 +125,10 @@ class TListviewTBS {
 					$this->TBind[$sBindKey.'_null'] = $sKey.' IS NULL ';
 					$TSQLMore[] = $sKey.' IS NULL ';
 					$search_on_null = true;
+					
+					$this->TBind[$sBindKey]= '';
+					$value = '';
+					
 				}
 				elseif($allow_is_null){
 					
@@ -167,7 +170,6 @@ class TListviewTBS {
 						}	
 						else {
 							$value = $this->dateToSQLDate($value);
-							
 							if(isset($this->TBind[$sBindKey])) {
 								$this->TBind[$sBindKey] = $value;
 							} 
@@ -1057,7 +1059,18 @@ class TListviewTBS {
 		$TBind = $this->getBind($TParam);
 		$sql = preg_replace_callback('/(:[a-z])\w+/i',function($matches) use($TBind,$PDOdb) {
 			$field = substr($matches[0],1);
-			return isset($TBind[$field]) ? $PDOdb->quote($TBind[$field]) : 'errorBindingField '.$field; 
+			 if(isset($TBind[$field])) {
+			 	if(strpos($TBind[$field],' IS NULL') === false) {
+			 		return $PDOdb->quote($TBind[$field]);	
+			 	}
+				else {
+					return $TBind[$field];
+				}
+			 } 
+			 else {
+			 	 return 'errorBindingField '.$field;
+			 }
+			  
 		}, $sql);
 		
 		
