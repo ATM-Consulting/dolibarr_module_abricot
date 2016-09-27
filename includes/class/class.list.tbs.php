@@ -74,6 +74,9 @@ class TListviewTBS {
 		
 	//	print_r($TParam);
 	}
+	private function getSearchNull($key, &$TParam) {
+		return !empty($TParam['search'][$key]['allow_is_null']);
+	} 
 	private function getSearchKey($key, &$TParam) {
 				
 		$prefixe='';	
@@ -110,12 +113,33 @@ class TListviewTBS {
 			if(strpos($sql,'WHERE ')===false)$sql.=' WHERE 1 ';
 			
 			foreach($_REQUEST['TListTBS'][$this->id]['search'] as $key=>$value) {
+				
+				$sKey = $this->getSearchKey($key, $TParam);
+				$sBindKey = strtr($sKey,array('.'=>'_' ,'`'=>''));
+				
+				$TSQLMore = array();
+				
+				$allow_is_null = $this->getSearchNull($key,$TParam);
+				$search_on_null = false;
+				
+				if($allow_is_null && !empty($_REQUEST['TListTBS'][$this->id]['search_on_null'][$key])) {
+					$this->TBind[$sBindKey.'_null'] = $sKey.' IS NULL ';
+					$TSQLMore[] = $sKey.' IS NULL ';
+					$search_on_null = true;
+				}
+				elseif($allow_is_null){
+					
+					$this->TBind[$sBindKey.'_null'] =0; // $sKey.' IS NOT NULL ';
+					//$TSQLMore[] =  $sKey.' IS NOT NULL ';
+				}
+				
+				 
 				if($value!='') { // pas empty car biensûr le statut = 0 existe dans de nombreux cas
-					$sKey = $this->getSearchKey($key, $TParam);
-					$sBindKey = strtr($sKey,array('.'=>'_' ,'`'=>''));
 					
 					if(isset($TParam['type'][$key]) && ($TParam['type'][$key]==='date' || $TParam['type'][$key]==='datetime')) {
 						if(is_array($value)) {
+							
+							$TSQLDate=array();
 							if(!empty($value['deb'])) {
 								
 								$valueDeb = $this->dateToSQLDate($value['deb']);
@@ -124,7 +148,7 @@ class TListviewTBS {
 									$this->TBind[$sBindKey.'_start'] = $valueDeb;
 								} 
 								else  {
-									$sql.=" AND ".$sKey." >= '".$valueDeb." 00:00:00'" ;
+									$TSQLDate[]=$sKey." >= '".$valueDeb." 00:00:00'" ;
 								}
 							}
 							if(!empty($value['fin'])) {
@@ -134,19 +158,22 @@ class TListviewTBS {
 									$this->TBind[$sBindKey.'_end'] = $valueFin;
 								} 
 								else  {
-									$sql.=" AND ".$sKey." <= '".$valueFin." 23:59:59'" ;	
+									$TSQLDate[]=$sKey." <= '".$valueFin." 23:59:59'" ;	
 								}
 							}
+							
+							if(!empty($TSQLDate)) $TSQLMore[]=implode(' AND ', $TSQLDate);
 							
 						}	
 						else {
 							$value = $this->dateToSQLDate($value);
+							
 							if(isset($this->TBind[$sBindKey])) {
-								$this->TBind[$sBindKey] = $value.'%';
+								$this->TBind[$sBindKey] = $value;
 							} 
 							else  {
 							
-								$sql.=" AND ".$sKey." LIKE '".$value."'" ;
+								$TSQLMore[]=$sKey." LIKE '".$value."'" ;
 							}	
 						}
 					}
@@ -169,12 +196,16 @@ class TListviewTBS {
 						} 
 						else  {
 							$value = $this->getSearchValue($value);
-							$sql.=" AND ".$sKey." LIKE '%".addslashes($value)."%'" ;	
+							$TSQLMore[]=$sKey." LIKE '%".addslashes($value)."%'" ;	
 						}
 						
 					}
 					
 				}	
+				
+				if(!isset($this->TBind[$sBindKey])) {
+					$sql.=' AND ( '.implode(' OR ',$TSQLMore).' ) ';
+				}
 			}
 			
 			if($sqlGROUPBY!='')	$sql.=' GROUP BY '.$sqlGROUPBY;
@@ -288,6 +319,12 @@ class TListviewTBS {
 			else {
 				$fsearch=$form->texte('','TListTBS['.$this->id.'][search]['.$key.']',$value,15,255,' listviewtbs="input" ');	
 			}
+
+			if(!empty($param_search['allow_is_null'])) {
+				$valueNull = isset($_REQUEST['TListTBS'][$this->id]['search_on_null'][$key]) ? 1 : 0;
+				$fsearch.=' '.$form->checkbox1('', 'TListTBS['.$this->id.'][search_on_null]['.$key.']',1, $valueNull).img_help(1, $langs->trans('SearchOnNUllValue'));
+			}
+			
 
 			if(!empty($TEntete[$key]) || $TParam['type'] == 'chart') {
 				$TSearch[$key] = $fsearch;
@@ -1016,25 +1053,14 @@ class TListviewTBS {
 			'@current_user@'=>$user->id
 		));
 
-		//AA oui c'est moche mais le bindParam ne prends pas en compte les tableaux pour le IN ce qui est super pénélisant. En attendant de refaire mieux ou d'un coup de main
+		//AA oui c'est moche mais le bindParam ne prends pas en compte les tableaux pour le IN ce qui est super pénalisant. En attendant de refaire mieux ou d'un coup de main
 		$TBind = $this->getBind($TParam);
+		$sql = preg_replace_callback('/(:[a-z])\w+/i',function($matches) use($TBind,$PDOdb) {
+			$field = substr($matches[0],1);
+			return isset($TBind[$field]) ? $PDOdb->quote($TBind[$field]) : 'errorBindingField '.$field; 
+		}, $sql);
 		
-		foreach($TBind as $k => $v) {
-			
-			if(is_array($v)) {
-				$sql=strtr($sql,array(
-					':'.$k=>implode(',',$v)
-				));
-			}
-			else{
-				$sql=strtr($sql,array(
-					':'.$k=>$PDOdb->quote($v)
-				));
-				
-			}
-			
-		}
-//		echo $sql;
+		
 		return $sql;
 	}
 	
