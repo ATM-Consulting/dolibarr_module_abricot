@@ -198,14 +198,17 @@ class TListviewTBS {
 						} 
 						else  {
 							$value = $this->getSearchValue($value);
-							$TSQLMore[]=$sKey." LIKE '%".addslashes($value)."%'" ;	
+							
+							if(strpos($value,'%')===false) $value = '%'.$value.'%';
+							
+							$TSQLMore[]=$sKey." LIKE '".addslashes($value)."'" ;	
 						}
 						
 					}
 					
 				}	
 				
-				if(!isset($this->TBind[$sBindKey])) {
+				if(!isset($this->TBind[$sBindKey]) && !empty($TSQLMore)) {
 					$sql.=' AND ( '.implode(' OR ',$TSQLMore).' ) ';
 				}
 			}
