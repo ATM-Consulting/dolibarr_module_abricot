@@ -1062,9 +1062,10 @@ class TListviewTBS {
 
 		//AA oui c'est moche mais le bindParam ne prends pas en compte les tableaux pour le IN ce qui est super pénalisant. En attendant de refaire mieux ou d'un coup de main
 		$TBind = $this->getBind($TParam);
+		
 		$sql = preg_replace_callback('/(:[a-z])\w+/i',function($matches) use($TBind,$PDOdb) {
 			$field = substr($matches[0],1);
-			 if(isset($TBind[$field])) {
+			 if(isset($TBind[$field]) || is_null($TBind[$field]) ) {
 			 	
 				if(is_array($TBind[$field])) {
 					$r = '';
