@@ -1039,8 +1039,10 @@ class TListviewTBS {
 		$TBind = array();
 		foreach($this->TBind as $k=>$v) {
 			if(!empty($TParam['operator'][$k]) && $TParam['operator'][$k] == 'IN') {
+				
 				if($v==='')$TBind[$k] =array("'0'");
 				else $TBind[$k] =explode(',', $v);
+				
 			}
 			else{
 				$TBind[$k] = $v;
@@ -1063,7 +1065,18 @@ class TListviewTBS {
 		$sql = preg_replace_callback('/(:[a-z])\w+/i',function($matches) use($TBind,$PDOdb) {
 			$field = substr($matches[0],1);
 			 if(isset($TBind[$field])) {
-			 	if(strpos($TBind[$field],' IS NULL') === false) {
+			 	
+				if(is_array($TBind[$field])) {
+					$r = '';
+					foreach($TBind[$field] as $v ){
+						if(!empty($r))$r.=',';
+						$r.=$PDOdb->quote($v);
+					}
+					
+					return $r;
+					
+				}
+				else if(strpos($TBind[$field],' IS NULL') === false) {
 			 		return $PDOdb->quote($TBind[$field]);	
 			 	}
 				else {
