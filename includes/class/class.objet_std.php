@@ -470,7 +470,7 @@ function _no_save_vars($lst_chp) {
 	{
 		global $db,$user,$langs,$conf;
 
-		if (isset($db,$user,$langs,$conf) && is_object($user) && get_class($user) === 'User')
+		if (isset($db,$user,$langs,$conf) && is_object($user) && get_class($user) === 'User' && $state!=='load')
 		{
 			$trigger_name = strtoupper(get_class($this).'_'.$state);
 			dol_include_once('/core/class/interfaces.class.php');
