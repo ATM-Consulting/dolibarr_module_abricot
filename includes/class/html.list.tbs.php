@@ -56,6 +56,25 @@
 	</tfoot>
 	
 </table>
+
+[onshow;block=begin; when [liste.useBottomPagination]==1]
+<table width="100%" border="0" class="notopnoleftnoright" style="margin-bottom: 2px;">
+		<tr>
+			<td id="pagination_bottom" class="nobordernopadding" align="right" valign="middle">
+				<script type="text/javascript">
+					if (typeof $ != "undefined")
+					{
+						$(function() {
+							var tbs_pagination = $('div.pagination').clone();
+							$('#pagination_bottom').append(tbs_pagination);
+						});
+					}
+				</script>
+			</td>
+		</tr>
+</table>
+[onshow;block=end]
+
 <div class="tabsAction">
 	[onshow;block=div; when [liste.haveExport]+-0 ]
 	<a href="javascript:TListTBS_downloadAs('[export.mode]','[export.url]','[export.token]','[export.session_name]');" class="butAction">[export.label;block=a;]</a>
@@ -63,4 +82,3 @@
 <p align="center">
 	[liste.messageNothing;strconv=no] [onshow; block=p;  when [liste.totalNB]==0]
 </p>
-	

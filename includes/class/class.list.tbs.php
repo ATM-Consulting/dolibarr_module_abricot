@@ -54,6 +54,7 @@ class TListviewTBS {
 			,'order_down'=>img_down()
 			,'order_up'=>img_up()
 			,'noheader'=>0
+			,'useBottomPagination'=>0
 			,'image'=>''
 			,'titre'=>'Liste'
 			,'orderDown'=>''
