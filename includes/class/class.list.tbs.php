@@ -80,14 +80,29 @@ class TListviewTBS {
 		return !empty($TParam['search'][$key]['allow_is_null']);
 	} 
 	private function getSearchKey($key, &$TParam) {
-				
-		$prefixe='';	
-		if(!empty($TParam['search'][$key]['table']))$prefixe='`'.$TParam['search'][$key]['table'].'`.';
 		
-		if(!empty($TParam['search'][$key]['field']))$key =$prefixe.'`'. $TParam['search'][$key]['field'] .'`';
-		else $key =$prefixe.'`'. strtr($key,';','*').'`';
+		$TPrefixe=array();
+		if(!empty($TParam['search'][$key]['table'])) {
+			if (!is_array($TParam['search'][$key]['table'])) $TParam['search'][$key]['table'] = array($TParam['search'][$key]['table']);
 			
-		return $key;
+			foreach ($TParam['search'][$key]['table'] as $prefix_table) {
+				$TPrefixe[] = '`'.$prefix_table.'`.'; 
+				
+			}
+		}
+		
+		$TKey=array();
+		if(!empty($TParam['search'][$key]['field'])) {
+			if (!is_array($TParam['search'][$key]['field'])) $TParam['search'][$key]['field'] = array($TParam['search'][$key]['field']);
+			
+			foreach ($TParam['search'][$key]['field'] as $i => $field) {
+				$TKey[] = $TPrefixe[$i].'`'. $field .'`';
+			}
+		} else {
+			$TKey[] =$TPrefixe[0].'`'. strtr($key,';','*').'`';
+		}
+		
+		return count($TKey)>1 ? $TKey : $TKey[0];
 	} 
 	private function getSearchValue($value) {
 		$value = strtr(trim($value),';','*');	
@@ -116,8 +131,16 @@ class TListviewTBS {
 			
 			foreach($_REQUEST['TListTBS'][$this->id]['search'] as $key=>$value) {
 				$sKey = $this->getSearchKey($key, $TParam);
-				$sBindKey = strtr($sKey,array('.'=>'_' ,'`'=>''));
+				if (is_array($sKey))
+				{
+					$sBindKey=array();
+					foreach ($sKey as $s) {
+						$sBindKey[] = strtr($s,array('.'=>'_' ,'`'=>''));
+					}
+				}
+				else $sBindKey = strtr($sKey,array('.'=>'_' ,'`'=>''));
 				
+				//if (!empty($value)) var_dump($sKey, $sBindKey, '==================================');
 				$TSQLMore = array();
 				
 				$allow_is_null = $this->getSearchNull($key,$TParam);
@@ -183,27 +206,34 @@ class TListviewTBS {
 					}
 					else {
 						
-						if(isset($this->TBind[$sBindKey])) {
-							
-							if(isset($TParam['operator'][$key])) {
-								if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=' || $TParam['operator'][$key]=='IN') {
-									$this->TBind[$sBindKey] = $value;
+						if (!is_array($sBindKey)) $TsBindKey = array($sBindKey);
+						else $TsBindKey = $sBindKey;
+						
+						foreach ($TsBindKey as $i => $sBindKey)
+						{
+							if(isset($this->TBind[$sBindKey])) {
+								
+								if(isset($TParam['operator'][$key])) {
+									if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=' || $TParam['operator'][$key]=='IN') {
+										$this->TBind[$sBindKey] = $value;
+									}
+									else{
+										$this->TBind[$sBindKey] = '%'.$value.'%';	
+									}
+									
 								}
-								else{
+								else {
 									$this->TBind[$sBindKey] = '%'.$value.'%';	
 								}
+							} 
+							else  {
+								$value = $this->getSearchValue($value);
 								
-							}
-							else {
-								$this->TBind[$sBindKey] = '%'.$value.'%';	
-							}
-						} 
-						else  {
-							$value = $this->getSearchValue($value);
-							
-							if(strpos($value,'%')===false) $value = '%'.$value.'%';
-							
-							$TSQLMore[]=$sKey." LIKE '".addslashes($value)."'" ;	
+								if(strpos($value,'%')===false) $value = '%'.$value.'%';
+								
+								if (is_array($sKey)) $TSQLMore[]=$sKey[$i]." LIKE '".addslashes($value)."'" ;
+								else $TSQLMore[]=$sKey." LIKE '".addslashes($value)."'" ;
+							}	
 						}
 						
 					}
@@ -213,6 +243,7 @@ class TListviewTBS {
 				if(!isset($this->TBind[$sBindKey]) && !empty($TSQLMore)) {
 					$sql.=' AND ( '.implode(' OR ',$TSQLMore).' ) ';
 				}
+				//echo($sql);
 			}
 			
 			if($sqlGROUPBY!='')	$sql.=' GROUP BY '.$sqlGROUPBY;
