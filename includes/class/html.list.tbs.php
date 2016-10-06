@@ -62,10 +62,13 @@
 		<tr>
 			<td id="pagination_bottom" class="nobordernopadding" align="right" valign="middle">
 				<script type="text/javascript">
-					$(function() {
-						var tbs_pagination = $('div.pagination').clone();
-						$('#pagination_bottom').append(tbs_pagination);
-					});
+					if (typeof $ != "undefined")
+					{
+						$(function() {
+							var tbs_pagination = $('div.pagination').clone();
+							$('#pagination_bottom').append(tbs_pagination);
+						});
+					}
 				</script>
 			</td>
 		</tr>
@@ -79,16 +82,3 @@
 <p align="center">
 	[liste.messageNothing;strconv=no] [onshow; block=p;  when [liste.totalNB]==0]
 </p>
-	
-<style type="text/css">
-	li.pagination > a.page {
-		padding:1px 2px;
-		border:1px solid #ccc;
-	}
-	
-	li.pagination > span.active {
-		padding:2px 2px;
-		border:1px solid #777;
-		font-weight:bold;
-	}
-</style>
