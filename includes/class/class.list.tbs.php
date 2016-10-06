@@ -44,6 +44,7 @@ class TListviewTBS {
 		if(!isset($TParam['type']))$TParam['type']=array();
 		if(!isset($TParam['orderby']['noOrder']))$TParam['orderby']['noOrder']=array();
 		if(!isset($TParam['node']))$TParam['node']=array('main'=>'data', 'object'=>'dataline');
+		if(!isset($TParam['no-select'])) $TParam['no-select'] = 1;
 		
 		if(!isset($TParam['liste']))$TParam['liste']=array();
 		$TParam['liste'] = array_merge(array(
