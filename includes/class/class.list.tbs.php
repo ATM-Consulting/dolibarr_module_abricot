@@ -123,7 +123,7 @@ class TListviewTBS {
 	{
 		if(is_array($value))
 		{
-			// Si $value est un tableau, ça veut dire que je communique des bornes, [début et fin] ou [que début] ou [que fin] => un BETWEEN Sql serait utile que dans le 1er cas 
+			// Si le type de "recherche" est "calendars" on a 2 champs de transmis, [début et fin] ou [que début] ou [que fin] => un BETWEEN Sql serait utile que dans le 1er cas 
 			// donc l'utilisation des opérateur >= et <= permettent un fonctionnement générique
 			$TSQLDate=array();
 			if(!empty($value['deb']))
