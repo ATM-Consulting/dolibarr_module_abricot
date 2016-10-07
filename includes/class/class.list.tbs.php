@@ -87,7 +87,6 @@ class TListviewTBS {
 			
 			foreach ($TParam['search'][$key]['table'] as $prefix_table) {
 				$TPrefixe[] = '`'.$prefix_table.'`.'; 
-				
 			}
 		}
 		
@@ -96,13 +95,14 @@ class TListviewTBS {
 			if (!is_array($TParam['search'][$key]['field'])) $TParam['search'][$key]['field'] = array($TParam['search'][$key]['field']);
 			
 			foreach ($TParam['search'][$key]['field'] as $i => $field) {
-				$TKey[] = $TPrefixe[$i].'`'. $field .'`';
+				$prefixe = !empty($TPrefixe[$i]) ? $TPrefixe[$i] : $TPrefixe[0];
+				$TKey[] = $prefixe.'`'. $field .'`';
 			}
 		} else {
 			$TKey[] =$TPrefixe[0].'`'. strtr($key,';','*').'`';
 		}
 		
-		return count($TKey)>1 ? $TKey : $TKey[0];
+		return $TKey;
 	} 
 	private function getSearchValue($value) {
 		$value = strtr(trim($value),';','*');	
@@ -119,6 +119,95 @@ class TListviewTBS {
 		return $value;
 	}
 	
+	private function addSqlFromTypeDate(&$TSQLMore, &$value, $sKey, $sBindKey)
+	{
+		if(is_array($value))
+		{
+			$TSQLDate=array();
+			if(!empty($value['deb']))
+			{
+				$valueDeb = $this->dateToSQLDate($value['deb']);
+				
+				if(isset($this->TBind[$sBindKey.'_start']))
+				{
+					$this->TBind[$sBindKey.'_start'] = $valueDeb;
+				}
+				else
+				{
+					$TSQLDate[]=$sKey." >= '".$valueDeb." 00:00:00'" ;
+				}
+			}
+			
+			if(!empty($value['fin']))
+			{
+				$valueFin = $this->dateToSQLDate($value['fin']);
+				if(isset($this->TBind[$sBindKey.'_end'])) {
+					$this->TBind[$sBindKey.'_end'] = $valueFin;
+				}
+				else
+				{
+					$TSQLDate[]=$sKey." <= '".$valueFin." 23:59:59'" ;	
+				}
+			}
+			
+			if(!empty($TSQLDate)) $TSQLMore[] = implode(' AND ', $TSQLDate);
+		}
+		else
+		{
+			$value = $this->dateToSQLDate($value);
+			if(isset($this->TBind[$sBindKey]))
+			{
+				$this->TBind[$sBindKey] = $value;
+			}
+			else
+			{
+				$TSQLMore[]=$sKey." LIKE '".$value."'" ;
+			}
+		}
+	}
+	
+	private function addSqlFromOther(&$TSQLMore, &$value, $TParam, $sKey, $sBindKey)
+	{
+		if(isset($this->TBind[$sBindKey]))
+		{
+			if(isset($TParam['operator'][$key]))
+			{
+				if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=' || $TParam['operator'][$key]=='IN')
+				{
+					$this->TBind[$sBindKey] = $value;
+				}
+				else
+				{
+					$this->TBind[$sBindKey] = '%'.$value.'%';
+				}			
+			}
+			else
+			{
+				$this->TBind[$sBindKey] = '%'.$value.'%';
+			}
+		} 
+		else
+		{
+			$value = $this->getSearchValue($value);
+			
+			if(strpos($value,'%')===false) $value = '%'.$value.'%';
+			
+			$TSQLMore[]=$sKey." LIKE '".addslashes($value)."'" ;
+		}
+	}
+
+	private function getTsBindKey(&$TsKey)
+	{
+		$TsBindKey = array();
+		
+		foreach ($TsKey as &$sKey)
+		{
+			$TsBindKey[] = strtr($sKey,array('.'=>'_' ,'`'=>''));
+		}
+		
+		return $TsBindKey;
+	}
+	
 	private function search($sql,&$TParam) {
 	
 		if(!empty($_REQUEST['TListTBS'][$this->id]['search'])) {
@@ -129,118 +218,52 @@ class TListviewTBS {
 			
 			if(strpos($sql,'WHERE ')===false)$sql.=' WHERE 1 ';
 			
-			foreach($_REQUEST['TListTBS'][$this->id]['search'] as $key=>$value) {
-				$sKey = $this->getSearchKey($key, $TParam);
-				if (is_array($sKey))
-				{
-					$sBindKey=array();
-					foreach ($sKey as $s) {
-						$sBindKey[] = strtr($s,array('.'=>'_' ,'`'=>''));
-					}
-				}
-				else $sBindKey = strtr($sKey,array('.'=>'_' ,'`'=>''));
+			foreach($_REQUEST['TListTBS'][$this->id]['search'] as $key=>$value)
+			{
+				$TsKey = $this->getSearchKey($key, $TParam);
+				$TsBindKey = $this->getTsBindKey($TsKey);
 				
-				//if (!empty($value)) var_dump($sKey, $sBindKey, '==================================');
+				//if (!empty($value)) var_dump($TsKey, $TsBindKey, '==================================');
 				$TSQLMore = array();
 				
 				$allow_is_null = $this->getSearchNull($key,$TParam);
 				$search_on_null = false;
 				
-				if($allow_is_null && !empty($_REQUEST['TListTBS'][$this->id]['search_on_null'][$key])) {
-					$this->TBind[$sBindKey.'_null'] = $sKey.' IS NULL ';
-					$TSQLMore[] = $sKey.' IS NULL ';
-					$search_on_null = true;
+				foreach ($TsKey as $i => &$sKey)
+				{
+					//if (!empty($value)) var_dump($sKey);
+					$sBindKey = $TsBindKey[$i];
 					
-					$this->TBind[$sBindKey]= '';
-					$value = '';
-					
-				}
-				elseif($allow_is_null){
-					
-					$this->TBind[$sBindKey.'_null'] =0; // $sKey.' IS NOT NULL ';
-					//$TSQLMore[] =  $sKey.' IS NOT NULL ';
-				}
-				
-				 
-				if($value!='') { // pas empty car biensûr le statut = 0 existe dans de nombreux cas
-					
-					if(isset($TParam['type'][$key]) && ($TParam['type'][$key]==='date' || $TParam['type'][$key]==='datetime')) {
-						if(is_array($value)) {
-							
-							$TSQLDate=array();
-							if(!empty($value['deb'])) {
-								
-								$valueDeb = $this->dateToSQLDate($value['deb']);
-								
-								if(isset($this->TBind[$sBindKey.'_start'])) {
-									$this->TBind[$sBindKey.'_start'] = $valueDeb;
-								} 
-								else  {
-									$TSQLDate[]=$sKey." >= '".$valueDeb." 00:00:00'" ;
-								}
-							}
-							if(!empty($value['fin'])) {
-								
-								$valueFin = $this->dateToSQLDate($value['fin']);
-								if(isset($this->TBind[$sBindKey.'_end'])) {
-									$this->TBind[$sBindKey.'_end'] = $valueFin;
-								} 
-								else  {
-									$TSQLDate[]=$sKey." <= '".$valueFin." 23:59:59'" ;	
-								}
-							}
-							
-							if(!empty($TSQLDate)) $TSQLMore[]=implode(' AND ', $TSQLDate);
-							
-						}	
-						else {
-							$value = $this->dateToSQLDate($value);
-							if(isset($this->TBind[$sBindKey])) {
-								$this->TBind[$sBindKey] = $value;
-							} 
-							else  {
-							
-								$TSQLMore[]=$sKey." LIKE '".$value."'" ;
-							}	
-						}
+					if($allow_is_null && !empty($_REQUEST['TListTBS'][$this->id]['search_on_null'][$key]))
+					{
+						$this->TBind[$sBindKey.'_null'] = $sKey.' IS NULL ';
+						$TSQLMore[] = $sKey.' IS NULL ';
+						$search_on_null = true;
+						
+						$this->TBind[$sBindKey]= '';
+						$value = '';
 					}
-					else {
+					elseif($allow_is_null)
+					{
+						$this->TBind[$sBindKey.'_null'] =0; // $sKey.' IS NOT NULL ';
+						//$TSQLMore[] =  $sKey.' IS NOT NULL ';
+					}
+					
+					if($value!='') { // pas empty car biensûr le statut = 0 existe dans de nombreux cas
 						
-						if (!is_array($sBindKey)) $TsBindKey = array($sBindKey);
-						else $TsBindKey = $sBindKey;
-						
-						foreach ($TsBindKey as $i => $sBindKey)
+						if(isset($TParam['type'][$key]) && ($TParam['type'][$key]==='date' || $TParam['type'][$key]==='datetime'))
 						{
-							if(isset($this->TBind[$sBindKey])) {
-								
-								if(isset($TParam['operator'][$key])) {
-									if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=' || $TParam['operator'][$key]=='IN') {
-										$this->TBind[$sBindKey] = $value;
-									}
-									else{
-										$this->TBind[$sBindKey] = '%'.$value.'%';	
-									}
-									
-								}
-								else {
-									$this->TBind[$sBindKey] = '%'.$value.'%';	
-								}
-							} 
-							else  {
-								$value = $this->getSearchValue($value);
-								
-								if(strpos($value,'%')===false) $value = '%'.$value.'%';
-								
-								if (is_array($sKey)) $TSQLMore[]=$sKey[$i]." LIKE '".addslashes($value)."'" ;
-								else $TSQLMore[]=$sKey." LIKE '".addslashes($value)."'" ;
-							}	
+							$this->addSqlFromTypeDate($TSQLMore, $value, $sKey, $sBindKey);
 						}
-						
+						else
+						{
+							$this->addSqlFromOther($TSQLMore, $value, $TParam, $sKey, $sBindKey);
+						}
 					}
-					
-				}	
-				
-				if(!isset($this->TBind[$sBindKey]) && !empty($TSQLMore)) {
+				}
+
+				if(!isset($this->TBind[$sBindKey]) && !empty($TSQLMore))
+				{
 					$sql.=' AND ( '.implode(' OR ',$TSQLMore).' ) ';
 				}
 				//echo($sql);
