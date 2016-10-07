@@ -123,6 +123,8 @@ class TListviewTBS {
 	{
 		if(is_array($value))
 		{
+			// Si $value est un tableau, ça veut dire que je communique des bornes, [début et fin] ou [que début] ou [que fin] => un BETWEEN Sql serait utile que dans le 1er cas 
+			// donc l'utilisation des opérateur >= et <= permettent un fonctionnement générique
 			$TSQLDate=array();
 			if(!empty($value['deb']))
 			{
@@ -154,6 +156,7 @@ class TListviewTBS {
 		}
 		else
 		{
+			// Sinon je communique une date directement au format d/m/Y et la méthode du dessous reformat en Y-m-d
 			$value = $this->dateToSQLDate($value);
 			if(isset($this->TBind[$sBindKey]))
 			{
@@ -161,7 +164,8 @@ class TListviewTBS {
 			}
 			else
 			{
-				$TSQLMore[]=$sKey." LIKE '".$value."'" ;
+				// Le % en fin de chaine permet de trouver un resultat si le contenu est au format Y-m-d H:i:s et non en Y-m-d
+				$TSQLMore[]=$sKey." LIKE '".$value."%'" ;
 			}
 		}
 	}
@@ -266,12 +270,14 @@ class TListviewTBS {
 				{
 					$sql.=' AND ( '.implode(' OR ',$TSQLMore).' ) ';
 				}
-				//echo($sql);
+				
 			}
 			
 			if($sqlGROUPBY!='')	$sql.=' GROUP BY '.$sqlGROUPBY;
 			
 		}
+
+		//echo($sql);
 
 		if(isset($_REQUEST['DEBUG'])) {
 			var_dump($this->TBind,$TParam['operator']);
