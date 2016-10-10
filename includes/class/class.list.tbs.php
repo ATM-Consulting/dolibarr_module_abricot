@@ -123,6 +123,8 @@ class TListviewTBS {
 	{
 		if(is_array($value))
 		{
+			
+			unset($this->TBind[$sBindKey]);
 			// Si le type de "recherche" est "calendars" on a 2 champs de transmis, [début et fin] ou [que début] ou [que fin] => un BETWEEN Sql serait utile que dans le 1er cas 
 			// donc l'utilisation des opérateur >= et <= permettent un fonctionnement générique
 			$TSQLDate=array();
@@ -130,26 +132,24 @@ class TListviewTBS {
 			{
 				$valueDeb = $this->dateToSQLDate($value['deb']);
 				
-				if(isset($this->TBind[$sBindKey.'_start']))
+				if(isset($this->TBind[$sBindKey.'_start'])) // TODO can't use this in query case
 				{
 					$this->TBind[$sBindKey.'_start'] = $valueDeb;
 				}
-				else
-				{
-					$TSQLDate[]=$sKey." >= '".$valueDeb." 00:00:00'" ;
-				}
+				
+				$TSQLDate[]=$sKey." >= '".$valueDeb." 00:00:00'" ;
+				
 			}
 			
 			if(!empty($value['fin']))
 			{
 				$valueFin = $this->dateToSQLDate($value['fin']);
-				if(isset($this->TBind[$sBindKey.'_end'])) {
+				if(isset($this->TBind[$sBindKey.'_end'])) { // TODO can't use this in query case
 					$this->TBind[$sBindKey.'_end'] = $valueFin;
 				}
-				else
-				{
-					$TSQLDate[]=$sKey." <= '".$valueFin." 23:59:59'" ;	
-				}
+				
+				$TSQLDate[]=$sKey." <= '".$valueFin." 23:59:59'" ;	
+				
 			}
 			
 			if(!empty($TSQLDate)) $TSQLMore[] = implode(' AND ', $TSQLDate);
