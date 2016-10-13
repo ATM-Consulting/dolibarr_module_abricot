@@ -170,7 +170,7 @@ class TListviewTBS {
 		}
 	}
 	
-	private function addSqlFromOther(&$TSQLMore, &$value, $TParam, $sKey, $sBindKey)
+	private function addSqlFromOther(&$TSQLMore, &$value, &$TParam, $sKey, $sBindKey, $key)
 	{
 		if(isset($this->TBind[$sBindKey]))
 		{
@@ -194,9 +194,27 @@ class TListviewTBS {
 		{
 			$value = $this->getSearchValue($value);
 			
-			if(strpos($value,'%')===false) $value = '%'.$value.'%';
+			if(isset($TParam['operator'][$key]))
+			{
+				if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=')
+				{
+					$TSQLMore[] = $sKey . ' ' . $TParam['operator'][$key] . ' "' . $value . '"';
+				}
+				elseif ($TParam['operator'][$key]=='IN')
+				{
+					$TSQLMore[] = $sKey . ' ' . $TParam['operator'][$key] . ' (' . $value . ')';
+				}
+				else
+				{
+					$TSQLMore[]=$sKey." LIKE '".addslashes($value)."'" ;
+				}
+			}
+			else
+			{
+				if(strpos($value,'%')===false) $value = '%'.$value.'%';
+				$TSQLMore[]=$sKey." LIKE '".addslashes($value)."'" ;
+			}
 			
-			$TSQLMore[]=$sKey." LIKE '".addslashes($value)."'" ;
 		}
 	}
 
@@ -261,7 +279,7 @@ class TListviewTBS {
 						}
 						else
 						{
-							$this->addSqlFromOther($TSQLMore, $value, $TParam, $sKey, $sBindKey);
+							$this->addSqlFromOther($TSQLMore, $value, $TParam, $sKey, $sBindKey, $key);
 						}
 					}
 				}
