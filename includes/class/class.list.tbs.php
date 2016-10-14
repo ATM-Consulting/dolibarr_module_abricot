@@ -874,7 +874,8 @@ class TListviewTBS {
 	}
 	private function parse_xml(&$db, &$TEntete, &$TChamps, &$TParam, $xmlString) {
 		$xml = simplexml_load_string($xmlString); 
-		
+		 $this->THideFlip = array_flip($TParam['hide']);
+
 		$first=true;
 		foreach($xml->{$TParam['node']['main']}->{$TParam['node']['object']} as $node) {
 			if($first) {
@@ -889,6 +890,7 @@ class TListviewTBS {
 	private function parse_array(&$TEntete, &$TChamps, &$TParam, $TField) {
 		$first=true;
 		
+		 $this->THideFlip = array_flip($TParam['hide']);
 		$this->TTotalTmp=array();
 		
 		if(empty($TField)) return false;
@@ -1090,9 +1092,10 @@ class TListviewTBS {
 			}
 			else{
 				$row=array(); 
-				foreach($currentLine as $field=>$value) {
-					if(!in_array($field,$TParam['hide'])) {
-						if(!empty($TParam['math'][$field])) {
+
+				foreach($currentLine as $field=>&$value) {
+					if(!isset($this->THideFlip[$field])) {
+						if(isset($TParam['math'][$field]) && !empty($TParam['math'][$field])) {
 							$float_value = (double)strip_tags($value);
 							$this->TTotalTmp[$field][] = $float_value;
 						}
@@ -1102,6 +1105,7 @@ class TListviewTBS {
 				}
 			}
 
+			if(!empty($TParam['math'][$field])) {
 			foreach($row as $field=>$value) {
 				if(!empty($TParam['math'][$field]) && is_array($TParam['math'][$field])) {
 						$toField = $TParam['math'][$field][1];
@@ -1110,7 +1114,7 @@ class TListviewTBS {
 						
 				}
 			}
-				
+			}
 			$TChamps[] = $row;	
 	}
 	
@@ -1193,7 +1197,8 @@ class TListviewTBS {
 		$this->TTotalTmp=array();
 		
 		$this->sql = $this->getSQL($PDOdb,$sql,$TParam);
-		
+		$this->THideFlip = array_flip($TParam['hide']);
+
 		$res = $PDOdb->Execute($this->sql);
 		$first=true;
 		while($currentLine = $PDOdb->Get_line()) {
@@ -1205,6 +1210,5 @@ class TListviewTBS {
 			$this->set_line($TChamps, $TParam, $currentLine);
 			
 		}
-		
 	}	
 }
