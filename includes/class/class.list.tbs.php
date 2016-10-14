@@ -1001,7 +1001,7 @@ class TListviewTBS {
 	private function in_view(&$TParam, $line_number) {
 		global $conf;
 		
-		if(!empty($TParam['export'])) return true; // doit être dans la vue
+		if(!empty($_REQUEST['get-all-for-export'])) return true; // doit être dans la vue
 
 		$page_number = !empty($TParam['limit']['page']) ? $TParam['limit']['page'] : 1;
 		$line_per_page = !empty($TParam['limit']['nbLine']) ? $TParam['limit']['nbLine'] : $conf->liste_limit;

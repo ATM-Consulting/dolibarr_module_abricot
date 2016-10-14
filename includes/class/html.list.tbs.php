@@ -77,7 +77,7 @@
 
 <div class="tabsAction">
 	[onshow;block=div; when [liste.haveExport]+-0 ]
-	<a href="javascript:TListTBS_downloadAs('[export.mode]','[export.url]','[export.token]','[export.session_name]');" class="butAction">[export.label;block=a;]</a>
+	<a href="javascript:;" onclick="TListTBS_downloadAs(this, '[export.mode]','[export.url]','[export.token]','[export.session_name]');" class="butAction">[export.label;block=a;]</a>
 </div>
 <p align="center">
 	[liste.messageNothing;strconv=no] [onshow; block=p;  when [liste.totalNB]==0]
