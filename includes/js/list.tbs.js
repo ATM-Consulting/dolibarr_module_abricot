@@ -6,6 +6,8 @@ function TListTBS_OrderDown(idListe, column) {
 	base_url = TListTBS_recup_form_param(idListe,base_url);
 	base_url = TListTBS_removeParam(base_url,'TListTBS['+encodeURIComponent(idListe)+'][orderBy]');
 	
+	base_url = TListTBS_removeParam(base_url,'get-all-for-export');
+	
 	document.location.href=TListTBS_modifyUrl(base_url,"TListTBS["+encodeURIComponent(idListe)+"][orderBy]["+encodeURIComponent(column)+"]","DESC");
 }
 function TListTBS_OrderUp(idListe, column) {
@@ -14,6 +16,8 @@ function TListTBS_OrderUp(idListe, column) {
 	
 	base_url = TListTBS_recup_form_param(idListe,base_url);
 	base_url = TListTBS_removeParam(base_url,'TListTBS['+encodeURIComponent(idListe)+'][orderBy]');
+	
+	base_url = TListTBS_removeParam(base_url,'get-all-for-export');
 	
 	document.location.href=TListTBS_modifyUrl(base_url,"TListTBS["+encodeURIComponent(idListe)+"][orderBy]["+encodeURIComponent(column)+"]","ASC");
 }
@@ -58,7 +62,7 @@ function TListTBS_removeParam(strURL, paramMask) {
 
 function TListTBS_recup_form_param(idListe,base_url) {
 	
-	$('#'+idListe+' tr.barre-recherche [listviewtbs],#'+idListe+' tr.barre-recherche-head input,#'+idListe+' tr.barre-recherche-head select').each(function(i,item) {
+	$('#'+idListe+' tr.barre-recherche [listviewtbs],#'+idListe+' tr.barre-recherche-head input,#'+idListe+' tr.barre-recherche-head select,#'+idListe+' div.tabsAction input[listviewtbs]').each(function(i,item) {
 		if($(item).attr("name")) {
 			base_url = TListTBS_modifyUrl(base_url, $(item).attr("name") , $(item).val());
 		}
@@ -75,6 +79,8 @@ function TListTBS_GoToPage(idListe,pageNumber){
 	base_url = TListTBS_recup_form_param(idListe,base_url);
 	base_url =TListTBS_modifyUrl(base_url,"TListTBS["+encodeURIComponent(idListe)+"][page]",pageNumber);
 	
+	base_url = TListTBS_removeParam(base_url,'get-all-for-export');
+	
 	document.location.href=base_url;
 }
 function TListTBS_submitSearch(obj) {
@@ -82,31 +88,56 @@ function TListTBS_submitSearch(obj) {
 	$(obj).closest('form').submit();
 	//console.log($(obj).closest('form'));
 }
-function TListTBS_downloadAs(mode,url,token,session_name) {
-	$('div#listTBSdAS').remove();
+function TListTBS_launch_downloadAs(mode,url,token,session_name) {
+	 $('#listTBSdAS_export_form').remove();
 	
-	$('body').append('<div id="listTBSdAS" style="display:none;"><iframe id="listTBSdAS_iframe" src=""></iframe></div>');
-	$('div#listTBSdAS').append('<form action="'+url+'" method="post" target="listTBSdAS_iframe"></form>');
-	$('div#listTBSdAS form').append('<input type="hidden" name="mode" value="'+mode+'" />');
-	$('div#listTBSdAS form').append('<input type="hidden" name="token" value="'+token+'" />');
-	$('div#listTBSdAS form').append('<input type="hidden" name="session_name" value="'+session_name+'" />');
+	$form = $('<form action="'+url+'" method="post" name="listTBSdAS_export_form" id="listTBSdAS_export_form"></form>');
+	$form.append('<input type="hidden" name="mode" value="'+mode+'" />');
+	$form.append('<input type="hidden" name="token" value="'+token+'" />');
+	$form.append('<input type="hidden" name="session_name" value="'+session_name+'" />');
 	
+	$('body').append($form);
 	
-    $('div#listTBSdAS form').submit();
+    $('#listTBSdAS_export_form').submit();
+	
 }
-function postToIframe(data,url,target){
- 
-    
+
+function TListTBS_downloadAs(obj, mode,url,token,session_name) {
+	
+	$form = $(obj).closest('form');
+	$div = $form.find('div.tabsAction');
+	$div.append('<input type="hidden" listviewtbs="hidden" name="token" value="'+token+'" />');
+	$div.append('<input type="hidden" listviewtbs="hidden" name="mode" value="'+mode+'" />');
+	$div.append('<input type="hidden" listviewtbs="hidden" name="url" value="'+url+'" />');
+	$div.append('<input type="hidden" listviewtbs="hidden" name="session_name" value="'+session_name+'" />');
+	$div.append('<input type="hidden" listviewtbs="hidden" name="get-all-for-export" value="1" />');
+	
+	TListTBS_submitSearch(obj);
 }
 
 $(document).ready(function() {
 	$('tr.barre-recherche input').keypress(function(e) {
-    if(e.which == 13) {
-       
-       var id_list = $(this).closest('table').attr('id');
-       
-       $('#'+id_list+' .list-search-link').click();
-       
-    }
-});
+	    if(e.which == 13) {
+	       
+	       var id_list = $(this).closest('table').attr('id');
+	       
+	       $('#'+id_list+' .list-search-link').click();
+	       
+	    }
+	});
+	
+	var $_GET = {};
+	
+	document.location.search.replace(/\??(?:([^=]+)=([^&]*)&?)/g, function () {
+	    function decode(s) {
+	        return decodeURIComponent(s.split("+").join(" "));
+	    }
+	
+	    $_GET[decode(arguments[1])] = decode(arguments[2]);
+	});
+	
+	if(typeof $_GET["get-all-for-export"] != "undefined") {
+		TListTBS_launch_downloadAs($_GET["mode"],$_GET["url"],$_GET["token"],$_GET["session_name"]);
+	}
+	
 });
