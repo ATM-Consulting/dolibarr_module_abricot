@@ -249,7 +249,7 @@ class TListviewTBS {
 				$TSQLMore = array();
 				
 				$allow_is_null = $this->getSearchNull($key,$TParam);
-				$search_on_null = false;
+				$search_on_null = false; //TODO useless
 				
 				foreach ($TsKey as $i => &$sKey)
 				{
@@ -262,7 +262,7 @@ class TListviewTBS {
 						$TSQLMore[] = $sKey.' IS NULL ';
 						$search_on_null = true;
 						
-						$this->TBind[$sBindKey]= '';
+						if(isset($this->TBind[$sBindKey])) $this->TBind[$sBindKey]= '';
 						$value = '';
 					}
 					elseif($allow_is_null)
