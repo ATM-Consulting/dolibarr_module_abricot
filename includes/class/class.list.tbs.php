@@ -568,7 +568,9 @@ class TListviewTBS {
 		
 		$Tab=array();
 		if(!empty($TParam['export'])) {
-			$token = md5($this->id.time().rand(1,9999));
+			$token = GETPOST('token');
+			if(empty($token)) $token = md5($this->id.time().rand(1,9999));
+
 			$_SESSION['token_list_'.$token] = gzdeflate( serialize( array(
 				'title'=>$this->title
 				,'sql'=>$this->sql
@@ -576,7 +578,7 @@ class TListviewTBS {
 				,'TChamps'=>$TChamps
 				,'TEntete'=>$TEntete
 			) ) );
-				
+
 			foreach($TParam['export'] as $mode_export) {
 				
 				$Tab[] = array(
@@ -1003,7 +1005,7 @@ class TListviewTBS {
 	
 	private function in_view(&$TParam, $line_number) {
 		global $conf;
-		
+//		var_dump($_REQUEST['get-all-for-export']);
 		if(!empty($_REQUEST['get-all-for-export'])) return true; // doit être dans la vue
 
 		$page_number = !empty($TParam['limit']['page']) ? $TParam['limit']['page'] : 1;
@@ -1211,5 +1213,8 @@ class TListviewTBS {
 			$this->set_line($TChamps, $TParam, $currentLine);
 			
 		}
+
+//pre($TChamps);exit;
+
 	}	
 }
