@@ -206,6 +206,7 @@ class TListviewTBS {
 				}
 				else
 				{
+					if(strpos($value,'%')===false) $value = '%'.$value.'%';
 					$TSQLMore[]=$sKey." LIKE '".addslashes($value)."'" ;
 				}
 			}
