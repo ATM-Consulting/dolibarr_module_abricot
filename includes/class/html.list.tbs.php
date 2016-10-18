@@ -51,7 +51,7 @@
 	<tfoot>
 		<tr class="liste_total">
 			[onshow;block=tr; when [liste.haveTotal]+-0 ]
-			<td align="right">[total.val;block=td;strconv=no;frm=0 000,00]</td>
+			<td align="right" field="[total.$]">[total.val;block=td;strconv=no;frm=0 000,00]</td>
 		</tr>
 	</tfoot>
 	
