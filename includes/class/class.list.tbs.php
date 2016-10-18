@@ -63,6 +63,7 @@ class TListviewTBS {
 			,'picto_search'=>img_picto('Search', 'search.png')
 			,'head_search'=>''
 			,'export'=>array()
+			,'view_type'=>''
 		),$TParam['liste']);
 		
 		if(empty($TParam['limit']))$TParam['limit']=array();
@@ -304,6 +305,13 @@ class TListviewTBS {
 
 		return $sql;
 	}
+
+	private function getViewType(&$TParam) {
+		if(!empty($TParam['view_type'])) return $TParam['view_type']; 
+		else if (is_string($TParam['type']))return $TParam['type'] ;
+		else return 'list';
+	}
+
 	public function render(&$db,$sql,$TParam=array(),$TBind=array()) {
 		$this->typeRender = 'sql';
 	//		print_r($TParam);
@@ -321,7 +329,12 @@ class TListviewTBS {
 		
 		list($TTotal, $TTotalGroup)=$this->get_total($TChamps, $TParam);
 		
-		if($TParam['type'] == 'chart') {
+		$view_type = $this->getViewType($TParam);
+				
+		if($view_type == 'raw') {
+			return $this->renderRAW($TEntete, $TChamps,$TTotal,$TTotalGroup, $TParam);
+		}
+		else if($view_type == 'chart') {
 			return $this->renderChart($TEntete, $TChamps,$TTotal, $TParam);	
 		}
 		else {
@@ -412,7 +425,7 @@ class TListviewTBS {
 			}
 			
 
-			if(!empty($TEntete[$key]) || $TParam['type'] == 'chart') {
+			if(!empty($TEntete[$key]) || $this->getViewType($TParam) == 'chart') {
 				$TSearch[$key] = $fsearch;
 				$nb_search_in_bar++;
 			}
@@ -779,6 +792,27 @@ class TListviewTBS {
 		return $Tab;
 	}
 
+	private function renderRAW(&$TEntete, &$TChamps, &$TTotal,&$TTotalGroup, &$TParam) {
+		$TSearch = $this->setSearch($TEntete, $TParam);
+		$TExport=$this->setExport($TParam, $TChamps, $TEntete);
+		$TChamps = $this->addTotalGroup($TChamps,$TTotalGroup);
+		
+		return array(
+				'entete'=>$TEntete
+				,'champs'=>$TChamps
+				,'recherche'=>$TSearch
+				,'total'=>$TTotal
+				,'export'=>$TExport
+				,'haveExport'=>count($TExport)
+				, 'id'=>$this->id
+				, 'nb_columns'=>count($TEntete) 
+				,'totalNB'=>count($TChamps)
+				, 'nbSearch'=>count($TSearch)
+				, 'haveTotal'=>(int)!empty($TTotal)
+				, 'havePage'=>(int)!empty($TPagination) 
+		);
+	}
+	
 	private function renderList(&$TEntete, &$TChamps, &$TTotal,&$TTotalGroup, &$TParam) {
 		$TBS = new TTemplateTBS;
 		
@@ -839,7 +873,12 @@ class TListviewTBS {
 		$this->parse_array($TEntete, $TChamps, $TParam,$TField);
 		list($TTotal, $TTotalGroup)=$this->get_total($TChamps, $TParam);
 		
-		if($TParam['type'] == 'chart') {
+		$view_type = $this->getViewType($TParam);
+		
+		if($view_type == 'raw') {
+			return $this->renderRAW($TEntete, $TChamps,$TTotal, $TParam);
+		}
+		if($view_type == 'chart') {
 			return $this->renderChart($TEntete, $TChamps,$TTotal, $TParam);	
 		}
 		else {
