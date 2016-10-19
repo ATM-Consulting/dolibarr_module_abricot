@@ -14,6 +14,8 @@
 	$TEntete = $TData['TEntete'];
 	$TChamps = $TData['TChamps'];
 
+	$utf8_with_bom = chr(239) . chr(187) . chr(191);
+
 	if(empty($title)) $title = 'report';
 
 	if($mode == 'CSV') {
@@ -36,6 +38,8 @@
 			}
 			$r.=PHP_EOL;
 		}
+
+		if( mb_detect_encoding($r, 'UTF-8', true) ) $r = $utf8_with_bom.$r;
 
 		echo $r;
 		
