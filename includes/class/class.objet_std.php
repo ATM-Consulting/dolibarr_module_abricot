@@ -26,7 +26,6 @@ class TObjetStd {
 	 * constructeur
 	 **/
 	function __construct(){
-		global $conf;
 
 		$this->table=''; /* table contenant les données */
 		$this->{OBJETSTD_MASTERKEY}=0; /* clef primaire */
@@ -446,6 +445,7 @@ function _no_save_vars($lst_chp) {
   }
 
   function start(){
+  	global $conf;
 
      $this->{OBJETSTD_MASTERKEY} = 0; // le champ id est toujours def
      $this->{OBJETSTD_DATECREATE}=time(); // ces champs dates aussi
