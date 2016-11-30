@@ -784,11 +784,17 @@ class Wkhtmltopdf
                 }
                 break;
             case self::MODE_SAVE:
-                file_put_contents($this->getPath() . $filename, $this->_render());
+				//var_dump($this->getPath() . $filename,$this->_render());exit;
+				$file = $this->getPath() . $filename;
+                $res = file_put_contents($file, $this->_render());
+              //  var_dump($res);exit;
                 $filepath = $this->getFilePath();
                 if (!empty($filepath)) {
                     unlink($filepath);
                 }
+                
+				return $file;
+				
                 break;
             default:
                 throw new Exception("Mode: " . $mode . " is not supported");

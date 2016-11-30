@@ -156,12 +156,22 @@ class TTemplateTBS {
 			return $filePDF;
 		}	
 		else {
-		
 			if($extension == '.html' || $extension == '.php') {
-				$cmd_print = empty($conf->global->ABRICOT_WKHTMLTOPDF_CMD) ? 'wkhtmltopdf' : $conf->global->ABRICOT_WKHTMLTOPDF_CMD;
+			
+				$file_pdf = substr($infos['basename'], 0, strrpos( $infos['basename'], '.' ) ).'.pdf';
 				
-				$cmd = 'export HOME=/tmp'."\n";
-				$cmd.= $cmd_print.' "'.$file.'" "'.substr($file, 0, strrpos( $file, '.' ) ) .'.pdf"';
+				$wkhtmltopdf = new Wkhtmltopdf(array('path' => sys_get_temp_dir()));
+			
+		        $wkhtmltopdf->setTitle($infos['basename']);
+				$wkhtmltopdf->setOrientation(Wkhtmltopdf::ORIENTATION_PORTRAIT); //TODO config
+		        $wkhtmltopdf->setUrl($file);
+				$wkhtmltopdf->_bin = !empty($conf->global->ABRICOT_WKHTMLTOPDF_CMD) ? $conf->global->ABRICOT_WKHTMLTOPDF_CMD : 'wkhtmltopdf';
+		        $file = $wkhtmltopdf->output(Wkhtmltopdf::MODE_SAVE,$file_pdf);
+			
+				
+				rename($file, $filepath.'/'.$file_pdf);
+				
+				return 1;
 			}
 			else {
 				$cmd_print = empty($conf->global->ABRICOT_CONVERTPDF_CMD) ? 'libreoffice --invisible --norestore --headless --convert-to pdf --outdir' : $conf->global->ABRICOT_CONVERTPDF_CMD;	
