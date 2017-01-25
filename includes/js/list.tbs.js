@@ -8,7 +8,7 @@ function TListTBS_OrderDown(idListe, column) {
 	
 	base_url = TListTBS_removeParam(base_url,'get-all-for-export');
 	
-	document.location.href=TListTBS_modifyUrl(base_url,"TListTBS["+encodeURIComponent(idListe)+"][orderBy]["+encodeURIComponent(column)+"]","DESC");
+	window.location.href=TListTBS_modifyUrl(base_url,"TListTBS["+encodeURIComponent(idListe)+"][orderBy]["+encodeURIComponent(column)+"]","DESC");
 }
 function TListTBS_OrderUp(idListe, column) {
 	
@@ -19,7 +19,7 @@ function TListTBS_OrderUp(idListe, column) {
 	
 	base_url = TListTBS_removeParam(base_url,'get-all-for-export');
 	
-	document.location.href=TListTBS_modifyUrl(base_url,"TListTBS["+encodeURIComponent(idListe)+"][orderBy]["+encodeURIComponent(column)+"]","ASC");
+	window.location.href=TListTBS_modifyUrl(base_url,"TListTBS["+encodeURIComponent(idListe)+"][orderBy]["+encodeURIComponent(column)+"]","ASC");
 }
 function TListTBS_modifyUrl(strURL,paramName,paramNewValue){
 	    if (strURL.indexOf(paramName+'=')!=-1){
