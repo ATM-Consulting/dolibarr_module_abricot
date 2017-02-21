@@ -20,7 +20,8 @@
 			
 			
 			
-			if($obj->Type == 'datetime' && $obj->Null == 'NO' && $obj->Default=='0000-00-00 00:00:00') {
+			if($obj->Type == 'datetime' && $obj->Null == 'NO' 
+					&& ($obj->Default=='0000-00-00 00:00:00' || $obj->Default=='1000-01-01 00:00:00') ) {
 				
 				echo $t.':'.$obj->Field.'<br />';
 				
