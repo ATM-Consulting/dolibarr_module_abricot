@@ -25,7 +25,10 @@
 				
 				echo $t.':'.$obj->Field.'<br />';
 				
-				$db->query("UPDATE ".$t." SET ".$obj->Field."=NULL WHERE ".$obj->Field."='0000-00-00 00:00:00'");
+				$db->query("UPDATE ".$t." SET ".$obj->Field."=NULL WHERE 
+						".$obj->Field."='0000-00-00 00:00:00'
+						OR ".$obj->Field."='1000-01-01 00:00:00'
+				");
 				
 				$db->query("ALTER TABLE ".$t." CHANGE ".$obj->Field." ".$obj->Field." datetime NULL");
 				
