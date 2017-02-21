@@ -109,7 +109,7 @@ class TObjetStd {
 
 		foreach ($this->TChamps as $nom_champ=>$info) {
 			if($this->_is_date($info)){
-				if($db->Get_field($nom_champ) === '0000-00-00 00:00:00' || $db->Get_field($nom_champ) === '1000-01-01 00:00:00')$this->{$nom_champ} = 0;
+				if(empty($db->Get_field($nom_champ)) || $db->Get_field($nom_champ) === '0000-00-00 00:00:00' || $db->Get_field($nom_champ) === '1000-01-01 00:00:00')$this->{$nom_champ} = 0;
 				else $this->{$nom_champ} = strtotime($db->Get_field($nom_champ));
 			}
 			elseif($this->_is_tableau($info)){
@@ -165,7 +165,7 @@ function _no_save_vars($lst_chp) {
 					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` int(11) NOT NULL DEFAULT \''.(!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0').'\'');
 				}else if($this->_is_date($info)) {
 
-	  				$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` datetime NOT NULL DEFAULT \''.(!empty($info['default']) ? $info['default'] : $this->date_0).'\'');
+	  				$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` datetime NULL');
 				}else if($this->_is_float($info))
 					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` DOUBLE NOT NULL DEFAULT \''.(!empty($info['default']) ? $info['default'] : '0').'\'');
 				else if($this->_is_tableau($info) || $this->_is_text($info))
@@ -195,8 +195,8 @@ function _no_save_vars($lst_chp) {
 		
 		$sql = "CREATE TABLE `".$this->get_table()."` (
  				`".OBJETSTD_MASTERKEY."` int(11) NOT NULL DEFAULT '0'
- 				,`".OBJETSTD_DATECREATE."` datetime NOT NULL DEFAULT '".$this->date_0."'
- 				,`".OBJETSTD_DATEUPDATE."` datetime NOT NULL DEFAULT '".$this->date_0."'
+ 				,`".OBJETSTD_DATECREATE."` datetime NULL
+ 				,`".OBJETSTD_DATEUPDATE."` datetime NULL
 
  				,PRIMARY KEY (`".OBJETSTD_MASTERKEY."`)
  				,KEY `".OBJETSTD_DATECREATE."` (`".OBJETSTD_DATECREATE."`)
@@ -409,7 +409,7 @@ function _no_save_vars($lst_chp) {
       }
       else if($this->_is_date($info)){
 		if(empty($this->{$nom_champ})){
-			$query[$nom_champ] = $this->date_0;
+			$query[$nom_champ] = NULL;
 		}
 		else{
 			$date = date('Y-m-d H:i:s',$this->{$nom_champ});
@@ -463,8 +463,6 @@ function _no_save_vars($lst_chp) {
 			$db->close();
 	 }
 	 
-	 $this->date_0 = empty($conf->global->ABRICOT_USE_OLD_EMPTY_DATE_FORMAT) ? '1000-01-01 00:00:00' : '0000-00-00 00:00:00';
-
   }
 	function run_trigger(&$ATMdb, $state)
 	{
