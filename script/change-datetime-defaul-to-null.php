@@ -19,18 +19,17 @@
 		while($obj = $db->fetch_object($res2)) {
 			
 			
-			
 			if($obj->Type == 'datetime' && $obj->Null == 'NO' 
 					&& ($obj->Default=='0000-00-00 00:00:00' || $obj->Default=='1000-01-01 00:00:00') ) {
 				
 				echo $t.':'.$obj->Field.'<br />';
 				
+				$db->query("ALTER TABLE ".$t." CHANGE ".$obj->Field." ".$obj->Field." datetime NULL");
+				
 				$db->query("UPDATE ".$t." SET ".$obj->Field."=NULL WHERE 
 						".$obj->Field."='0000-00-00 00:00:00'
 						OR ".$obj->Field."='1000-01-01 00:00:00'
 				");
-				
-				$db->query("ALTER TABLE ".$t." CHANGE ".$obj->Field." ".$obj->Field." datetime NULL");
 				
 			}
 			
