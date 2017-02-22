@@ -402,6 +402,7 @@ class TListviewTBS {
 			$typeRecherche = (is_array($param_search) && isset($param_search['recherche'])) ? $param_search['recherche'] : $param_search;  
 			
 			if(is_array($typeRecherche)) {
+				if (!empty($param_search['to_translate'])) foreach ($typeRecherche as &$trad) $trad = $langs->trans($trad);
 				$typeRecherche = array(''=>' ') + $typeRecherche;
 				$fsearch=$form->combo('','TListTBS['.$this->id.'][search]['.$key.']', $typeRecherche,$value,0,'',' listviewtbs="combo" init-value="'.$value.'" ');
 			}
