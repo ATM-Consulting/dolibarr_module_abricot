@@ -109,7 +109,8 @@ class TObjetStd {
 
 		foreach ($this->TChamps as $nom_champ=>$info) {
 			if($this->_is_date($info)){
-				if(empty($db->Get_field($nom_champ)) || $db->Get_field($nom_champ) === '0000-00-00 00:00:00' || $db->Get_field($nom_champ) === '1000-01-01 00:00:00')$this->{$nom_champ} = 0;
+				$field_nom_champs = $db->Get_field($nom_champ);
+				if(empty($field_nom_champs) || $db->Get_field($nom_champ) === '0000-00-00 00:00:00' || $db->Get_field($nom_champ) === '1000-01-01 00:00:00')$this->{$nom_champ} = 0;
 				else $this->{$nom_champ} = strtotime($db->Get_field($nom_champ));
 			}
 			elseif($this->_is_tableau($info)){
