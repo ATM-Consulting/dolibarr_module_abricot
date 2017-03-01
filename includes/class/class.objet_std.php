@@ -665,14 +665,14 @@ function _no_save_vars($lst_chp) {
 
 	function cloneObject(&$db)
 	{
-		$this->to_clone = true;
+		$this->is_clone = true;
 		$this->start();
-		$this->clearChildren($db);
+		$this->clearChildren();
 		
 		return $this->save($db);
 	}
 	
-	private function clearChildren(&$db)
+	private function clearChildren()
 	{
 		if (!empty($this->TChildObjetStd))
 		{
@@ -681,10 +681,10 @@ function _no_save_vars($lst_chp) {
 				foreach ($this->{$childObjetStd['class']} as &$child)
 				{
 					$child->{$childObjetStd['foreignKey']} = 0;
-					$child->to_clone = true;
+					$child->is_clone = true;
 					$child->start();
 					
-					$child->clearChildren($db);
+					$child->clearChildren();
 				}
 			}
 		}
