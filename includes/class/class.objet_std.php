@@ -663,6 +663,35 @@ function _no_save_vars($lst_chp) {
 		return ($error == 0);
 	}
 
+	function cloneObject(&$db)
+	{
+		$this->is_clone = true;
+		$this->start();
+		$this->clearChildren();
+		
+		return $this->save($db);
+	}
+	
+	private function clearChildren()
+	{
+		if (!empty($this->TChildObjetStd))
+		{
+			foreach ($this->TChildObjetStd as &$childObjetStd)
+			{
+				foreach ($this->{$childObjetStd['class']} as &$child)
+				{
+					$child->{$childObjetStd['foreignKey']} = 0;
+					$child->is_clone = true;
+					$child->start();
+					
+					$child->clearChildren();
+				}
+			}
+		}
+		
+		return true;
+	}
+	
 	function save(&$db){
 		//$this->save_log($db);
 		if(isset($this->to_delete) && $this->to_delete==true) {
