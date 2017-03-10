@@ -261,7 +261,8 @@ class TListviewTBS {
 					if($allow_is_null && !empty($_REQUEST['TListTBS'][$this->id]['search_on_null'][$key]))
 					{
 						$this->TBind[$sBindKey.'_null'] = $sKey.' IS NULL ';
-						$TSQLMore[] = $sKey.' IS NULL ';
+						if (isset($TParam['type'][$key]) && ($TParam['type'][$key]==='date' || $TParam['type'][$key]==='datetime')) $TSQLMore[] = $sKey.' <= \'1000-01-01 00:00:00\'';
+						else $TSQLMore[] = $sKey.' IS NULL ';
 						$search_on_null = true;
 						
 						if(isset($this->TBind[$sBindKey])) $this->TBind[$sBindKey]= '';
