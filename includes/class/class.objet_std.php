@@ -486,6 +486,13 @@ function _no_save_vars($lst_chp) {
 		}
 	}
 	
+	/**
+	 * Function SetSqlValueFor. return formated value for sql
+	 * @param string	$field		Contain field name
+	 * @param string	$value		Contain value
+	 *
+	 * @return array	$TypedValue	Value typed for sql request
+	 */
 	public function SetSqlValueFor($field, $value) {
 		$TypedValue = '';
 		if(!empty($this->TChamps[$field]['type'])) {
@@ -521,7 +528,6 @@ function _no_save_vars($lst_chp) {
 				$sql .= ' AND `'.$field.'` = '.$realvalue;
 			}
 		}
-		var_dump($sql);
 		// Catch all rowid
 		$req = $db->Execute($sql);
 		// Fetch all object matched
