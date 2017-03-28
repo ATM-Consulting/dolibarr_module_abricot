@@ -485,16 +485,91 @@ function _no_save_vars($lst_chp) {
 
 		}
 	}
-  function loadBy(&$db, $value, $field, $annexe=false) {
-  	$db->Execute("SELECT ".OBJETSTD_MASTERKEY." FROM ".$this->get_table()." WHERE ".$field."='".$value."' LIMIT 1");
-	if($db->Get_line()) {
-		return $this->load($db, $db->Get_field(OBJETSTD_MASTERKEY), $annexe);
+	
+	public function SetSqlValueFor($field, $value) {
+		$TypedValue = '';
+		if(!empty($this->TChamps[$field]['type'])) {
+			if($this->TChamps[$field]['type'] == 'float') {
+				$TypedValue = (double)Tools::string2num($value);
+			}
+			else if($this->TChamps[$field]['type'] == 'integer') {
+				$TypedValue = (int)Tools::string2num($value);
+			}
+		}
+		if(empty($TypedValue)) {
+			$TypedValue = '\''.$value.'\'';
+		}
+		return $TypedValue;
 	}
-	else {
-		return false;
+	
+	/**
+	 * Function LoadAllBy. Load an object with id
+	 * @param TPDOdb	$db				Object PDO database
+	 * @param array		$TConditions	Contain sql conditions
+	 * @param boolean	$annexe			1 = load childs; 0 = Only load object
+	 *
+	 * @return array	$TRes	Array of objects
+	 */
+	public function LoadAllBy(&$db, $TConditions=array(), $annexe=false) {
+		$TRes = array();
+		// Generate SQL request
+		$sql = "SELECT ".OBJETSTD_MASTERKEY." FROM ".$this->get_table()." WHERE 1";
+		if(!empty($TConditions)) {
+			foreach($TConditions as $field => $value) {
+				// Gestion des types de données
+				$realvalue = $this->SetSqlValueFor($field,$value);
+				$sql .= ' AND `'.$field.'` = '.$realvalue;
+			}
+		}
+		var_dump($sql);
+		// Catch all rowid
+		$req = $db->Execute($sql);
+		// Fetch all object matched
+		if($req) {
+			while($line = $req->fetch(PDO::FETCH_ASSOC)) {
+				$id = $line[OBJETSTD_MASTERKEY];
+				$class_object = get_class($this);
+				$object = new $class_object();
+				$test = $object->load($db, $id, $annexe);
+				$TRes[$object->{OBJETSTD_MASTERKEY}] = $object;
+			}
+		} else {
+			// TODO Gestion erreur un jour ?
+			echo 'Erreur avec la requête SQL suivante : '.$sql;
+		}
+		return $TRes;
 	}
-
-  }
+	
+	
+	/**
+	 * Function LoadBy. Load an object with id
+	 * @param TPDOdb	$db			Object PDO database
+	 * @param array		$value		Contain value for sql test
+	 * @param array		$field		Contain field for sql test
+	 * @param boolean	$annexe		1 = load childs; 0 = Only load object
+	 *
+	 * @return array	$TRes	Array of objects
+	 */
+	function loadBy(&$db, $value, $field, $annexe=false) {
+		// TODO Valider la gestion des typage
+		$realvalue = $this->SetSqlValueFor($field,$value);
+		$db->Execute("SELECT ".OBJETSTD_MASTERKEY." FROM ".$this->get_table()." WHERE ".$field."=".$realvalue." LIMIT 1");
+		if($db->Get_line()) {
+			return $this->load($db, $db->Get_field(OBJETSTD_MASTERKEY), $annexe);
+		}
+		else {
+			return false;
+		}
+	}
+  
+  /**
+   * Function Load. Load an object with id
+   * @param TPDOdb	$db			Object PDO database
+   * @param int		$id			Contain rowid of object
+   * @param boolean	$loadChild	1 = load childs; 0 = Only load object
+   *
+   * @return boolean	1 = OK; 0 = KO
+   */
   function load(&$db,$id,$loadChild=true){
   	//TODO add oldcopy for history module
   		if(empty($id)) return false;
