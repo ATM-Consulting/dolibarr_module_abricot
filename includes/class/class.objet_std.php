@@ -487,29 +487,6 @@ function _no_save_vars($lst_chp) {
 	}
 	
 	/**
-	 * Function SetSqlValueFor. return formated value for sql
-	 * @param string	$field		Contain field name
-	 * @param string	$value		Contain value
-	 *
-	 * @return array	$TypedValue	Value typed for sql request
-	 */
-	public function SetSqlValueFor($field, $value) {
-		$TypedValue = '';
-		if(!empty($this->TChamps[$field]['type'])) {
-			if($this->TChamps[$field]['type'] == 'float') {
-				$TypedValue = (double)Tools::string2num($value);
-			}
-			else if($this->TChamps[$field]['type'] == 'integer') {
-				$TypedValue = (int)Tools::string2num($value);
-			}
-		}
-		if(empty($TypedValue)) {
-			$TypedValue = '\''.$value.'\'';
-		}
-		return $TypedValue;
-	}
-	
-	/**
 	 * Function LoadAllBy. Load an object with id
 	 * @param TPDOdb	$db				Object PDO database
 	 * @param array		$TConditions	Contain sql conditions
@@ -517,30 +494,30 @@ function _no_save_vars($lst_chp) {
 	 *
 	 * @return array	$TRes	Array of objects
 	 */
-	public function LoadAllBy(&$db, $TConditions=array(), $annexe=false) {
+	public function LoadAllBy(&$db, $TConditions=array(), $annexe=true) {
 		$TRes = array();
 		// Generate SQL request
 		$sql = "SELECT ".OBJETSTD_MASTERKEY." FROM ".$this->get_table()." WHERE 1";
 		if(!empty($TConditions)) {
 			foreach($TConditions as $field => $value) {
-				// Gestion des types de données
-				$realvalue = $this->SetSqlValueFor($field,$value);
-				$sql .= ' AND `'.$field.'` = '.$realvalue;
+				$sql .= ' AND `'.$field.'` = \''.$value.'\'';
 			}
 		}
 		// Catch all rowid
-		$req = $db->Execute($sql);
+		$TReq = $db->ExecuteAsArray($sql);
 		// Fetch all object matched
-		if($req) {
-			while($line = $req->fetch(PDO::FETCH_ASSOC)) {
-				$id = $line[OBJETSTD_MASTERKEY];
+		if(!empty($TReq)) {
+			foreach($TReq as $line) {
+				$id = $line->{OBJETSTD_MASTERKEY};
 				$class_object = get_class($this);
 				$object = new $class_object();
-				$test = $object->load($db, $id, $annexe);
-				$TRes[$object->{OBJETSTD_MASTERKEY}] = $object;
+				$res = $object->load($db, $id, $annexe);
+				if($res){
+					$TRes[$object->{OBJETSTD_MASTERKEY}] = $object;
+				}
 			}
 		} else {
-			// TODO Gestion erreur un jour ?
+			// TODO Gestion erreur optimisée
 			echo 'Erreur avec la requête SQL suivante : '.$sql;
 		}
 		return $TRes;
@@ -557,9 +534,7 @@ function _no_save_vars($lst_chp) {
 	 * @return array	$TRes	Array of objects
 	 */
 	function loadBy(&$db, $value, $field, $annexe=false) {
-		// TODO Valider la gestion des typage
-		$realvalue = $this->SetSqlValueFor($field,$value);
-		$db->Execute("SELECT ".OBJETSTD_MASTERKEY." FROM ".$this->get_table()." WHERE ".$field."=".$realvalue." LIMIT 1");
+		$db->Execute("SELECT ".OBJETSTD_MASTERKEY." FROM ".$this->get_table()." WHERE ".$field."='".$value."' LIMIT 1");
 		if($db->Get_line()) {
 			return $this->load($db, $db->Get_field(OBJETSTD_MASTERKEY), $annexe);
 		}
