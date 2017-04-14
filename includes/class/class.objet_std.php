@@ -485,16 +485,72 @@ function _no_save_vars($lst_chp) {
 
 		}
 	}
-  function loadBy(&$db, $value, $field, $annexe=false) {
-  	$db->Execute("SELECT ".OBJETSTD_MASTERKEY." FROM ".$this->get_table()." WHERE ".$field."='".$value."' LIMIT 1");
-	if($db->Get_line()) {
-		return $this->load($db, $db->Get_field(OBJETSTD_MASTERKEY), $annexe);
+	
+	/**
+	 * Function LoadAllBy. Load an object with id
+	 * @param TPDOdb	$db				Object PDO database
+	 * @param array		$TConditions	Contain sql conditions
+	 * @param boolean	$annexe			1 = load childs; 0 = Only load object
+	 *
+	 * @return array	$TRes	Array of objects
+	 */
+	public function LoadAllBy(&$db, $TConditions=array(), $annexe=true) {
+		$TRes = array();
+		// Generate SQL request
+		$sql = "SELECT ".OBJETSTD_MASTERKEY." FROM ".$this->get_table()." WHERE 1";
+		if(!empty($TConditions)) {
+			foreach($TConditions as $field => $value) {
+				$sql .= ' AND `'.$field.'` = \''.$value.'\'';
+			}
+		}
+		// Catch all rowid
+		$TReq = $db->ExecuteAsArray($sql);
+		// Fetch all object matched
+		if(!empty($TReq)) {
+			foreach($TReq as $line) {
+				$id = $line->{OBJETSTD_MASTERKEY};
+				$class_object = get_class($this);
+				$object = new $class_object();
+				$res = $object->load($db, $id, $annexe);
+				if($res){
+					$TRes[$object->{OBJETSTD_MASTERKEY}] = $object;
+				}
+			}
+		} else {
+			// TODO Gestion erreur optimisée
+			echo 'Erreur avec la requête SQL suivante : '.$sql;
+		}
+		return $TRes;
 	}
-	else {
-		return false;
+	
+	
+	/**
+	 * Function LoadBy. Load an object with id
+	 * @param TPDOdb	$db			Object PDO database
+	 * @param array		$value		Contain value for sql test
+	 * @param array		$field		Contain field for sql test
+	 * @param boolean	$annexe		1 = load childs; 0 = Only load object
+	 *
+	 * @return array	$TRes	Array of objects
+	 */
+	function loadBy(&$db, $value, $field, $annexe=false) {
+		$db->Execute("SELECT ".OBJETSTD_MASTERKEY." FROM ".$this->get_table()." WHERE ".$field."='".$value."' LIMIT 1");
+		if($db->Get_line()) {
+			return $this->load($db, $db->Get_field(OBJETSTD_MASTERKEY), $annexe);
+		}
+		else {
+			return false;
+		}
 	}
-
-  }
+  
+  /**
+   * Function Load. Load an object with id
+   * @param TPDOdb	$db			Object PDO database
+   * @param int		$id			Contain rowid of object
+   * @param boolean	$loadChild	1 = load childs; 0 = Only load object
+   *
+   * @return boolean	1 = OK; 0 = KO
+   */
   function load(&$db,$id,$loadChild=true){
   	//TODO add oldcopy for history module
   		if(empty($id)) return false;
