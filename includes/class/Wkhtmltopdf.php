@@ -666,7 +666,7 @@ class Wkhtmltopdf
         foreach($this->getMargins() as $position => $margin) {
             $command .= (!is_null($margin)) ? sprintf(' --margin-%s %s', $position, $margin) : '';
         }
-
+        //var_dump($this->getOptions());
         foreach ($this->getOptions() as $key => $value) {
             $command .= " --$key $value";
         }
@@ -707,7 +707,7 @@ class Wkhtmltopdf
             file_put_contents($this->getFilePath(), $this->getHtml());
             $input = $this->getFilePath();
         }
-
+  //     var_dump($this->_getCommand());exit;
         $content = $this->_exec(str_replace('%input%', $input, $this->_getCommand()));
 
         if (strpos(mb_strtolower($content['stderr']), 'error')) {

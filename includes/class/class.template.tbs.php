@@ -99,7 +99,7 @@ class TTemplateTBS {
 				file_put_contents($TParam['outFile'], $TBS->Source);
 				
 				if( !empty($TParam['convertToPDF']) ) {
-					$this->convertToPDF($TParam['outFile'], $extension);	
+					$this->convertToPDF($TParam['outFile'], $extension,$TParam);	
 				}
 				
 				if(!empty($TParam['deleteSrc'])) unlink($TParam['outFile']);
@@ -120,7 +120,7 @@ class TTemplateTBS {
 		return $ext;
 	}
 	
-	private function convertToPDF($file,$extension='') {
+	private function convertToPDF($file,$extension='',$TParam=array()) {
 		global $conf;
 		
 		$infos = pathinfo($file);
@@ -159,9 +159,12 @@ class TTemplateTBS {
 			if($extension == '.html' || $extension == '.php') {
 			
 				$file_pdf = substr($infos['basename'], 0, strrpos( $infos['basename'], '.' ) ).'.pdf';
+				$wkhtmltopdf = new Wkhtmltopdf(array(
+						'path' => sys_get_temp_dir(),'margin-left'=>0,
+				));
 				
-				$wkhtmltopdf = new Wkhtmltopdf(array('path' => sys_get_temp_dir()));
-			
+				if(!empty($TParam['wkOptions'])) $wkhtmltopdf->setOptions($TParam['wkOptions']);
+				
 		        $wkhtmltopdf->setTitle($infos['basename']);
 				$wkhtmltopdf->setOrientation(Wkhtmltopdf::ORIENTATION_PORTRAIT); //TODO config
 		        $wkhtmltopdf->setUrl($file);
