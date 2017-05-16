@@ -123,6 +123,8 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 
 	if (defined('USE_UTF8'))
 		$this -> Execute("set names 'utf8'");
+	
+	$this->Execute("SET sql_mode = '';");
 }
 
 function beginTransaction() {
