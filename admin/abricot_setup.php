@@ -97,16 +97,17 @@ dol_fiche_head(
 $form=new Form($db);
 $var=false;
 print '<table class="noborder" width="100%">';
+print '<tbody>';
 print '<tr class="liste_titre">';
 print '<td>'.$langs->trans("Settings").'</td>'."\n";
 print '<td align="center" width="20">&nbsp;</td>';
-print '<td align="center" width="100">'.$langs->trans("Value").'</td>'."\n";
+print '<td align="center" width="100">'.$langs->trans("Value").'</td></tr>'."\n";
 
 $var=!$var;
 print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("set_ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
-print '<td align="right" width="300">';
+print '<td align="center" width="100">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 print '<input type="hidden" name="action" value="set_ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING">';
@@ -118,7 +119,7 @@ $var=!$var;
 print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("set_ABRICOT_USE_OLD_EMPTY_DATE_FORMAT").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
-print '<td align="right" width="300">';
+print '<td align="center" width="100">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 print '<input type="hidden" name="action" value="set_ABRICOT_USE_OLD_EMPTY_DATE_FORMAT">';
@@ -126,6 +127,28 @@ echo ajax_constantonoff('ABRICOT_USE_OLD_EMPTY_DATE_FORMAT');
 print '</form>';
 print '</td></tr>';
 
+print '<tbody>';
+print '</table><br>';
+
+$form=new Form($db);
+$var=false;
+print '<table class="noborder" width="100%">';
+print '<tbody>';
+print '<tr class="liste_titre">';
+print '<td>'.$langs->trans("Migrate").'</td>'."\n";
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="center" width="100">'.$langs->trans("Action").'</td></tr>'."\n";
+
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("MIGRATE_DATETIME_DEFAULT_TO_NULL").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="center" width="100">';
+print '<a class="butAction" href="../script/change-datetime-defaul-to-null.php">Migrer</a>';
+print '</form>';
+print '</td></tr>';
+
+print '<tbody>';
 print '</table>';
 
 llxFooter();
