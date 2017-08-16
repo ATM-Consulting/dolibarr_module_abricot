@@ -1,1 +1,8 @@
 SearchOnNUllValue=Search also on NULL value
+
+Settings=Parameters
+set_ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING = Use the old database encoding setting
+set_ABRICOT_USE_OLD_EMPTY_DATE_FORMAT = Use the old empty date format
+
+MIGRATE_DATETIME_DEFAULT_TO_NULL = Change the default value for the dates to null
+Migrate=Migrate

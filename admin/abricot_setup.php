@@ -135,7 +135,7 @@ $var=false;
 print '<table class="noborder" width="100%">';
 print '<tbody>';
 print '<tr class="liste_titre">';
-print '<td>'.$langs->trans("Migrate").'</td>'."\n";
+print '<td>'.$langs->trans("Migration").'</td>'."\n";
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="center" width="100">'.$langs->trans("Action").'</td></tr>'."\n";
 
@@ -144,7 +144,7 @@ print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("MIGRATE_DATETIME_DEFAULT_TO_NULL").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="center" width="100">';
-print '<a class="butAction" href="../script/change-datetime-defaul-to-null.php">Migrer</a>';
+print '<a class="butAction" href="../script/change-datetime-defaul-to-null.php">'.$langs->trans("Migrate").'</a>';
 print '</form>';
 print '</td></tr>';
 
