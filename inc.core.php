@@ -80,6 +80,10 @@
 			require_once(CORECLASS.'class.template.tbs.php');
 			require_once(CORECLASS.'class.list.tbs.php');
 			
+			/* Début de la fin pour PDOdb */
+			require_once(CORECLASS.'class.listview.php'); // remplace TListviewTBS pour un objet Dolibarr
+			require_once(CORECLASS.'class.seedobject.php'); // remplace l'extend TObjetStd pour nos class
+			
 			/* wkhtmltopdf */
 			require_once(CORECLASS.'Wkhtmltopdf.php');
 			
