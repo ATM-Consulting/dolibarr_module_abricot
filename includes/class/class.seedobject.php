@@ -435,6 +435,69 @@ class SeedObject extends CommonObject
 		return 1;
 	}
 	
+	/**
+	 * Create object into database
+	 *
+	 * @param  User $user      User that creates
+	 * @param  bool $notrigger false=launch triggers after, true=disable triggers
+	 * @return int             <0 if KO, Id of created object if OK
+	 */
+	public function createCommon(User $user, $notrigger = false)
+	{
+		// method_exists() with key word 'parent' doesn't work
+		if (is_callable('parent::createCommon')) return parent::createCommon($user, $notrigger);
+		
+		
+        $error = 0;
+
+        $now=dol_now();
+
+	    $fieldvalues = $this->set_save_query();
+		if (array_key_exists('date_creation', $fieldvalues) && empty($fieldvalues['date_creation'])) $fieldvalues['date_creation']=$this->db->idate($now);
+		unset($fieldvalues['rowid']);	// We suppose the field rowid is reserved field for autoincrement field.
+
+	    $keys=array();
+	    $values = array();
+	    foreach ($fieldvalues as $k => $v) {
+	    	$keys[] = $k;
+	    	$values[] = $this->quote($v, $this->fields[$k]);
+	    }
+
+	    $this->db->begin();
+
+	    if (! $error)
+	    {
+    	    $sql = 'INSERT INTO '.MAIN_DB_PREFIX.$this->table_element;
+    		$sql.= ' ('.implode( ", ", $keys ).')';
+    		$sql.= ' VALUES ('.implode( ", ", $values ).')';
+
+			$res = $this->db->query( $sql );
+    	    if ($res===false) {
+    	        $error++;
+    	        $this->errors[] = $this->db->lasterror();
+    	    }
+	    }
+
+        if (! $error && ! $notrigger) {
+            $this->id = $this->db->last_insert_id(MAIN_DB_PREFIX . $this->table_element);
+
+            if (!$notrigger) {
+                // Call triggers
+                $result=$this->call_trigger(strtoupper(get_class($this)).'_CREATE',$user);
+                if ($result < 0) { $error++; }
+                // End call triggers
+            }
+        }
+
+		// Commit or rollback
+		if ($error) {
+			$this->db->rollback();
+			return -1;
+		} else {
+			$this->db->commit();
+			return $this->id;
+		}
+	}
 	
 	/**
 	 * Load object in memory from the database
@@ -540,7 +603,7 @@ class SeedObject extends CommonObject
 
 		if (! $error && ! $notrigger) {
 		    // Call triggers
-		    $result=$this->call_trigger(strtoupper(get_class(self)).'_MODIFY',$user);
+		    $result=$this->call_trigger(strtoupper(get_class($this)).'_MODIFY',$user);
 		    if ($result < 0) { $error++; } //Do also here what you must do to rollback action if trigger fail
 		    // End call triggers
 		}
@@ -575,7 +638,7 @@ class SeedObject extends CommonObject
 	    if (! $error) {
 	        if (! $notrigger) {
 	            // Call triggers
-	            $result=$this->call_trigger(strtoupper(get_class(self)).'_DELETE', $user);
+	            $result=$this->call_trigger(strtoupper(get_class($this)).'_DELETE', $user);
 	            if ($result < 0) { $error++; } // Do also here what you must do to rollback action if trigger fail
 	            // End call triggers
 	        }
