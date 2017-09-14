@@ -859,7 +859,7 @@ class Listview
 		
 		uasort($THeader,array('Listview','sortHeaderRank'));
 		
-		$THeader['selectedfields']['label']=$selectedfields;
+		if (!empty($selectedfields)) $THeader['selectedfields']['label']=$selectedfields;
 		
 		return $THeader;
 	}

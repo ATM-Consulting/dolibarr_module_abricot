@@ -118,29 +118,28 @@ class SeedObject extends CommonObject
     /**
      * Function to instantiate a new child
      *
-     * @param   string  $tabName        Table name of child
+     * @param   string  $className      Class name of child
      * @param   int     $id             If id is given, we try to return his key if exist or load if we try_to_load
      * @param   string  $key            Attribute name of the object id
      * @param   bool    $try_to_load    Force the fetch if an id is given
      * @return                          int
      */
-    public function addChild($tabName, $id=0, $key='id', $try_to_load = false)
+    public function addChild($className, $id=0, $key='id', $try_to_load = false)
     {
 		if(!empty($id))
 		{
-			foreach($this->{$tabName} as $k=>&$object)
+			foreach($this->{'T'.$className} as $k=>&$object)
 			{
 				if($object->{$key} === $id) return $k;
 			}
 		}
 	
-		$k = count($this->{$tabName});
-	
-		$className = ucfirst($tabName);
-		$this->{$tabName}[$k] = new $className($this->db);
+		$k = count($this->{'T'.$className});
+		
+		$this->{'T'.$className}[$k] = new $className($this->db);
 		if($id>0 && $key==='id' && $try_to_load)
 		{
-			$this->{$tabName}[$k]->fetch($id); 
+			$this->{'T'.$className}[$k]->fetch($id); 
 		}
 
 		return $k;
@@ -150,14 +149,14 @@ class SeedObject extends CommonObject
     /**
      * Function to set a child as to delete
      *
-     * @param   string  $tabName        Table name of child
+     * @param   string  $className      Class name of child
      * @param   int     $id             Id of child to set as to delete
      * @param   string  $key            Attribute name of the object id
      * @return                          bool
      */
-    public function removeChild($tabName, $id, $key='id')
+    public function removeChild($className, $id, $key='id')
     {
-		foreach ($this->{$tabName} as &$object)
+		foreach ($this->{'T'.$className} as &$object)
 		{
 			if ($object->{$key} == $id)
 			{
@@ -176,11 +175,11 @@ class SeedObject extends CommonObject
     {
 		if($this->withChild && !empty($this->childtables) && !empty($this->fk_element))
 		{
-			foreach($this->childtables as &$childTable)
+			foreach($this->childtables as $className => &$childTable)
 			{
-                $className = ucfirst($childTable);
+				if (is_int($className)) $className = ucfirst($childTable);
 
-                $this->{$className}=array();
+                $this->{'T'.$className}=array();
 
                 $sql = 'SELECT rowid FROM '.MAIN_DB_PREFIX.$childTable.' WHERE '.$this->fk_element.' = '.$this->id;
                 $res = $this->db->query($sql);
@@ -192,7 +191,7 @@ class SeedObject extends CommonObject
                         $o=new $className($this->db);
                         $o->fetch($obj->rowid);
 
-                        $this->{$className}[] = $o;
+                        $this->{'T'.$className}[] = $o;
                     }
                 }
                 else
@@ -212,17 +211,18 @@ class SeedObject extends CommonObject
     {
 		if($this->withChild && !empty($this->childtables) && !empty($this->fk_element))
 		{
-			foreach($this->childtables as &$childTable)
+			foreach($this->childtables as $className => &$childTable)
 			{
-				$className = ucfirst($childTable);
-				if(!empty($this->{$className}))
+				if (is_int($className)) $className = ucfirst($childTable);
+				
+				if(!empty($this->{'T'.$className}))
 				{
-					foreach($this->{$className} as $i => &$object)
+					foreach($this->{'T'.$className} as $i => &$object)
 					{
 						$object->{$this->fk_element} = $this->id;
 						
 						$object->update($user);
-						if($this->unsetChildDeleted && isset($object->to_delete) && $object->to_delete==true) unset($this->{$className}[$i]);
+						if($this->unsetChildDeleted && isset($object->to_delete) && $object->to_delete==true) unset($this->{'T'.$className}[$i]);
 					}
 				}
 			}
@@ -333,12 +333,13 @@ class SeedObject extends CommonObject
             $this->deleteCommon($user);
             if($this->withChild && !empty($this->childtables))
             {
-                foreach($this->childtables as &$childTable)
+                foreach($this->childtables as $className => &$childTable)
                 {
-                    $className = ucfirst($childTable);
-                    if (!empty($this->{$className}))
+					if (is_int($className)) $className = ucfirst($childTable);
+                    
+                    if (!empty($this->{'T'.$className}))
                     {
-                        foreach($this->{$className} as &$object)
+                        foreach($this->{'T'.$className} as &$object)
                         {
                             $object->delete($user);
                         }
@@ -435,6 +436,69 @@ class SeedObject extends CommonObject
 		return 1;
 	}
 	
+	/**
+	 * Create object into database
+	 *
+	 * @param  User $user      User that creates
+	 * @param  bool $notrigger false=launch triggers after, true=disable triggers
+	 * @return int             <0 if KO, Id of created object if OK
+	 */
+	public function createCommon(User $user, $notrigger = false)
+	{
+		// method_exists() with key word 'parent' doesn't work
+		if (is_callable('parent::createCommon')) return parent::createCommon($user, $notrigger);
+		
+		
+        $error = 0;
+
+        $now=dol_now();
+
+	    $fieldvalues = $this->set_save_query();
+		if (array_key_exists('date_creation', $fieldvalues) && empty($fieldvalues['date_creation'])) $fieldvalues['date_creation']=$this->db->idate($now);
+		unset($fieldvalues['rowid']);	// We suppose the field rowid is reserved field for autoincrement field.
+
+	    $keys=array();
+	    $values = array();
+	    foreach ($fieldvalues as $k => $v) {
+	    	$keys[] = $k;
+	    	$values[] = $this->quote($v, $this->fields[$k]);
+	    }
+
+	    $this->db->begin();
+
+	    if (! $error)
+	    {
+    	    $sql = 'INSERT INTO '.MAIN_DB_PREFIX.$this->table_element;
+    		$sql.= ' ('.implode( ", ", $keys ).')';
+    		$sql.= ' VALUES ('.implode( ", ", $values ).')';
+
+			$res = $this->db->query( $sql );
+    	    if ($res===false) {
+    	        $error++;
+    	        $this->errors[] = $this->db->lasterror();
+    	    }
+	    }
+
+        if (! $error && ! $notrigger) {
+            $this->id = $this->db->last_insert_id(MAIN_DB_PREFIX . $this->table_element);
+
+            if (!$notrigger) {
+                // Call triggers
+                $result=$this->call_trigger(strtoupper(get_class($this)).'_CREATE',$user);
+                if ($result < 0) { $error++; }
+                // End call triggers
+            }
+        }
+
+		// Commit or rollback
+		if ($error) {
+			$this->db->rollback();
+			return -1;
+		} else {
+			$this->db->commit();
+			return $this->id;
+		}
+	}
 	
 	/**
 	 * Load object in memory from the database
@@ -540,7 +604,7 @@ class SeedObject extends CommonObject
 
 		if (! $error && ! $notrigger) {
 		    // Call triggers
-		    $result=$this->call_trigger(strtoupper(get_class(self)).'_MODIFY',$user);
+		    $result=$this->call_trigger(strtoupper(get_class($this)).'_MODIFY',$user);
 		    if ($result < 0) { $error++; } //Do also here what you must do to rollback action if trigger fail
 		    // End call triggers
 		}
@@ -575,7 +639,7 @@ class SeedObject extends CommonObject
 	    if (! $error) {
 	        if (! $notrigger) {
 	            // Call triggers
-	            $result=$this->call_trigger(strtoupper(get_class(self)).'_DELETE', $user);
+	            $result=$this->call_trigger(strtoupper(get_class($this)).'_DELETE', $user);
 	            if ($result < 0) { $error++; } // Do also here what you must do to rollback action if trigger fail
 	            // End call triggers
 	        }
@@ -605,7 +669,7 @@ class SeedObject extends CommonObject
 	
 	function addFieldsInDb()
 	{
-		$resql = $this->db->query('SHOW FIELDS FROM `' . $this->table_element . '`');
+		$resql = $this->db->query('SHOW FIELDS FROM ' . MAIN_DB_PREFIX . $this->table_element);
 		$Tab = array();
 		while ($obj = $this->db->fetch_object($resql))
 		{
@@ -620,38 +684,38 @@ class SeedObject extends CommonObject
 			{
 				if ($this->isInt($info))
 				{
-					$this->db->query('ALTER TABLE `' . $this->table_element . '` ADD `' . $champs . '` int(11) NOT NULL DEFAULT \'' . (!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0') . '\'');
+					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD ' . $champs . ' int(11) NOT NULL DEFAULT \'' . (!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0') . '\'');
 				}
 				else if ($this->isDate($info))
 				{
-					$this->db->query('ALTER TABLE `' . $this->table_element . '` ADD `' . $champs . '` datetime NULL');
+					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD ' . $champs . ' datetime NULL');
 				}
 				else if ($this->isFloat($info))
 				{
-					$this->db->query('ALTER TABLE `' . $this->table_element . '` ADD `' . $champs . '` DOUBLE NOT NULL DEFAULT \'' . (!empty($info['default']) ? $info['default'] : '0') . '\'');
+					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD ' . $champs . ' DOUBLE NOT NULL DEFAULT \'' . (!empty($info['default']) ? $info['default'] : '0') . '\'');
 				}
 				else if ($this->isArray($info) || $this->isText($info))
 				{
-					$this->db->query('ALTER TABLE `' . $this->table_element . '` ADD `' . $champs . '` LONGTEXT');
+					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD ' . $champs . ' LONGTEXT');
 				}
 				else
 				{
-					$this->db->query('ALTER TABLE `' . $this->table_element . '` ADD `' . $champs . '` VARCHAR(' . (is_array($info) && !empty($info['length']) ? $info['length'] : 255 ) . ')');
+					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD ' . $champs . ' VARCHAR(' . (is_array($info) && !empty($info['length']) ? $info['length'] : 255 ) . ')');
 				}
 				
 				if ($this->isIndex($info))
 				{
-					$this->db->query('ALTER TABLE ' . $this->table_element . ' ADD INDEX `' . $champs . '`(`' . $champs . '`)');
+					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD INDEX ' . $champs . '(' . $champs . ')');
 				}
 			}
 		}
 	}
-
+	
 	function init_db_by_vars()
 	{
 		global $conf;
 
-		$resql = $this->db->query("SHOW TABLES FROM `" . DB_NAME . "` LIKE '" . $this->table_element . "'");
+		$resql = $this->db->query("SHOW TABLES FROM " . DB_NAME . " LIKE '" . MAIN_DB_PREFIX . $this->table_element . "'");
 		if ($resql && $this->db->num_rows($resql) == 0)
 		{
 			/*
@@ -659,14 +723,12 @@ class SeedObject extends CommonObject
 			 */
 			$charset = $conf->db->character_set;
 
-			$sql = "CREATE TABLE `" . $this->table_element . "` (
- 				`" . OBJETSTD_MASTERKEY . "` int(11) NOT NULL DEFAULT '0'
- 				,`" . OBJETSTD_DATECREATE . "` datetime NULL
- 				,`" . OBJETSTD_DATEUPDATE . "` datetime NULL
-
- 				,PRIMARY KEY (`" . OBJETSTD_MASTERKEY . "`)
- 				,KEY `" . OBJETSTD_DATECREATE . "` (`" . OBJETSTD_DATECREATE . "`)
- 				,KEY `" . OBJETSTD_DATEUPDATE . "` (`" . OBJETSTD_DATEUPDATE . "`)
+			$sql = "CREATE TABLE " . MAIN_DB_PREFIX . $this->table_element . " (
+ 				rowid integer AUTO_INCREMENT PRIMARY KEY
+ 				,datec datetime DEFAULT NULL
+ 				,tms timestamp
+ 				,KEY datec (datec)
+ 				,KEY tms (tms)
  				) ENGINE=InnoDB DEFAULT CHARSET=" . $charset;
 
 			$this->db->query($sql);
