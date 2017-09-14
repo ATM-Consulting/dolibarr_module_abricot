@@ -135,11 +135,11 @@ class SeedObject extends CommonObject
 		}
 	
 		$k = count($this->{'T'.$className});
-	
+		
 		$this->{'T'.$className}[$k] = new $className($this->db);
 		if($id>0 && $key==='id' && $try_to_load)
 		{
-			$this->{'T'.$tabName}[$k]->fetch($id); 
+			$this->{'T'.$className}[$k]->fetch($id); 
 		}
 
 		return $k;
@@ -669,7 +669,7 @@ class SeedObject extends CommonObject
 	
 	function addFieldsInDb()
 	{
-		$resql = $this->db->query('SHOW FIELDS FROM `' . MAIN_DB_PREFIX . $this->table_element . '`');
+		$resql = $this->db->query('SHOW FIELDS FROM ' . MAIN_DB_PREFIX . $this->table_element);
 		$Tab = array();
 		while ($obj = $this->db->fetch_object($resql))
 		{
@@ -684,28 +684,28 @@ class SeedObject extends CommonObject
 			{
 				if ($this->isInt($info))
 				{
-					$this->db->query('ALTER TABLE `' . MAIN_DB_PREFIX . $this->table_element . '` ADD `' . $champs . '` int(11) NOT NULL DEFAULT \'' . (!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0') . '\'');
+					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD ' . $champs . ' int(11) NOT NULL DEFAULT \'' . (!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0') . '\'');
 				}
 				else if ($this->isDate($info))
 				{
-					$this->db->query('ALTER TABLE `' . MAIN_DB_PREFIX . $this->table_element . '` ADD `' . $champs . '` datetime NULL');
+					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD ' . $champs . ' datetime NULL');
 				}
 				else if ($this->isFloat($info))
 				{
-					$this->db->query('ALTER TABLE `' . MAIN_DB_PREFIX . $this->table_element . '` ADD `' . $champs . '` DOUBLE NOT NULL DEFAULT \'' . (!empty($info['default']) ? $info['default'] : '0') . '\'');
+					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD ' . $champs . ' DOUBLE NOT NULL DEFAULT \'' . (!empty($info['default']) ? $info['default'] : '0') . '\'');
 				}
 				else if ($this->isArray($info) || $this->isText($info))
 				{
-					$this->db->query('ALTER TABLE `' . MAIN_DB_PREFIX . $this->table_element . '` ADD `' . $champs . '` LONGTEXT');
+					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD ' . $champs . ' LONGTEXT');
 				}
 				else
 				{
-					$this->db->query('ALTER TABLE `' . MAIN_DB_PREFIX . $this->table_element . '` ADD `' . $champs . '` VARCHAR(' . (is_array($info) && !empty($info['length']) ? $info['length'] : 255 ) . ')');
+					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD ' . $champs . ' VARCHAR(' . (is_array($info) && !empty($info['length']) ? $info['length'] : 255 ) . ')');
 				}
 				
 				if ($this->isIndex($info))
 				{
-					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD INDEX `' . $champs . '`(`' . $champs . '`)');
+					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD INDEX ' . $champs . '(' . $champs . ')');
 				}
 			}
 		}
@@ -715,7 +715,7 @@ class SeedObject extends CommonObject
 	{
 		global $conf;
 
-		$resql = $this->db->query("SHOW TABLES FROM `" . DB_NAME . "` LIKE '" . MAIN_DB_PREFIX . $this->table_element . "'");
+		$resql = $this->db->query("SHOW TABLES FROM " . DB_NAME . " LIKE '" . MAIN_DB_PREFIX . $this->table_element . "'");
 		if ($resql && $this->db->num_rows($resql) == 0)
 		{
 			/*
@@ -723,14 +723,12 @@ class SeedObject extends CommonObject
 			 */
 			$charset = $conf->db->character_set;
 
-			$sql = "CREATE TABLE `" . MAIN_DB_PREFIX . $this->table_element . "` (
- 				`" . OBJETSTD_MASTERKEY . "` int(11) NOT NULL DEFAULT '0'
- 				,`" . OBJETSTD_DATECREATE . "` datetime NULL
- 				,`" . OBJETSTD_DATEUPDATE . "` datetime NULL
-
- 				,PRIMARY KEY (`" . OBJETSTD_MASTERKEY . "`)
- 				,KEY `" . OBJETSTD_DATECREATE . "` (`" . OBJETSTD_DATECREATE . "`)
- 				,KEY `" . OBJETSTD_DATEUPDATE . "` (`" . OBJETSTD_DATEUPDATE . "`)
+			$sql = "CREATE TABLE " . MAIN_DB_PREFIX . $this->table_element . " (
+ 				rowid integer AUTO_INCREMENT PRIMARY KEY
+ 				,datec datetime DEFAULT NULL
+ 				,tms timestamp
+ 				,KEY datec (datec)
+ 				,KEY tms (tms)
  				) ENGINE=InnoDB DEFAULT CHARSET=" . $charset;
 
 			$this->db->query($sql);
