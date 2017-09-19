@@ -41,7 +41,7 @@
 						 
 			if(!defined('ROOT')){
 				define('ROOT',dol_buildpath('/abricot/'));
-				define('HTTP',dol_buildpath('/abricot/',2));
+				define('HTTP',dol_buildpath('/abricot/',1));
 			}
 
 			if(!defined('COREROOT')) {
