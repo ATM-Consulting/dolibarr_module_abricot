@@ -53,8 +53,27 @@ class ICalReader
         if (!$filename) {
             return false;
         }
-       
+//	ini_set('allow_url_fopen',1);
+//       var_dump($filename, urlencode($filename));
         $lines = file($filename, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+//var_dump($lines, $filename, file_get_contents($filename), ini_get('allow_url_fopen'));
+
+	if($lines === false) {
+
+		$curl = curl_init();
+		curl_setopt($curl, CURLOPT_URL, $filename);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($curl, CURLOPT_HEADER, false);
+		$data = curl_exec($curl);
+		curl_close($curl);
+		$ftmp = tempnam( sys_get_temp_dir(),'RH' );
+		file_put_contents($ftmp, $data);
+
+		$lines = file($ftmp, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+	}
+//var_dump($lines);
+//exit;
         if (stristr($lines[0], 'BEGIN:VCALENDAR') === false) {
             return false;
         } else {
