@@ -728,7 +728,7 @@ function _no_save_vars($lst_chp) {
 		return $this->save($db);
 	}
 	
-	private function clearChildren()
+	protected function clearChildren()
 	{
 		if (!empty($this->TChildObjetStd))
 		{
