@@ -518,7 +518,7 @@ function _no_save_vars($lst_chp) {
 			}
 		} else {
 			// TODO Gestion erreur optimisée
-			echo 'Erreur avec la requête SQL suivante : '.$sql;
+			if($this->debug) echo 'Erreur avec la requête SQL suivante : '.$sql.'<br />';
 		}
 		return $TRes;
 	}
