@@ -1127,7 +1127,17 @@ class TListviewTBS {
 	                                                $row[$field] = strtr( $row[$field] , $TParam['translate'][$field]);
 	                                        }
 	
-	
+						if (isset($TParam['position']['text-align'][$field]))
+						{
+							if (strpos($row[$field], 'align="right"') !== false)
+							{
+								$row[$field] = str_replace('align="right"', 'align="'.$TParam['position']['text-align'][$field].'"', $row[$field]);
+							}
+							else
+							{
+								$row[$field] = '<div align="'.$TParam['position']['text-align'][$field].'">'.$row[$field].'</div>';
+							}
+						}
 					} 
 					
 					
