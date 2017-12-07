@@ -61,6 +61,7 @@ class TListviewTBS {
 			,'orderUp'=>''
 			,'id'=>$this->id
 			,'picto_search'=>img_picto('Search', 'search.png')
+			,'picto_searchclear'=>img_picto('Search', 'searchclear.png')
 			,'head_search'=>''
 			,'export'=>array()
 			,'view_type'=>''
@@ -438,11 +439,15 @@ class TListviewTBS {
 				
 		}
 		
-		$search_button = ' <a href="#" onclick="TListTBS_submitSearch(this);" class="list-search-link">'.$TParam['liste']['picto_search'].'</a>';
-
+		$search_button = ' <div class="nowrap">';
+		$search_button.= '<a href="#" onclick="TListTBS_submitSearch(this);" class="list-search-link">'.$TParam['liste']['picto_search'].'</a>';
+		$search_button.= '&nbsp;<a href="#" onclick="TListTBS_submitSearch(this, true);" class="list-search-link">'.$TParam['liste']['picto_searchclear'].'</a>';
+		$search_button.= '</div>';
+		
+		/* TODO remove => fait redondance, un bouton pour lancer la recherche est déjà présent
 		if(!empty($TParam['liste']['head_search'])) {
 			$TParam['liste']['head_search'].='<div align="right">'.$langs->trans('Search').' '.$search_button.'</div>';
-		}
+		}*/
 		
 		if($nb_search_in_bar>0) {
 			end($TSearch);

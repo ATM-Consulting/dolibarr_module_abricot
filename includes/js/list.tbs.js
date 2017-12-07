@@ -83,8 +83,10 @@ function TListTBS_GoToPage(idListe,pageNumber){
 	
 	document.location.href=base_url;
 }
-function TListTBS_submitSearch(obj) {
-	
+function TListTBS_submitSearch(obj, clear) {
+	if (clear === true) {
+		$(obj).closest('form').find('*[name]').val('').prop('checked', false);
+	}
 	$(obj).closest('form').submit();
 	//console.log($(obj).closest('form'));
 }
