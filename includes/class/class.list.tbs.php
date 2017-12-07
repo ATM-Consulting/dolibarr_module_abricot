@@ -1115,6 +1115,7 @@ class TListviewTBS {
 							if($TParam['type'][$field]=='money') { $row[$field] = '<div align="right">'.price($row[$field],0,'',1,-1,2).'</div>'; }
 							if($TParam['type'][$field]=='number') { $row[$field] = '<div align="right">'.price($row[$field]).'</div>'; }
 							if($TParam['type'][$field]=='integer') { $row[$field] = '<div align="right">'.(int)$row[$field].'</div>'; }
+							if($TParam['type'][$field]=='percent') { $row[$field] = '<div align="right">'.vatrate($row[$field], true).'</div>'; }
 						}
 	
 	                                        if(isset($TParam['link'][$field])) {
