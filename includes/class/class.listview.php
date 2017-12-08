@@ -730,19 +730,14 @@ class Listview
 		$out .= '</table>';
 		$out .= '</div>';
 		
-		// TODO show export button
 		if (!empty($TExport))
 		{
-			/* @see class.list.tbs.php
-			<div class="tabsAction">
-				[onshow;block=div; when [liste.haveExport]+-0 ]
-				<a href="javascript:;" onclick="TListTBS_downloadAs(this, '[export.mode]','[export.url]','[export.token]','[export.session_name]');" class="butAction">[export.label;block=a;]</a>
-			</div>
-			 */
 			$out.= '<div class="tabsAction">';
 			foreach ($TExport as $Tab)
 			{
-				
+				// @see htdocs/core/js/listview.js
+				// TODO le dl ne fonctionne pas
+				$out.= '<a class="butAction" href="javascript:;" onclick="Listview_downloadAs(this, \''.$Tab['mode'].'\',\''.$Tab['url'].'\',\''.$Tab['token'].'\',\''.$Tab['session_name'].'\');">'.$Tab['label'].'</a>';
 			}
 			$out.= '</div>';
 		}
@@ -903,7 +898,8 @@ class Listview
 
 		if(!empty($_REQUEST['get-all-for-export'])) return true;
 
-		$page_number = !empty($TParam['limit']['page']) ? $TParam['limit']['page'] : 1;
+		// @info le +1 c'est pcq la pagination commence à 0, donc la page 0 = page 1 et 1 = page 2 ... etc, sinon la page 0 et 1 affiche le même contenu
+		$page_number = !empty($TParam['limit']['page']) ? $TParam['limit']['page']+1 : 1;
 		$line_per_page = !empty($TParam['limit']['nbLine']) ? $TParam['limit']['nbLine'] : $conf->liste_limit;
 		
 		$start = ($page_number-1) * $line_per_page;
