@@ -376,7 +376,7 @@ class Listview
 			if(!empty($param_search['allow_is_null']))
 			{
 				$valueNull = GETPOST($fieldname.'search_on_null_'.$key) ? 1 : 0;
-				$fsearch.=' '.$form->checkbox1('', $fieldname.'search_on_null_'.$key,1, $valueNull,' onclick=" if($(this).is(\':checked\')){ $(this).prev().val(\'\'); }" ').img_help(1, $langs->trans('SearchOnNUllValue'));
+				$fsearch.=' <input type="checkbox" class="" id="" name="'.$fieldname.'search_on_null_'.$key.'" value="1" '.($valueNull ? 'checked' : '').' onclick="if($(this).is(\':checked\')){ $(this).prev().val(\'\'); }" />'.img_help(1, $langs->trans('SearchOnNUllValue'));
 			}
 
 			if(!empty($THeader[$key]))
@@ -740,7 +740,8 @@ class Listview
     {
 		$this->typeRender = 'array';
 
-		$TField=array();	
+		// $TField contient nos données
+//		$TField=array();
 		
 		$this->init($TParam);
 		$THeader = $this->initHeader($TParam);
@@ -748,7 +749,7 @@ class Listview
 		$this->parse_array($THeader, $TField, $TParam);
 		list($TTotal, $TTotalGroup)=$this->get_total($TField, $TParam);
 		
-		$this->renderList($THeader, $TField, $TTotal, $TTotalGroup, $TParam);
+		return $this->renderList($THeader, $TField, $TTotal, $TTotalGroup, $TParam);
 	}
 
 
@@ -904,8 +905,9 @@ class Listview
     {
         global $conf;
 
+		// TODO problème d'affichage on passe jamais dans le if in_view
         $line_number = count($TField);
-
+		
         if($this->in_view($TParam,$line_number))
         {
 			$this->totalRowToShow++;
