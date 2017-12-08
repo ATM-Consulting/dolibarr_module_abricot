@@ -27,6 +27,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/commonobject.class.php';
 
 class SeedObject extends CommonObject
 {
+
 	public $withChild = true;
 
 	/**
@@ -34,7 +35,7 @@ class SeedObject extends CommonObject
 	 */
 	protected $fields=array();
 
-    /**
+	/**
 	 *  Constructor
 	 *
 	 *  @param      DoliDB		$db      Database handler
@@ -52,8 +53,12 @@ class SeedObject extends CommonObject
 	protected function init()
     {
 		$this->id = 0;
-		$this->datec = 0;
+		$this->date_creation = 0;
 		$this->tms = 0;
+		
+		if(!isset($this->fields['rowid'])) $this->fields['rowid']=array('type'=>'integer','index'=>true);
+		if(!isset($this->fields['date_creation'])) $this->fields['date_creation']=array('type'=>'date');
+		if(!isset($this->fields['tms'])) $this->fields['tms']=array('type'=>'date');
 		
 		if (!empty($this->fields))
 		{
@@ -77,6 +82,29 @@ class SeedObject extends CommonObject
 		}
 			
 	}
+	
+	/**
+	 * Function to init fields by db
+	 *
+	 * @return bool
+	 */
+	function init_vars_by_db() {
+		$res = $this->db->Execute("SHOW COLUMNS FROM ".MAIN_DB_PREFIX.$this->table_element);
+		while($obj = $this->db->fetch_object($res)) {
+			$nom = strtolower($db->Get_field(''));
+			$type_my = $db->Get_field('Type');
+			
+			if(strpos($obj->Type,'int(')!==false) $type=array('type'=>'integer');
+			else if(strpos($obj->Type,'date')!==false) $type=array('type'=>'date');
+			else $type=array('type'=>'string');
+			
+			$this->field[$obj->Field] = $type;
+		}
+		
+		
+		$this->init();
+	}
+	
 
     /**
      * Test type of field
@@ -676,7 +704,7 @@ class SeedObject extends CommonObject
 			$Tab[] = $this->db->Field;
 		}
 
-		$TChamps = array_merge(array(OBJETSTD_DATECREATE => array('type' => 'date'), OBJETSTD_DATEUPDATE => array('type' => 'date')), $this->fields);
+		$TChamps = array_merge(array('date_creation' => array('type' => 'date'), 'tms' => array('type' => 'date'),'rowid'=>array('type'=>'integer','index'=>true)), $this->fields);
 
 		foreach ($TChamps as $champs => $info)
 		{
@@ -713,9 +741,16 @@ class SeedObject extends CommonObject
 	
 	function init_db_by_vars()
 	{
-		global $conf;
+		global $conf,$dolibarr_main_db_name;
 
-		$resql = $this->db->query("SHOW TABLES FROM " . DB_NAME . " LIKE '" . MAIN_DB_PREFIX . $this->table_element . "'");
+		if(empty($this->table_element))exit('NoDataTableDefined');
+		
+		$resql = $this->db->query("SHOW TABLES FROM " . $dolibarr_main_db_name . " LIKE '" . MAIN_DB_PREFIX . $this->table_element . "'");
+		if($resql === false) {
+			var_dump($this->db);exit;
+			
+		}
+		
 		if ($resql && $this->db->num_rows($resql) == 0)
 		{
 			/*
@@ -725,9 +760,9 @@ class SeedObject extends CommonObject
 
 			$sql = "CREATE TABLE " . MAIN_DB_PREFIX . $this->table_element . " (
  				rowid integer AUTO_INCREMENT PRIMARY KEY
- 				,datec datetime DEFAULT NULL
+ 				,date_creation datetime DEFAULT NULL
  				,tms timestamp
- 				,KEY datec (datec)
+ 				,KEY date_creation (datec)
  				,KEY tms (tms)
  				) ENGINE=InnoDB DEFAULT CHARSET=" . $charset;
 
@@ -736,6 +771,29 @@ class SeedObject extends CommonObject
 
 		$this->addFieldsInDb();
 	}
-
+	
+	function get_date($nom_champ,$format_date='day') {
+		if(empty($this->{$nom_champ})) return '';
+		elseif($this->{$nom_champ}<=strtotime('1000-01-01 00:00:00')) return '';
+		else {
+			return dol_print_date($this->{$nom_champ},$format_date);
+		}
+		
+	}
+	
+	function set_date($nom_champ,$date){
+		
+		if(empty($date)) {
+			$this->{$nom_champ} = 0;//strtotime('0000-00-00 00:00:00');
+		}
+		else if(strpos($date,'/')===false){
+			$this->{$nom_champ} = strtotime($date);
+		}
+		else {
+			list($d,$m,$y) = explode('/',$date);
+			$this->{$nom_champ} = mktime(0,0,0,$m,$d,$y);
+		}
+		return $this->{$nom_champ};
+	}
 	
 }
