@@ -386,8 +386,10 @@ class Listview
 			}
 		}
 		
-		$search_button = ' <a href="#" onclick="Listview_submitSearch(this);" class="list-search-link">'.img_search().'</a>';
-		$search_button .= ' <a href="#" onclick="Listview_clearSearch(this);" class="list-search-link">'.img_searchclear().'</a>';
+		$search_button = '<div class="nowrap">';
+		$search_button.= '<a href="#" onclick="Listview_submitSearch(this);" class="list-search-link">'.img_search().'</a>';
+		$search_button.= '&nbsp;<a href="#" onclick="Listview_clearSearch(this);" class="list-search-link">'.img_searchclear().'</a>';
+		$search_button.= '</div>';
 		
 		if($nb_search_in_bar>0)
 		{
@@ -598,9 +600,9 @@ class Listview
 		$out .= ob_get_clean();
 		
 		$classliste='liste';
-		if(!empty($TParam['head_search'])) {
+		if(!empty($TParam['list']['head_search'])) {
 			$out.='<div class="liste_titre liste_titre_bydiv centpercent">';
-			$out.=$TParam['head_search'];
+			$out.=$TParam['list']['head_search'];
 			$out.='</div>';
 			
 			$classliste.=' listwithfilterbefore';
@@ -728,6 +730,19 @@ class Listview
 		$out .= '</table>';
 		$out .= '</div>';
 		
+		if (!empty($TExport))
+		{
+			$out.= '<div class="tabsAction">';
+			foreach ($TExport as $Tab)
+			{
+				// @see htdocs/core/js/listview.js
+				// TODO le dl ne fonctionne pas
+				$out.= '<a class="butAction" href="javascript:;" onclick="Listview_downloadAs(this, \''.$Tab['mode'].'\',\''.$Tab['url'].'\',\''.$Tab['token'].'\',\''.$Tab['session_name'].'\');">'.$Tab['label'].'</a>';
+			}
+			$out.= '</div>';
+		}
+		
+		
 		return $out;
 	}
 
@@ -740,16 +755,15 @@ class Listview
     {
 		$this->typeRender = 'array';
 
-		// $TField contient nos données
-//		$TField=array();
+		$TFieldInView=array();
 		
 		$this->init($TParam);
 		$THeader = $this->initHeader($TParam);
 		
-		$this->parse_array($THeader, $TField, $TParam);
+		$this->parse_array($THeader, $TField, $TParam, $TFieldInView);
 		list($TTotal, $TTotalGroup)=$this->get_total($TField, $TParam);
 		
-		return $this->renderList($THeader, $TField, $TTotal, $TTotalGroup, $TParam);
+		return $this->renderList($THeader, $TFieldInView, $TTotal, $TTotalGroup, $TParam);
 	}
 
 
@@ -759,7 +773,7 @@ class Listview
      * @param string $TParam    TParam
      * @return bool
      */
-    private function parse_array(&$THeader, &$TField, &$TParam)
+    private function parse_array(&$THeader, &$TField, &$TParam, &$TFieldInView)
     {
 		$this->totalRow = count($TField);
 		
@@ -768,9 +782,10 @@ class Listview
 		
 		if (empty($TField)) return false;
 		
+		$line_number=0;
 		foreach($TField as $row)
 		{
-			$this->set_line($THeader, $TField, $TParam, $row);
+			$this->set_line($THeader, $TField, $TParam, $TFieldInView, $row);
 		}
 	}
 
@@ -883,7 +898,8 @@ class Listview
 
 		if(!empty($_REQUEST['get-all-for-export'])) return true;
 
-		$page_number = !empty($TParam['limit']['page']) ? $TParam['limit']['page'] : 1;
+		// @info le +1 c'est pcq la pagination commence à 0, donc la page 0 = page 1 et 1 = page 2 ... etc, sinon la page 0 et 1 affiche le même contenu
+		$page_number = !empty($TParam['limit']['page']) ? $TParam['limit']['page']+1 : 1;
 		$line_per_page = !empty($TParam['limit']['nbLine']) ? $TParam['limit']['nbLine'] : $conf->liste_limit;
 		
 		$start = ($page_number-1) * $line_per_page;
@@ -901,12 +917,12 @@ class Listview
      * @param string $TParam        array of parameters
      * @param string $currentLine   object containing current sql result
      */
-    private function set_line(&$THeader, &$TField, &$TParam, $currentLine)
+    private function set_line(&$THeader, &$TField, &$TParam, &$TFieldInView, $currentLine)
     {
         global $conf;
 
 		// TODO problème d'affichage on passe jamais dans le if in_view
-        $line_number = count($TField);
+        $line_number = count($TFieldInView);
 		
         if($this->in_view($TParam,$line_number))
         {
@@ -917,7 +933,8 @@ class Listview
             
             foreach($THeader as $field=>$dummy)
             {
-            	$value = isset($currentLine->{$field}) ? $currentLine->{$field}: '';
+				if (is_array($currentLine)) $value = isset($currentLine[$field]) ? $currentLine[$field]: '';
+            	else $value = isset($currentLine->{$field}) ? $currentLine->{$field}: '';
             	
                 if(is_object($value))
                 {
@@ -941,7 +958,6 @@ class Listview
                     {
                         $strToEval = 'return '.strtr( $TParam['eval'][$field],  array_merge( $trans, array('@val@'=>addslashes( $row[$field] ))  )).';';
                         $row[$field] = eval($strToEval);
-                        
                     }
 
                     if(isset($TParam['type'][$field]) && !isset($TParam['eval'][$field]))
@@ -1013,7 +1029,7 @@ class Listview
             }
         }
 
-        $TField[] = $row;
+        $TFieldInView[] = $row;
 	}
 
     /**
