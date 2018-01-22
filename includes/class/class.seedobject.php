@@ -698,6 +698,12 @@ class SeedObject extends CommonObject
 	function addFieldsInDb()
 	{
 		$resql = $this->db->query('SHOW FIELDS FROM ' . MAIN_DB_PREFIX . $this->table_element);
+		
+		if($resql===false ) {
+			var_dump($this->db);exit;
+			
+		}
+		
 		$Tab = array();
 		while ($obj = $this->db->fetch_object($resql))
 		{
@@ -762,11 +768,18 @@ class SeedObject extends CommonObject
  				rowid integer AUTO_INCREMENT PRIMARY KEY
  				,date_creation datetime DEFAULT NULL
  				,tms timestamp
- 				,KEY date_creation (datec)
+ 				,KEY date_creation (date_creation)
  				,KEY tms (tms)
  				) ENGINE=InnoDB DEFAULT CHARSET=" . $charset;
 
-			$this->db->query($sql);
+			$res = $this->db->query($sql);
+			if($res===false) {
+				var_dump($this->db);exit;
+				
+				
+			}
+			
+			
 		}
 
 		$this->addFieldsInDb();
