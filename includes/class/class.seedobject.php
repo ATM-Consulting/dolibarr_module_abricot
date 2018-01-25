@@ -182,13 +182,14 @@ class SeedObject extends CommonObject
      * @param   string  $key            Attribute name of the object id
      * @return                          bool
      */
-    public function removeChild($className, $id, $key='id')
+	public function removeChild(&$user, $className, $id, $key='id')
     {
-		foreach ($this->{'T'.$className} as &$object)
+		foreach ($this->{'T'.$className} as $k=>&$object)
 		{
 			if ($object->{$key} == $id)
 			{
-				$object->to_delete = true;
+				$object->delete($user);
+				unset($this->{'T'.$className}[$k]);
 				return true;
 			}
 		}
@@ -205,8 +206,14 @@ class SeedObject extends CommonObject
 		{
 			foreach($this->childtables as $className => &$childTable)
 			{
-				if (is_int($className)) $className = ucfirst($childTable);
+				if (is_int($className)) {
+					$className = $childTable;
+					$o=new $className($this->db);
+					$childTable = $o->table_element;
+				}
 
+				
+				
                 $this->{'T'.$className}=array();
 
                 $sql = 'SELECT rowid FROM '.MAIN_DB_PREFIX.$childTable.' WHERE '.$this->fk_element.' = '.$this->id;
