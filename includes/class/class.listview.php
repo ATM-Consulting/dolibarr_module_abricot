@@ -221,7 +221,12 @@ class Listview
      */
     private function search($sql, &$TParam)
     {
-		if (empty($TParam['no-auto-sql-search']) && !GETPOST('button_removefilter_x','alpha') && !GETPOST('button_removefilter.x','alpha') && !GETPOST('button_removefilter','alpha'))
+    	$sqlGROUPBY='';
+    	if(strpos($sql,'GROUP BY')!==false) {
+    		list($sql, $sqlGROUPBY) = explode('GROUP BY', $sql);
+    	}
+    	
+    	if (!empty($TParam['search']) && empty($TParam['no-auto-sql-search']) && !GETPOST('button_removefilter_x','alpha') && !GETPOST('button_removefilter.x','alpha') && !GETPOST('button_removefilter','alpha'))
 		{
 			foreach ($TParam['search'] as $field => $info)
 			{
@@ -751,19 +756,20 @@ class Listview
      * @param string $TField    TField
      * @param string $TParam    TParam
      */
-    public function renderArray(&$db, $TField, $TParam=array())
+	public function renderArray(&$db, $TData, $TParam=array())
     {
 		$this->typeRender = 'array';
 
-		$TFieldInView=array();
+		$TField= & $this->TField;
 		
 		$this->init($TParam);
+		
 		$THeader = $this->initHeader($TParam);
 		
-		$this->parse_array($THeader, $TField, $TParam, $TFieldInView);
-		list($TTotal, $TTotalGroup)=$this->get_total($TField, $TParam);
+		$this->parse_array($THeader, $TData, $TParam, $TField);
+		list($TTotal, $TTotalGroup)=$this->get_total($TData, $TParam);
 		
-		return $this->renderList($THeader, $TFieldInView, $TTotal, $TTotalGroup, $TParam);
+		return $this->renderList($THeader, $TField, $TTotal, $TTotalGroup, $TParam);
 	}
 
 
@@ -782,11 +788,11 @@ class Listview
 		
 		if (empty($TField)) return false;
 		
-		$line_number=0;
-		foreach($TField as $row)
-		{
-			$this->set_line($THeader, $TField, $TParam, $TFieldInView, $row);
+		foreach($TField as $row) {
+			$this->set_line($TFieldInView, $TParam, $row);
 		}
+		
+		
 	}
 
 	
@@ -917,12 +923,12 @@ class Listview
      * @param string $TParam        array of parameters
      * @param string $currentLine   object containing current sql result
      */
-    private function set_line(&$THeader, &$TField, &$TParam, &$TFieldInView, $currentLine)
+    private function set_line(&$THeader, &$TFieldParsed, &$TParam, $currentLine)
     {
         global $conf;
 
 		// TODO problème d'affichage on passe jamais dans le if in_view
-        $line_number = count($TFieldInView);
+        $line_number = count($TFieldParsed);
 		
         if($this->in_view($TParam,$line_number))
         {
@@ -1029,7 +1035,7 @@ class Listview
             }
         }
 
-        $TFieldInView[] = $row;
+        $TFieldParsed[] = $row;
 	}
 
     /**
@@ -1070,7 +1076,7 @@ class Listview
 			if(empty($this->totalRow))$this->totalRow = $this->db->num_rows($res);
 			
 			while($currentLine = $this->db->fetch_object($res))
-            {
+			{//$THeader, &$TField, &$TParam, &$TFieldInView, $currentLine
 				$this->set_line($THeader, $TField, $TParam, $currentLine);
 			}
 		}
