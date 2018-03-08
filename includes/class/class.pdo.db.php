@@ -35,7 +35,7 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 	$this -> error = '';
     $this -> stopOnInsertOrUpdateError = true;
 
-	$this -> insertMode == 'INSERT';
+	$this -> insertMode = 'INSERT';
 
 	global $conf;
 	
@@ -54,10 +54,10 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 	if(empty($connexionString)) {
 		/* intégration configuration Dolibarr */
 		$db_type = $conf->db->type;
-		$db = $conf->db->name;
-		$host = $conf->db->host;
-		$usr = $conf->db->user;
-		$pass = $conf->db->pass;
+		$db = (!empty($conf->db->name)) ? $conf->db->name : DB_NAME;
+		$host = (!empty($conf->db->host)) ? $conf->db->host : DB_HOST;
+		$usr = (!empty($conf->db->user)) ? $conf->db->user : DB_USER;
+		$pass = (!empty($conf->db->pass)) ? $conf->db->pass : DB_PASS;
 		$port = $conf->db->port;
 		
 		if (($db_type == '') && (defined('DB_DRIVER'))) {
@@ -246,7 +246,7 @@ function Execute ($sql, $TBind=array()){
 		
         $mt_end = microtime(true)*1000;
 		
-		if ($this->db->errorCode) {
+		if (!empty($this->db->errorCode)) {
 			if($this->debug) $this->Error("PDO DB ErrorExecute : " . print_r($this ->db->errorInfo(),true).' '.$this->query);
 			//return(mysql_errno());
 		}
