@@ -34,7 +34,7 @@ class TObjetStdDolibarr extends TObjetStd {
 		$key[0]=OBJETSTD_MASTERKEY;
 		
 		if($this->{OBJETSTD_MASTERKEY}==0){
-			$this->get_newid();
+			$this->get_newid($db);
 			$query[OBJETSTD_MASTERKEY]=$this->{OBJETSTD_MASTERKEY};
 			$this->dbinsert($this->get_table(),$query);
 		}
@@ -161,7 +161,7 @@ class TObjetStdDolibarr extends TObjetStd {
 				
 		}
 	}
-	function get_newid(){
+	function get_newid(&$db){
 		$sql="SELECT max(".OBJETSTD_MASTERKEY.") as 'maxi' FROM ".$this->get_table();
 		$res = $this->db->query($sql);
 		$object = $this->db->fetch_object($res);
