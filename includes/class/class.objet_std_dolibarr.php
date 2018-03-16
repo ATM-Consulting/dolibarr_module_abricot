@@ -34,7 +34,7 @@ class TObjetStdDolibarr extends TObjetStd {
 		$key[0]=OBJETSTD_MASTERKEY;
 		
 		if($this->{OBJETSTD_MASTERKEY}==0){
-			$this->get_newid();
+			$this->get_newid($db);
 			$query[OBJETSTD_MASTERKEY]=$this->{OBJETSTD_MASTERKEY};
 			$this->dbinsert($this->get_table(),$query);
 		}
