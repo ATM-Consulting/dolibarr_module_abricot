@@ -114,13 +114,13 @@ class TTemplateTBS {
 		
 	}
 	
-	private function extension($file) {
+	public static function extension($file) {
 	/* extension d'un fichier */
 		$ext = substr ($file, strrpos($file,'.'));
 		return $ext;
 	}
 	
-	private function convertToPDF($file,$extension='',$TParam=array()) {
+	public static function convertToPDF($file,$extension='',$TParam=array()) {
 		global $conf;
 		
 		$infos = pathinfo($file);
