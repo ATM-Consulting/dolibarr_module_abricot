@@ -1,6 +1,6 @@
 <?php
 /* Class d'usurpation de coreobject.class.php de Dolibarr
- * 
+ *
  * Copyright (C) 2016		ATM Consulting			<support@atm-consulting.fr>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@
  *	\ingroup    core
  *	\brief      File of class to manage all object. Might be replace or merge into commonobject
  */
- 
+
 require_once DOL_DOCUMENT_ROOT.'/core/class/commonobject.class.php';
 
 class SeedObject extends CommonObject
@@ -36,9 +36,9 @@ class SeedObject extends CommonObject
 	protected $fields=array();
 
 	protected $fk_element='';
-	
+
 	protected $childtable=array();
-	
+
 	/**
 	 *  Constructor
 	 *
@@ -59,11 +59,11 @@ class SeedObject extends CommonObject
 		$this->id = 0;
 		$this->date_creation = 0;
 		$this->tms = 0;
-		
+
 		if(!isset($this->fields['rowid'])) $this->fields['rowid']=array('type'=>'integer','index'=>true);
 		if(!isset($this->fields['date_creation'])) $this->fields['date_creation']=array('type'=>'date');
 		if(!isset($this->fields['tms'])) $this->fields['tms']=array('type'=>'date');
-		
+
 		if (!empty($this->fields))
 		{
 			foreach ($this->fields as $field=>$info)
@@ -77,16 +77,16 @@ class SeedObject extends CommonObject
 
             $this->to_delete=false;
             $this->is_clone=false;
-			
+
 			return true;
 		}
 		else
         {
 			return false;
 		}
-			
+
 	}
-	
+
 	/**
 	 * Function to init fields by db
 	 *
@@ -97,18 +97,18 @@ class SeedObject extends CommonObject
 		while($obj = $this->db->fetch_object($res)) {
 			$nom = strtolower($db->Get_field(''));
 			$type_my = $db->Get_field('Type');
-			
+
 			if(strpos($obj->Type,'int(')!==false) $type=array('type'=>'integer');
 			else if(strpos($obj->Type,'date')!==false) $type=array('type'=>'date');
 			else $type=array('type'=>'string');
-			
+
 			$this->field[$obj->Field] = $type;
 		}
-		
-		
+
+
 		$this->init();
 	}
-	
+
 
     /**
      * Test type of field
@@ -142,7 +142,7 @@ class SeedObject extends CommonObject
     	if($res>0) {
     		if ($loadChild) $this->fetchChild();
     	}
-    	
+
     	return $res;
 	}
 
@@ -165,13 +165,13 @@ class SeedObject extends CommonObject
 				if($object->{$key} === $id) return $k;
 			}
 		}
-	
+
 		$k = count($this->{'T'.$className});
-		
+
 		$this->{'T'.$className}[$k] = new $className($this->db);
 		if($id>0 && $key==='id' && $try_to_load)
 		{
-			$this->{'T'.$className}[$k]->fetch($id); 
+			$this->{'T'.$className}[$k]->fetch($id);
 		}
 
 		return $k;
@@ -216,8 +216,8 @@ class SeedObject extends CommonObject
 					$childTable = $o->table_element;
 				}
 
-				
-				
+
+
                 $this->{'T'.$className}=array();
 
                 $sql = 'SELECT rowid FROM '.MAIN_DB_PREFIX.$childTable.' WHERE '.$this->fk_element.' = '.$this->id;
@@ -253,13 +253,13 @@ class SeedObject extends CommonObject
 			foreach($this->childtables as $className => &$childTable)
 			{
 				if (is_int($className)) $className = ucfirst($childTable);
-				
+
 				if(!empty($this->{'T'.$className}))
 				{
 					foreach($this->{'T'.$className} as $i => &$object)
 					{
 						$object->{$this->fk_element} = $this->id;
-						
+
 						$object->update($user);
 						if($this->unsetChildDeleted && isset($object->to_delete) && $object->to_delete==true) unset($this->{'T'.$className}[$i]);
 					}
@@ -324,7 +324,7 @@ class SeedObject extends CommonObject
         $res = $this->createCommon($user);
 		if($res)
 		{
-			
+
 			$this->saveChild($user);
 		}
 		else
@@ -366,7 +366,7 @@ class SeedObject extends CommonObject
                 foreach($this->childtables as $className => &$childTable)
                 {
 					if (is_int($className)) $className = ucfirst($childTable);
-                    
+
                     if (!empty($this->{'T'.$className}))
                     {
                         foreach($this->{'T'.$className} as &$object)
@@ -465,7 +465,7 @@ class SeedObject extends CommonObject
 
 		return 1;
 	}
-	
+
 	/**
 	 * Create object into database
 	 *
@@ -477,8 +477,8 @@ class SeedObject extends CommonObject
 	{
 		// method_exists() with key word 'parent' doesn't work
 		if (is_callable('parent::createCommon')) return parent::createCommon($user, $notrigger);
-		
-		
+
+
         $error = 0;
 
         $now=dol_now();
@@ -529,20 +529,21 @@ class SeedObject extends CommonObject
 			return $this->id;
 		}
 	}
-	
+
 	/**
 	 * Load object in memory from the database
 	 *
-	 * @param int    $id   Id object
-	 * @param string $ref  Ref
+	 * @param int    $id   		Id object
+	 * @param string $ref  		Ref
+	 * @param string $morewhere	Ref
 	 * @return int         <0 if KO, 0 if not found, >0 if OK
 	 */
-	public function fetchCommon($id, $ref = null)
+	public function fetchCommon($id, $ref = null, $morewhere='')
 	{
 		// method_exists() with key word 'parent' doesn't work
 		if (is_callable('parent::fetchCommon')) return parent::fetchCommon($id, $ref);
-		
-		
+
+
 		if (empty($id) && empty($ref)) return false;
 
 		$sql = 'SELECT '.$this->get_field_list().', date_creation, tms';
@@ -550,6 +551,7 @@ class SeedObject extends CommonObject
 
 		if(!empty($id)) $sql.= ' WHERE rowid = '.$id;
 		else $sql.= " WHERE ref = ".$this->quote($ref, $this->fields['ref']);
+		if ($morewhere) $sql.=$morewhere;
 
 		$res = $this->db->query($sql);
 		if ($res)
@@ -597,8 +599,8 @@ class SeedObject extends CommonObject
 	{
 		// method_exists() with key word 'parent' doesn't work
 		if (is_callable('parent::updateCommon')) return parent::updateCommon($user, $notrigger);
-		
-		
+
+
 	    $error = 0;
 
 		$fieldvalues = $this->set_save_query();
@@ -660,8 +662,8 @@ class SeedObject extends CommonObject
 	{
 		// method_exists() with key word 'parent' doesn't work
 		if (is_callable('parent::deleteCommon')) return parent::deleteCommon($user, $notrigger);
-		
-		
+
+
 	    $error=0;
 
 	    $this->db->begin();
@@ -695,17 +697,17 @@ class SeedObject extends CommonObject
 		    return 1;
 		}
 	}
-	
-	
+
+
 	function addFieldsInDb()
 	{
 		$resql = $this->db->query('SHOW FIELDS FROM ' . MAIN_DB_PREFIX . $this->table_element);
-		
+
 		if($resql===false ) {
 			var_dump($this->db);exit;
-			
+
 		}
-		
+
 		$Tab = array();
 		while ($obj = $this->db->fetch_object($resql))
 		{
@@ -738,7 +740,7 @@ class SeedObject extends CommonObject
 				{
 					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD ' . $champs . ' VARCHAR(' . (is_array($info) && !empty($info['length']) ? $info['length'] : 255 ) . ')');
 				}
-				
+
 				if ($this->isIndex($info))
 				{
 					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD INDEX ' . $champs . '(' . $champs . ')');
@@ -746,19 +748,19 @@ class SeedObject extends CommonObject
 			}
 		}
 	}
-	
+
 	function init_db_by_vars()
 	{
 		global $conf,$dolibarr_main_db_name;
 
 		if(empty($this->table_element))exit('NoDataTableDefined');
-		
+
 		$resql = $this->db->query("SHOW TABLES FROM " . $dolibarr_main_db_name . " LIKE '" . MAIN_DB_PREFIX . $this->table_element . "'");
 		if($resql === false) {
 			var_dump($this->db);exit;
-			
+
 		}
-		
+
 		if ($resql && $this->db->num_rows($resql) == 0)
 		{
 			/*
@@ -777,27 +779,27 @@ class SeedObject extends CommonObject
 			$res = $this->db->query($sql);
 			if($res===false) {
 				var_dump($this->db);exit;
-				
-				
+
+
 			}
-			
-			
+
+
 		}
 
 		$this->addFieldsInDb();
 	}
-	
+
 	function get_date($nom_champ,$format_date='day') {
 		if(empty($this->{$nom_champ})) return '';
 		elseif($this->{$nom_champ}<=strtotime('1000-01-01 00:00:00')) return '';
 		else {
 			return dol_print_date($this->{$nom_champ},$format_date);
 		}
-		
+
 	}
-	
+
 	function set_date($nom_champ,$date){
-		
+
 		if(empty($date)) {
 			$this->{$nom_champ} = 0;//strtotime('0000-00-00 00:00:00');
 		}
@@ -810,5 +812,5 @@ class SeedObject extends CommonObject
 		}
 		return $this->{$nom_champ};
 	}
-	
+
 }
