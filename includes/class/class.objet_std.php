@@ -202,7 +202,8 @@ function _no_save_vars($lst_chp) {
  				,PRIMARY KEY (`".OBJETSTD_MASTERKEY."`)
  				,KEY `".OBJETSTD_DATECREATE."` (`".OBJETSTD_DATECREATE."`)
  				,KEY `".OBJETSTD_DATEUPDATE."` (`".OBJETSTD_DATEUPDATE."`)
- 				) ENGINE=InnoDB DEFAULT CHARSET=".$charset;
+ 				) ENGINE=InnoDB";
+		if (!empty($charset)) $sql .= ' DEFAULT CHARSET='.$charset;
 
 		$db->Execute($sql);
 	}
