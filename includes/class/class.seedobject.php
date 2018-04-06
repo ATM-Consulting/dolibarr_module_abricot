@@ -813,4 +813,125 @@ class SeedObject extends CommonObject
 		return $this->{$nom_champ};
 	}
 
+	/**
+	 * Function test if type is date
+	 *
+	 * @param   array   $info   content informations of field
+	 * @return                  bool
+	 */
+	protected function isDate($info)
+	{
+		if (is_callable('parent::isDate')) return parent::isDate($info);
+		
+		if(isset($info['type']) && ($info['type']=='date' || $info['type']=='datetime' || $info['type']=='timestamp')) return true;
+		else return false;
+	}
+
+	/**
+	 * Function test if type is array
+	 *
+	 * @param   array   $info   content informations of field
+	 * @return                  bool
+	 */
+	protected function isArray($info)
+	{
+		if (is_callable('parent::isArray')) return parent::isArray($info);
+		
+		if(is_array($info))
+		{
+			if(isset($info['type']) && $info['type']=='array') return true;
+			else return false;
+		}
+		else return false;
+	}
+
+	/**
+	 * Function test if type is null
+	 *
+	 * @param   array   $info   content informations of field
+	 * @return                  bool
+	 */
+	protected function isNull($info)
+	{
+		if (is_callable('parent::isNull')) return parent::isNull($info);
+		
+		if(is_array($info))
+		{
+			if(isset($info['type']) && $info['type']=='null') return true;
+			else return false;
+		}
+		else return false;
+	}
+
+	/**
+	 * Function test if type is integer
+	 *
+	 * @param   array   $info   content informations of field
+	 * @return                  bool
+	 */
+	protected function isInt($info)
+	{
+		if (is_callable('parent::isInt')) return parent::isInt($info);
+		
+		if(is_array($info))
+		{
+			if(isset($info['type']) && ($info['type']=='int' || $info['type']=='integer' )) return true;
+			else return false;
+		}
+		else return false;
+	}
+
+	/**
+	 * Function test if type is float
+	 *
+	 * @param   array   $info   content informations of field
+	 * @return                  bool
+	 */
+	protected function isFloat($info)
+	{
+		if (is_callable('parent::isFloat')) return parent::isFloat($info);
+		
+		if(is_array($info))
+		{
+			if (isset($info['type']) && (preg_match('/^(double|real)/i', $info['type']))) return true;
+			else return false;
+		}
+		else return false;
+	}
+
+	/**
+	 * Function test if type is text
+	 *
+	 * @param   array   $info   content informations of field
+	 * @return                  bool
+	 */
+	protected function isText($info)
+	{
+		if (is_callable('parent::isText')) return parent::isText($info);
+		
+		if(is_array($info))
+		{
+			if(isset($info['type']) && $info['type']=='text') return true;
+			else return false;
+		}
+		else return false;
+	}
+
+	/**
+	 * Function test if is indexed
+	 *
+	 * @param   array   $info   content informations of field
+	 * @return                  bool
+	 */
+	protected function isIndex($info)
+	{
+		if (is_callable('parent::isIndex')) return parent::isIndex($info);
+		
+		if(is_array($info))
+		{
+			if(isset($info['index']) && $info['index']==true) return true;
+			else return false;
+		}
+		else return false;
+	}
 }
