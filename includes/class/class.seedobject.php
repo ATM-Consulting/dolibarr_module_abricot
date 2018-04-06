@@ -821,6 +821,8 @@ class SeedObject extends CommonObject
 	 */
 	protected function isDate($info)
 	{
+		if (is_callable('parent::isDate')) return parent::isDate($info);
+		
 		if(isset($info['type']) && ($info['type']=='date' || $info['type']=='datetime' || $info['type']=='timestamp')) return true;
 		else return false;
 	}
@@ -833,6 +835,8 @@ class SeedObject extends CommonObject
 	 */
 	protected function isArray($info)
 	{
+		if (is_callable('parent::isArray')) return parent::isArray($info);
+		
 		if(is_array($info))
 		{
 			if(isset($info['type']) && $info['type']=='array') return true;
@@ -849,6 +853,8 @@ class SeedObject extends CommonObject
 	 */
 	protected function isNull($info)
 	{
+		if (is_callable('parent::isNull')) return parent::isNull($info);
+		
 		if(is_array($info))
 		{
 			if(isset($info['type']) && $info['type']=='null') return true;
@@ -865,6 +871,8 @@ class SeedObject extends CommonObject
 	 */
 	protected function isInt($info)
 	{
+		if (is_callable('parent::isInt')) return parent::isInt($info);
+		
 		if(is_array($info))
 		{
 			if(isset($info['type']) && ($info['type']=='int' || $info['type']=='integer' )) return true;
@@ -881,6 +889,8 @@ class SeedObject extends CommonObject
 	 */
 	protected function isFloat($info)
 	{
+		if (is_callable('parent::isFloat')) return parent::isFloat($info);
+		
 		if(is_array($info))
 		{
 			if (isset($info['type']) && (preg_match('/^(double|real)/i', $info['type']))) return true;
@@ -897,6 +907,8 @@ class SeedObject extends CommonObject
 	 */
 	protected function isText($info)
 	{
+		if (is_callable('parent::isText')) return parent::isText($info);
+		
 		if(is_array($info))
 		{
 			if(isset($info['type']) && $info['type']=='text') return true;
@@ -913,6 +925,8 @@ class SeedObject extends CommonObject
 	 */
 	protected function isIndex($info)
 	{
+		if (is_callable('parent::isIndex')) return parent::isIndex($info);
+		
 		if(is_array($info))
 		{
 			if(isset($info['index']) && $info['index']==true) return true;
