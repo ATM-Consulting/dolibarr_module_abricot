@@ -393,7 +393,7 @@ class Listview
 		
 		$search_button = '<div class="nowrap">';
 		$search_button.= '<a href="#" onclick="Listview_submitSearch(this);" class="list-search-link">'.img_search().'</a>';
-		$search_button.= '&nbsp;<a href="#" onclick="Listview_clearSearch(this);" class="list-search-link">'.img_searchclear().'</a>';
+		$search_button.= '&nbsp;<a href="#" onclick="Listview_clearSearch(this);" class="list-reset-link">'.img_searchclear().'</a>';
 		$search_button.= '</div>';
 		
 		if($nb_search_in_bar>0)
