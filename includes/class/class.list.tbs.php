@@ -441,7 +441,7 @@ class TListviewTBS {
 		
 		$search_button = ' <div class="nowrap">';
 		$search_button.= '<a href="#" onclick="TListTBS_submitSearch(this);" class="list-search-link">'.$TParam['liste']['picto_search'].'</a>';
-		$search_button.= '&nbsp;<a href="#" onclick="TListTBS_submitSearch(this, true);" class="list-search-link">'.$TParam['liste']['picto_searchclear'].'</a>';
+		$search_button.= '&nbsp;<a href="#" onclick="TListTBS_submitSearch(this, true);" class="list-reset-link">'.$TParam['liste']['picto_searchclear'].'</a>';
 		$search_button.= '</div>';
 		
 		/* TODO remove => fait redondance, un bouton pour lancer la recherche est déjà présent
