@@ -331,8 +331,11 @@ function dbinsert($table,$value){
                 
                 $fields[] = $k;
                 if(is_null($v)){
-                	$values[] = 'NULL';
-				}else{
+                    $select = $this->db->query("SELECT $k FROM $table");
+                    $meta = $select->getColumnMeta(0);
+                    if(!in_array('not_null',$meta['flags'])) $values[] = 'NULL';
+                    else $values[]=$this->quote('');
+                }else{
 					$v=stripslashes($v);
 					$values[] =$this->quote( $v );
 				}
