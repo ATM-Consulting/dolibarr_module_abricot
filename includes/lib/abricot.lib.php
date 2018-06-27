@@ -98,6 +98,10 @@ function __out($data, $type='', $callback='') {
 
 }
 
+/**
+ * @deprecated Should not be used anymore: jQuery included by Dolibarr, include dataTables manually if needed
+ */
+
 function getStandartJS() {
 	?><script language="JavaScript" src="<?php echo COREHTTP?>includes/js/jquery-1.9.1.min.js"></script><?php
 	?><script language="JavaScript" src="<?php echo COREHTTP?>includes/js/jquery-ui-1.8.6.custom.min.js"></script><?php
