@@ -403,7 +403,35 @@ class SeedObject extends SeedObjectDolibarr
     	return $res;
 	}
 
+	
+	/**
+	 *	Get object and children from database on custom field
+	 *
+	 *	@param      string		$key       		key of object to load
+	 **	@param      string		$field       	field of object used to load
+	 * 	@param		bool		$loadChild		used to load children from database
+	 *	@return     int         				>0 if OK, <0 if KO, 0 if not found
+	 */
+	public function fetchBy($key, $field, $loadChild = true)
+	{
+	    
+	    if(empty($this->fields[$field])) return false;
+	    
+	    $resql = $this->db->query("SELECT rowid FROM ".MAIN_DB_PREFIX.$this->table_element." WHERE ".$field."=".$this->quote($key, $this->fields[$field])." LIMIT 1 ");
+	    
+	    if($resql) {
+	        $objp = $this->db->fetch_object($resql);
+	        
+	        $res = $this->fetchCommon($objp->rowid);
+	        if($res>0) {
+	            if ($loadChild) $this->fetchChild();
+	        }
 
+	    }
+	    
+	    return $res;
+	}
+	
     /**
      * Function to instantiate a new child
      *
