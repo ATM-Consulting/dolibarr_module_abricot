@@ -1097,23 +1097,4 @@ class SeedObject extends SeedObjectDolibarr
 		}
 		return $this->{$nom_champ};
 	}
-	
-	
-	/**
-	 * Function fetchBy. Load an object with id
-	 * @param array		$value		Contain value for sql test
-	 * @param array		$field		Contain field for sql test
-	 * @param boolean	$annexe		1 = load childs; 0 = Only load object
-	 *
-	 * @return id of objects
-	 */
-	function fetchBy($value, $field, $annexe=false) {
-		$res = $this->db->query("SELECT rowid FROM ".MAIN_DB_PREFIX.$this->table_element." WHERE ".$field."='".$value."' LIMIT 1");
-		if($obj = $this->db->fetch_object($res)) {
-			return $this->fetch($obj->rowid, $annexe);
-		}
-		else {
-			return false;
-		}
-	}
 }
