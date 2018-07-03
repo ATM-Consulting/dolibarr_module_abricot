@@ -589,7 +589,7 @@ class Listview
      */
     private function renderList(&$THeader, &$TField, &$TTotal, &$TTotalGroup, &$TParam)
     {
-		global $bc,$form;
+		global $form;
 		
 		$TSearch = $this->setSearch($THeader, $TParam);
 		$TExport = $this->setExport($TParam, $TField, $THeader);
@@ -698,7 +698,7 @@ class Listview
 							if(!empty($TParam['list']['massactions'])) {
 								$arrayofselected=array(); // TODO get in param
 								$selected=0;
-								if (in_array($obj->rowid, $arrayofselected)) $selected=1;
+								if (in_array($fields['rowid'], $arrayofselected)) $selected=1;
 								$value_aff.='<input id="cb'.$fields['rowid'].'" class="flat checkforselect" type="checkbox" name="toselect[]" value="'.$fields['rowid'].'"'.($selected?' checked="checked"':'').'>';
 							}
 						}
@@ -779,19 +779,19 @@ class Listview
      * @param string $TParam    TParam
      * @return bool
      */
-    private function parse_array(&$THeader, &$TField, &$TParam, &$TFieldInView)
+    private function parse_array(&$THeader, &$TData, &$TParam, &$TFieldInView)
     {
-		$this->totalRow = count($TField);
+		$this->totalRow = count($TData);
 		
 		$this->THideFlip = array_flip($TParam['hide']);
 		$this->TTotalTmp=array();
 		
-		if (empty($TField)) return false;
+		if (empty($TData)) return false;
 		
-		foreach($TField as $row) {
-			$this->set_line($TFieldInView, $TParam, $row);
+		foreach($TData as $row)
+		{
+			$this->set_line($THeader, $TFieldInView, $TParam, $row);
 		}
-		
 		
 	}
 
