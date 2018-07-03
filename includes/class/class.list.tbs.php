@@ -882,7 +882,7 @@ class TListviewTBS {
 		$view_type = $this->getViewType($TParam);
 		
 		if($view_type == 'raw') {
-			return $this->renderRAW($TEntete, $TChamps,$TTotal, $TParam);
+			return $this->renderRAW($TEntete, $TChamps,$TTotal, $TTotalGroup,$TParam);
 		}
 		if($view_type == 'chart') {
 			return $this->renderChart($TEntete, $TChamps,$TTotal, $TParam);	
