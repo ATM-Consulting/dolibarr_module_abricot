@@ -633,7 +633,7 @@ class TListviewTBS {
 
 		$header = '[';
 		foreach($TEntete as $field=>&$entete) {
-			if (!empty($TParam['chart_role'][$field])) $header.= '{role: "'.$TParam['chart_role'][$field].'"}';//addslashes($entete['libelle']);
+			if (!empty($TParam['chart']['role'][$field])) $header.= '{role: "'.$TParam['chart']['role'][$field].'"}';//addslashes($entete['libelle']);
 			else $header .= '"'.addslashes($entete['libelle']).'", ';
 		}
 		$header.= ']';
@@ -731,7 +731,7 @@ class TListviewTBS {
 				  '.( $type == 'PieChart' && !empty($pieHole) ? ',pieHole: '.$pieHole : '').'
 				  '.( $type == 'AreaChart' ? ',isStacked: \'percent\'' : '').'
 				  
-				  '.(!empty($TParam['options']['bar']) ? ',bar : {'.$TParam['options']['bar'].'}' : '').'
+				  '.(!empty($TParam['chart']['options']['bar']) ? ',bar : {'.$TParam['chart']['options']['bar'].'}' : '').'
 		        };
 				
 		        var chart = new google.visualization.'.$type.'(document.getElementById("div_query_chart'.$this->id.'"));
