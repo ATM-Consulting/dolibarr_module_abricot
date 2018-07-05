@@ -619,7 +619,6 @@ class TListviewTBS {
 	private function renderChart(&$TEntete, &$TChamps,&$TTotal, &$TParam) {
 		
 		$TData = array();
-		$header = '';
 		$first = true;
 		
 		$TSearch = $this->setSearch($TEntete, $TParam);
@@ -631,13 +630,14 @@ class TListviewTBS {
 		else {
 			$fieldXaxis = $TParam['xaxis'];
 		}
-		
-		$TValue=array(); $key = null;
-		foreach($TEntete as $field=>&$entete) {
-			if($field!=$fieldXaxis)$TValue[] = addslashes($entete['libelle']);
-		}
 
-		$header='["'.addslashes( $TEntete[$fieldXaxis]['libelle'] ).'","'.implode('","', $TValue).'"]';
+		$header = '[';
+		foreach($TEntete as $field=>&$entete) {
+			if (!empty($TParam['chart']['role'][$field])) $header.= '{role: "'.$TParam['chart']['role'][$field].'"}';//addslashes($entete['libelle']);
+			else $header .= '"'.addslashes($entete['libelle']).'", ';
+		}
+		$header.= ']';
+
 		//var_dump($fieldXaxis, $TChamps);
 		foreach($TChamps as &$row) {
 			$TValue=array();
@@ -649,7 +649,8 @@ class TListviewTBS {
 					$key = $v;
 				}
 				else {
-					$TValue[] = (float)$v;
+					if (is_numeric($v)) $TValue[] = (float)$v;
+					else $TValue[] = '\''.addslashes($v).'\'';
 				}
 				
 			}
@@ -658,7 +659,7 @@ class TListviewTBS {
 				if(!isset($TData[$key])) $TData[$key] = $TValue;
 				else {
 					foreach($TData[$key] as $k=>$v) {
-						$TData[$key][$k]+=(float)$TValue[$k];
+						if (is_numeric($v)) $TData[$key][$k]+=(float)$TValue[$k];
 					}
 					
 				}
@@ -672,7 +673,8 @@ class TListviewTBS {
 			
 			$data .= ',[ "'.$key.'", ';
 			foreach($TValue as $v) {
-				$data.=(float)$v.',';
+				if (is_numeric($v)) $data.=(float)$v.',';
+				else $data.=$v.',';
 			}
 			
 			$data.=' ]';
@@ -728,10 +730,12 @@ class TListviewTBS {
 				  ,vAxis: '.json_encode($vAxis).'
 				  '.( $type == 'PieChart' && !empty($pieHole) ? ',pieHole: '.$pieHole : '').'
 				  '.( $type == 'AreaChart' ? ',isStacked: \'percent\'' : '').'
+				  
+				  '.(!empty($TParam['chart']['options']['bar']) ? ',bar : {'.$TParam['chart']['options']['bar'].'}' : '').'
 		        };
-
+				
 		        var chart = new google.visualization.'.$type.'(document.getElementById("div_query_chart'.$this->id.'"));
-		
+					
 		        chart.draw(data, options);
 		      }
 		  
