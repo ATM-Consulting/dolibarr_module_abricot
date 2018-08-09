@@ -63,6 +63,7 @@ class Listview
 		if(!isset($TParam['type'])) $TParam['type']=array();
 		if(!isset($TParam['orderby']['noOrder'])) $TParam['orderby']['noOrder']=array();
 		if(!isset($TParam['allow-fields-select'])) $TParam['allow-fields-select'] = 0;
+		if(!isset($TParam['search'])) $TParam['search'] = array();
 		
 		if(!isset($TParam['list']))$TParam['list']=array();
 		$TParam['list'] = array_merge(array(
@@ -325,7 +326,7 @@ class Listview
     {
 		global $langs, $form;
 		
-		if(empty($TParam['search'])) return array();
+		if(empty($TParam['search']) && empty($TParam['list']['head_search'])) return array();
 		
 		$TSearch=array();
 		
@@ -398,10 +399,11 @@ class Listview
 		$search_button.= '&nbsp;'.img_searchclear();
 		$search_button.= '</div>';
 		
-		if($nb_search_in_bar>0)
+		if($nb_search_in_bar>0 || !empty($TParam['list']['head_search']))
 		{
 			end($TSearch);
 			list($key,$v) = each($TSearch);
+			
 			$TSearch[$key].=$search_button;
 		}
 		else
