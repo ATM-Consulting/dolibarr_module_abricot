@@ -75,8 +75,8 @@ function setup_print_on_off($confkey, $title = false, $desc ='')
  * @param string $confkey
  * @param string $title
  * @param string $desc
- * @param array $metas
- * @param string $type
+ * @param array $metas exemple use with color array('type'=>'color') or  with placeholder array('placeholder'=>'http://')
+ * @param string $type = imput or textarea
  * @param string $help
  */
 function setup_print_input_form_part($confkey, $title = false, $desc ='', $metas = array(), $type='input', $help = false)
