@@ -439,7 +439,7 @@ class TListviewTBS {
 				
 		}
 		
-		$search_button = ' <div class="nowrap">';
+		$search_button = ' <div class="nowrap" style="float:right">';
 		$search_button.= '<a href="#" onclick="TListTBS_submitSearch(this);" class="list-search-link">'.$TParam['liste']['picto_search'].'</a>';
 		$search_button.= '&nbsp;<a href="#" onclick="TListTBS_submitSearch(this, true);" class="list-reset-link">'.$TParam['liste']['picto_searchclear'].'</a>';
 		$search_button.= '</div>';
