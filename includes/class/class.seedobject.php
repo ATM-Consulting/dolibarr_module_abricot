@@ -150,6 +150,110 @@ if ((float) DOL_VERSION < 7.0)
 		   }
 		   else return false;
 	   }
+
+		/**
+		 * Function to concat keys of fields
+		 *
+		 * @return string
+		 */
+		public function get_field_list()
+		{
+			$keys = array_keys($this->fields);
+			return implode(',', $keys);
+		}
+
+		/**
+		 * Function to load data into current object this
+		 *
+		 * @param   stdClass    $obj    Contain data of object from database
+		 */
+		protected function set_vars_by_db(&$obj)
+		{
+			foreach ($this->fields as $field => $info)
+			{
+				if($this->isDate($info))
+				{
+					if(empty($obj->{$field}) || $obj->{$field} === '0000-00-00 00:00:00' || $obj->{$field} === '1000-01-01 00:00:00') $this->{$field} = 0;
+					else $this->{$field} = strtotime($obj->{$field});
+				}
+				elseif($this->isArray($info))
+				{
+					$this->{$field} = @unserialize($obj->{$field});
+					// Hack for data not in UTF8
+					if($this->{$field } === FALSE) @unserialize(utf8_decode($obj->{$field}));
+				}
+				elseif($this->isInt($info))
+				{
+					$this->{$field} = (int) $obj->{$field};
+				}
+				elseif($this->isFloat($info))
+				{
+					$this->{$field} = (double) $obj->{$field};
+				}
+				elseif($this->isNull($info))
+				{
+					$val = $obj->{$field};
+					// zero is not null
+					$this->{$field} = (is_null($val) || (empty($val) && $val!==0 && $val!=='0') ? null : $val);
+				}
+				else
+				{
+					$this->{$field} = $obj->{$field};
+				}
+			}
+		}
+
+		/**
+		 * Function to prepare the values to insert.
+		 * Note $this->${field} are set by the page that make the createCommon or the updateCommon.
+		 *
+		 * @return array
+		 */
+		protected function set_save_query()
+		{
+			global $conf;
+			$queryarray=array();
+			foreach ($this->fields as $field=>$info)	// Loop on definition of fields
+			{
+				// Depending on field type ('datetime', ...)
+				if($this->isDate($info))
+				{
+					if(empty($this->{$field}))
+					{
+						$queryarray[$field] = NULL;
+					}
+					else
+					{
+						$queryarray[$field] = $this->db->idate($this->{$field});
+					}
+				}
+				else if($this->isArray($info))
+				{
+					$queryarray[$field] = serialize($this->{$field});
+				}
+				else if($this->isInt($info))
+				{
+					if ($field == 'entity' && is_null($this->{$field})) $queryarray[$field]=$conf->entity;
+					else
+					{
+						$queryarray[$field] = (int) price2num($this->{$field});
+						if (empty($queryarray[$field])) $queryarray[$field]=0;		// May be rest to null later if property 'nullifempty' is on for this field.
+					}
+				}
+				else if($this->isFloat($info))
+				{
+					$queryarray[$field] = (double) price2num($this->{$field});
+					if (empty($queryarray[$field])) $queryarray[$field]=0;
+				}
+				else
+				{
+					$queryarray[$field] = $this->{$field};
+				}
+				if ($info['type'] == 'timestamp' && empty($queryarray[$field])) unset($queryarray[$field]);
+				if (! empty($info['nullifempty']) && empty($queryarray[$field])) $queryarray[$field] = null;
+			}
+			return $queryarray;
+		}
 	}
 
 }
@@ -278,6 +382,117 @@ else
 		   }
 		   else return false;
 	   }
+
+		/**
+		 * Function to concat keys of fields
+		 *
+		 * @return string
+		 */
+		public function get_field_list()
+		{
+			if (method_exists($this, 'getFieldList')) return parent::getFieldList();
+
+			$keys = array_keys($this->fields);
+			return implode(',', $keys);
+		}
+
+		/**
+		 * Function to load data from a SQL pointer into properties of current object $this
+		 *
+		 * @param   stdClass    $obj    Contain data of object from database
+		 */
+		protected function set_vars_by_db(&$obj)
+		{
+			if (method_exists($this, 'setVarsFromFetchObj')) return parent::setVarsFromFetchObj($obj);
+
+			foreach ($this->fields as $field => $info)
+			{
+				if($this->isDate($info))
+				{
+					if(empty($obj->{$field}) || $obj->{$field} === '0000-00-00 00:00:00' || $obj->{$field} === '1000-01-01 00:00:00') $this->{$field} = 0;
+					else $this->{$field} = strtotime($obj->{$field});
+				}
+				elseif($this->isArray($info))
+				{
+					$this->{$field} = @unserialize($obj->{$field});
+					// Hack for data not in UTF8
+					if($this->{$field } === FALSE) @unserialize(utf8_decode($obj->{$field}));
+				}
+				elseif($this->isInt($info))
+				{
+					$this->{$field} = (int) $obj->{$field};
+				}
+				elseif($this->isFloat($info))
+				{
+					$this->{$field} = (double) $obj->{$field};
+				}
+				elseif($this->isNull($info))
+				{
+					$val = $obj->{$field};
+					// zero is not null
+					$this->{$field} = (is_null($val) || (empty($val) && $val!==0 && $val!=='0') ? null : $val);
+				}
+				else
+				{
+					$this->{$field} = $obj->{$field};
+				}
+
+			}
+		}
+
+		/**
+		 * Function to prepare the values to insert.
+		 * Note $this->${field} are set by the page that make the createCommon or the updateCommon.
+		 *
+		 * @return array
+		 */
+		protected function set_save_query()
+		{
+			if (method_exists($this, 'setSaveQuery')) return parent::setSaveQuery();
+
+			global $conf;
+			$queryarray=array();
+			foreach ($this->fields as $field=>$info)	// Loop on definition of fields
+			{
+				// Depending on field type ('datetime', ...)
+				if($this->isDate($info))
+				{
+					if(empty($this->{$field}))
+					{
+						$queryarray[$field] = NULL;
+					}
+					else
+					{
+						$queryarray[$field] = $this->db->idate($this->{$field});
+					}
+				}
+				else if($this->isArray($info))
+				{
+					$queryarray[$field] = serialize($this->{$field});
+				}
+				else if($this->isInt($info))
+				{
+					if ($field == 'entity' && is_null($this->{$field})) $queryarray[$field]=$conf->entity;
+					else
+					{
+						$queryarray[$field] = (int) price2num($this->{$field});
+						if (empty($queryarray[$field])) $queryarray[$field]=0;		// May be reset to null later if property 'notnull' is -1 for this field.
+					}
+				}
+				else if($this->isFloat($info))
+				{
+					$queryarray[$field] = (double) price2num($this->{$field});
+					if (empty($queryarray[$field])) $queryarray[$field]=0;
+				}
+				else
+				{
+					$queryarray[$field] = $this->{$field};
+				}
+				if ($info['type'] == 'timestamp' && empty($queryarray[$field])) unset($queryarray[$field]);
+				if (! empty($info['notnull']) && $info['notnull'] == -1 && empty($queryarray[$field])) $queryarray[$field] = null;
+			}
+			return $queryarray;
+		}
 	}
 }
 
@@ -350,10 +565,8 @@ class SeedObject extends SeedObjectDolibarr
 	 * @return bool
 	 */
 	function init_vars_by_db() {
-		$res = $this->db->Execute("SHOW COLUMNS FROM ".MAIN_DB_PREFIX.$this->table_element);
+		$res = $this->db->query("SHOW COLUMNS FROM ".MAIN_DB_PREFIX.$this->table_element);
 		while($obj = $this->db->fetch_object($res)) {
-			$nom = strtolower($db->Get_field(''));
-			$type_my = $db->Get_field('Type');
 
 			if(strpos($obj->Type,'int(')!==false) $type=array('type'=>'integer');
 			else if(strpos($obj->Type,'date')!==false) $type=array('type'=>'date');
