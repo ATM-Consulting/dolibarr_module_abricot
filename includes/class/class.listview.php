@@ -941,6 +941,11 @@ class Listview
             $trans = array();
             foreach($currentLine as $kF=>$vF)$trans['@'.$kF.'@'] = addslashes($vF);
             
+            if(!empty($currentLine->rowid)){
+                $row['rowid'] = $currentLine->rowid; // fix mass action checkbox
+            }
+            
+            
             foreach($THeader as $field=>$dummy)
             {
 				if (is_array($currentLine)) $value = isset($currentLine[$field]) ? $currentLine[$field]: '';
@@ -1006,6 +1011,7 @@ class Listview
                     }
                 }
             }
+            
         }
         else
         {
