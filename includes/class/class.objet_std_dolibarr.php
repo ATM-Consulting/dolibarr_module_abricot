@@ -1,8 +1,20 @@
 <?php
 
 class TObjetStdDolibarr extends TObjetStd {
-	
-	/**
+
+    private $db;
+
+    /**
+     * TObjetStdDolibarr constructor.
+     *
+     * @param $db
+     */
+    public function __construct($db = null)
+    {
+        $this->db = $db;
+    }
+
+    /**
 	 * 
 	 * @param unknown $id
 	 * @return boolean
@@ -162,9 +174,14 @@ class TObjetStdDolibarr extends TObjetStd {
 		}
 	}
 	function get_newid(&$db){
+
+	    if(!isset($this->db)){
+	        $this->db = $db;
+        }
+
 		$sql="SELECT max(".OBJETSTD_MASTERKEY.") as 'maxi' FROM ".$this->get_table();
-		$res = $db->query($sql);
-		$object = $db->fetch_object($res);
+		$res = $this->db->query($sql);
+		$object = $this->db->fetch_object($res);
 		$this->{OBJETSTD_MASTERKEY} = (double)$object->maxi + 1;
 	}
 }
