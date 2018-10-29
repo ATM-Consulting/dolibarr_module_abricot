@@ -57,7 +57,7 @@
 		 * Le require_once permet de surcharger préalablement ces classes
 		 */
 		 	if(!defined('NO_CORE_DB')){
-			   	require_once(CORECLASS.'class.pdo.db.php');
+			   	require_once(CORECLASS.'TPDOdb.php');
 		 	}
 		 	require_once(CORECLASS.'class.objet_std.php');
 	 		require_once(CORECLASS.'class.objet_std_dolibarr.php');
