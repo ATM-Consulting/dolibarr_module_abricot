@@ -29,9 +29,9 @@ function setup_print_title($title="")
 {
     global $langs;
     print '<tr class="liste_titre">';
-    print '<td>'.$langs->trans($title).'</td>'."\n";
-    print '<td align="center" width="20">&nbsp;</td>';
-    print '<td align="center" ></td>'."\n";
+    print '<th>'.$langs->trans($title).'</th>'."\n";
+    print '<th align="center" width="20">&nbsp;</th>';
+    print '<th align="center" ></th>'."\n";
     print '</tr>';
 }
 
@@ -47,13 +47,20 @@ function setup_print_title($title="")
  *
  * exemple _print_on_off('CONSTNAME', 'ParamLabel' , 'ParamDesc');
  */
-function setup_print_on_off($confkey, $title = false, $desc ='')
+function setup_print_on_off($confkey, $title = false, $desc ='', $help = false)
 {
-    global $var, $bc, $langs, $conf;
+    global $var, $bc, $langs, $conf, $form;
     $var=!$var;
     
     print '<tr '.$bc[$var].'>';
-    print '<td>'.($title?$title:$langs->trans($confkey));
+    print '<td>';
+    if(!empty($help)){
+        print $form->textwithtooltip( ($title?$title:$langs->trans($confkey)) , $langs->trans($help),2,1,img_help(1,''));
+    }
+    else {
+        print $title?$title:$langs->trans($confkey);
+    }
+    
     if(!empty($desc))
     {
         print '<br><small>'.$langs->trans($desc).'</small>';
