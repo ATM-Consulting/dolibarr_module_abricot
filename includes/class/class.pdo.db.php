@@ -52,24 +52,11 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 	}
 	
 	if(empty($connexionString)) {
-		/* intégration configuration Dolibarr */
-		$db_type = $conf->db->type;
 		$db = (!empty($conf->db->name)) ? $conf->db->name : DB_NAME;
 		$host = (!empty($conf->db->host)) ? $conf->db->host : DB_HOST;
 		$usr = (!empty($conf->db->user)) ? $conf->db->user : DB_USER;
 		$pass = (!empty($conf->db->pass)) ? $conf->db->pass : DB_PASS;
 		$port = $conf->db->port;
-		
-		if (($db_type == '') && (defined('DB_DRIVER'))) {
-			$db_type = DB_DRIVER;
-		}
-		else {
-			if ($db_type == 'mysql')
-				$db_type = 'mysql';
-			else
-				$db_type = 'mysqli';
-		}
-		
 		
 		if (defined('DB_NAME') && constant('DB_NAME')!='') {
 			$db = DB_NAME;
