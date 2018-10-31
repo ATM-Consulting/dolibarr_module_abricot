@@ -398,6 +398,8 @@ function _no_save_vars($lst_chp) {
 
 
   function _set_save_query(&$query){
+	  global $conf;
+	  
     foreach ($this->TChamps as $nom_champ=>$info) {
 
      // /* modification des dates au format français vers un format anglais
@@ -411,7 +413,8 @@ function _no_save_vars($lst_chp) {
       }
       else if($this->_is_date($info)){
 		if(empty($this->{$nom_champ})){
-			$query[$nom_champ] = NULL;
+			if (!empty($conf->global->ABRICOT_INSERT_OLD_EMPTY_DATE_FORMAT)) $query[$nom_champ] = $this->date_0;
+			else $query[$nom_champ] = NULL;
 		}
 		else{
 			$date = date('Y-m-d H:i:s',$this->{$nom_champ});
@@ -465,6 +468,7 @@ function _no_save_vars($lst_chp) {
 			$db->close();
 	 }
 	 
+	$this->date_0 = empty($conf->global->ABRICOT_USE_OLD_EMPTY_DATE_FORMAT) ? '1000-01-01 00:00:00' : '0000-00-00 00:00:00';
   }
 	function run_trigger(&$ATMdb, $state)
 	{
