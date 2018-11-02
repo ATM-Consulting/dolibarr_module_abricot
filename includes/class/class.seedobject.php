@@ -582,10 +582,10 @@ class SeedObject extends SeedObjectDolibarr
 		while($obj = $this->db->fetch_object($res)) {
 
 			if(strpos($obj->Type,'int(')!==false) $type=array('type'=>'integer');
-			else if(strpos($obj->Type,'date')!==false) $type=array('type'=>'date');
+			else if(strpos($obj->Type,'date')!==false || strpos($obj->Type,'timestamp')!==false) $type=array('type'=>'date');
 			else $type=array('type'=>'string');
 
-			$this->field[$obj->Field] = $type;
+			$this->fields[$obj->Field] = $type;
 		}
 
 
