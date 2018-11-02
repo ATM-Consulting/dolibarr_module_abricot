@@ -1323,4 +1323,94 @@ class SeedObject extends SeedObjectDolibarr
 		}
 		return $this->{$nom_champ};
 	}
+	
+	
+	public function replaceCommon(User $user, $notrigger = false)
+	{
+		global $langs;
+		
+		$error = 0;
+		
+		$now=dol_now();
+		
+		$fieldvalues = $this->set_save_query();
+		if (array_key_exists('date_creation', $fieldvalues) && empty($fieldvalues['date_creation'])) $fieldvalues['date_creation']=$this->db->idate($now);
+		if (array_key_exists('fk_user_creat', $fieldvalues) && ! ($fieldvalues['fk_user_creat'] > 0)) $fieldvalues['fk_user_creat']=$user->id;
+		//unset($fieldvalues['rowid']);	// The field 'rowid' is reserved field name for autoincrement field so we don't need it into insert.
+		
+		$keys=array();
+		$values = array();
+		foreach ($fieldvalues as $k => $v) {
+			$keys[$k] = $k;
+			$value = $this->fields[$k];
+			$values[$k] = $this->quote($v, $value);
+		}
+		
+		// Clean and check mandatory
+		foreach($keys as $key)
+		{
+			// If field is an implicit foreign key field
+			if (preg_match('/^integer:/i', $this->fields[$key]['type']) && $values[$key] == '-1') $values[$key]='';
+			if (! empty($this->fields[$key]['foreignkey']) && $values[$key] == '-1') $values[$key]='';
+			
+			//var_dump($key.'-'.$values[$key].'-'.($this->fields[$key]['notnull'] == 1));
+			if ($this->fields[$key]['notnull'] == 1 && empty($values[$key]))
+			{
+				$error++;
+				$this->errors[]=$langs->trans("ErrorFieldRequired", $this->fields[$key]['label']);
+			}
+			
+			// If field is an implicit foreign key field
+			if (preg_match('/^integer:/i', $this->fields[$key]['type']) && empty($values[$key])) $values[$key]='null';
+			if (! empty($this->fields[$key]['foreignkey']) && empty($values[$key])) $values[$key]='null';
+		}
+		
+		if ($error) return -1;
+		
+		$this->db->begin();
+		
+		if (! $error)
+		{
+			$sql = 'REPLACE INTO '.MAIN_DB_PREFIX.$this->table_element;
+			$sql.= ' ('.implode( ", ", $keys ).')';
+			$sql.= ' VALUES ('.implode( ", ", $values ).')';
+			
+			$res = $this->db->query($sql);
+			if ($res===false) {
+				$error++;
+				$this->errors[] = $this->db->lasterror();
+			}
+		}
+
+		if (! $error)
+		{
+			$this->id = $this->db->last_insert_id(MAIN_DB_PREFIX . $this->table_element);
+		}
+		
+		if (! $error)
+		{
+			$result=$this->insertExtraFields();
+			if ($result < 0) $error++;
+		}
+		
+		if (! $error && ! $notrigger)
+		{
+			// Call triggers
+			$result=$this->call_trigger(strtoupper(get_class($this)).'_CREATE',$user);
+			if ($result < 0) { $error++; }
+			// End call triggers
+		}
+		
+		// Commit or rollback
+		if ($error) {
+			$this->db->rollback();
+			return -1;
+		} else {
+			$this->db->commit();
+			return $this->id;
+		}
+	}
+	
+	
+	
 }
