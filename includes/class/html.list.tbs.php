@@ -7,7 +7,7 @@
 			<td class="nobordernopadding"><div class="titre">[liste.titre; strconv=no]</div></td>
 			[onshow;block=end]
 			<td class="nobordernopadding" align="right" valign="middle">
-				<div class="pagination"> 
+				<div class="pagination">
 					[onshow;block=div; when [liste.havePage]+-0 ]
 					<!-- [onshow;block=div;when [pagination.last]+-1 ] -->
 					<ul style="display: inline-block; list-style: outside none none;">
@@ -19,7 +19,7 @@
 				</div>
 			</td>
 		</tr>
-</table>	
+</table>
 
 <table id="[liste.id]" class="liste" width="100%">
 	<thead>
@@ -30,14 +30,14 @@
 			<td class="liste_titre">[recherche.val;block=td;strconv=no]</td>
 		</tr>
 		<tr class="liste_titre">
-			<th style="width:[entete.width;];text-align:[entete.text-align]" class="liste_titre">[entete.libelle;block=th;strconv=no] 
+			<th style="width:[entete.width;];text-align:[entete.text-align]" class="liste_titre">[entete.libelle;block=th;strconv=no]
 				<span class="nowrap">[onshow;block=span; when [entete.order]==1]<a href="javascript:TListTBS_OrderDown('[liste.id]','[entete.$;strconv=js]')">[liste.order_down;strconv=no]</a><a href="javascript:TListTBS_OrderUp('[liste.id]', '[entete.$;strconv=js]')">[liste.order_up;strconv=no]</a></span>
 				[entete.more;strconv=no;]
 			</th>
 		</tr>
-		
-		
-	
+
+
+
 	</thead>
 	<tbody>
 		<tr class="impair">
@@ -52,10 +52,10 @@
 	<tfoot>
 		<tr class="liste_total">
 			[onshow;block=tr; when [liste.haveTotal]+-0 ]
-			<td align="right" field="[total.$]">[total.val;block=td;strconv=no;frm=0 000,00]</td>
+			<td field="[total.$]">[total.val;block=td;strconv=no;frm=0 000,00]</td>
 		</tr>
 	</tfoot>
-	
+
 </table>
 
 [onshow;block=begin; when [liste.useBottomPagination]==1]
