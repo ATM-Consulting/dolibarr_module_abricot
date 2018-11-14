@@ -444,11 +444,6 @@ class TListviewTBS {
 		$search_button.= '&nbsp;<a href="#" onclick="TListTBS_submitSearch(this, true);" class="list-reset-link">'.$TParam['liste']['picto_searchclear'].'</a>';
 		$search_button.= '</div>';
 
-		/* TODO remove => fait redondance, un bouton pour lancer la recherche est déjà présent
-		if(!empty($TParam['liste']['head_search'])) {
-			$TParam['liste']['head_search'].='<div align="right">'.$langs->trans('Search').' '.$search_button.'</div>';
-		}*/
-
 		if($nb_search_in_bar>0) {
 			end($TSearch);
 			list($key,$v) = each($TSearch);
@@ -456,6 +451,11 @@ class TListviewTBS {
 		}
 		else{
 			$TSearch=array();
+		}
+
+		if (!empty($TParam['liste']['head_search']) && empty($TSearch)) {
+			//We have filter but no data, we need search button anyway
+			$TParam['liste']['head_search'].=$search_button;
 		}
 
 		return $TSearch;
