@@ -329,7 +329,7 @@ class TListviewTBS {
 		$this->parse_sql($db, $TEntete, $TChamps, $TParam, $sql);
 
 		list($TTotal, $TTotalGroup)=$this->get_total($TChamps, $TParam);
-		var_dump($TTotal);
+
 		$view_type = $this->getViewType($TParam);
 
 		if($view_type == 'raw') {
