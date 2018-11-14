@@ -501,7 +501,9 @@ class TListviewTBS {
 			}
 			foreach($TParam['mathformat'] as $field=>$typeFormat){
 				if($typeFormat=='time') {
-					$TTotal[$field]=date('H\h i\m', $TTotal[$field] + strtotime(date('Y-01-01')));
+					$h = floor($TTotal[$field] / 3600);
+					$m = floor(($TTotal[$field] % 3600) / 60);
+					$TTotal[$field]=sprintf('%02dh %02dm', $h, $m);
 				}
 			}
 		}
@@ -842,6 +844,7 @@ class TListviewTBS {
 		$TSearch = $this->setSearch($TEntete, $TParam);
 		$TExport=$this->setExport($TParam, $TChamps, $TEntete);
 		$TChamps = $this->addTotalGroup($TChamps,$TTotalGroup);
+
 		return $TBS->render($this->template
 			, array(
 				'entete'=>$TEntete
