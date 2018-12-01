@@ -629,7 +629,7 @@ class SeedObject extends SeedObjectDolibarr
     	return $res;
 	}
 
-	
+
 	/**
 	 *	Get object and children from database on custom field
 	 *
@@ -640,24 +640,24 @@ class SeedObject extends SeedObjectDolibarr
 	 */
 	public function fetchBy($key, $field, $loadChild = true)
 	{
-	    
+
 	    if(empty($this->fields[$field])) return false;
-	    
+
 	    $resql = $this->db->query("SELECT rowid FROM ".MAIN_DB_PREFIX.$this->table_element." WHERE ".$field."=".$this->quote($key, $this->fields[$field])." LIMIT 1 ");
-	    
+
 	    if($resql) {
 	        $objp = $this->db->fetch_object($resql);
-	        
+
 	        $res = $this->fetchCommon($objp->rowid);
 	        if($res>0) {
 	            if ($loadChild) $this->fetchChild();
 	        }
 
 	    }
-	    
+
 	    return $res;
 	}
-	
+
     /**
      * Function to instantiate a new child
      *
@@ -1169,7 +1169,7 @@ class SeedObject extends SeedObjectDolibarr
 	 * @param bool $notrigger  false=launch triggers after, true=disable triggers
 	 * @return int             <0 if KO, >0 if OK
 	 */
-	public function deleteCommon(User $user, $notrigger = false)
+	public function deleteCommon(User $user, $notrigger = false, $forcechilddeletion = 0)
 	{
 		// method_exists() with key word 'parent' doesn't work
 		if (is_callable('parent::deleteCommon')) return parent::deleteCommon($user, $notrigger);
