@@ -670,7 +670,7 @@ class Listview
 				else $search = $field;
 			}
 
-			$out .= getTitleFieldOfList($label, 0, $_SERVER["PHP_SELF"], $search, '', $moreparam, $moreattrib, $TParam['sortfield'], $TParam['sortorder'], $prefix);
+			$out .= getTitleFieldOfList($label, 0, $_SERVER["PHP_SELF"], $search, '', '&'.$TParam['list']['param_url'], $moreattrib, $TParam['sortfield'], $TParam['sortorder'], $prefix);
 			$out .= $head['more'];
 		}
 
