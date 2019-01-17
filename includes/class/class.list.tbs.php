@@ -434,7 +434,7 @@ class TListviewTBS {
 			else {
 
 				$libelle = !empty($TParam['title'][$key]) ? $TParam['title'][$key] : $key ;
-				$TParam['liste']['head_search'].='<div>'.$libelle.' '.$fsearch.'</div>';
+				if(! in_array($key, $TParam['hide'])) $TParam['liste']['head_search'].='<div>'.$libelle.' '.$fsearch.'</div>';
 			}
 
 		}
