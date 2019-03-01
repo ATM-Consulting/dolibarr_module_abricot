@@ -499,13 +499,15 @@ class TListviewTBS {
 				}
 
 			}
-			foreach($TParam['mathformat'] as $field=>$typeFormat){
-				if($typeFormat=='time') {
-					$h = floor($TTotal[$field] / 3600);
-					$m = floor(($TTotal[$field] % 3600) / 60);
-					$TTotal[$field]=sprintf('%02dh %02dm', $h, $m);
-				}
-			}
+			if(!empty($TParam['mathformat'])) {
+                foreach($TParam['mathformat'] as $field => $typeFormat) {
+                    if($typeFormat == 'time') {
+                        $h = floor($TTotal[$field] / 3600);
+                        $m = floor(($TTotal[$field] % 3600) / 60);
+                        $TTotal[$field] = sprintf('%02dh %02dm', $h, $m);
+                    }
+                }
+            }
 		}
 
 		return array($TTotal,$TTotalGroup);
