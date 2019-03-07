@@ -604,9 +604,10 @@ class Listview
 		$massactionbutton= empty($TParam['list']['massactions']) ? '' : $form->selectMassAction('', $TParam['list']['massactions']);
 		
 		$dolibarr_decalage = $this->totalRow > $this->totalRowToShow ? 1 : 0;
+		$hideselectlimit = ($TParam['limit']['nbLine'] === 0) ? 1 : 0;
 		ob_start();
-		print_barre_liste($TParam['list']['title'], $TParam['limit']['page'], $_SERVER["PHP_SELF"], '&'.$TParam['list']['param_url'], $TParam['sortfield'], $TParam['sortorder'], $massactionbutton, $this->totalRowToShow+$dolibarr_decalage, $this->totalRow, $TParam['list']['image'], 0, '', '', $TParam['limit']['nbLine']);
-		$out .= ob_get_clean();
+		print_barre_liste($TParam['list']['title'], $TParam['limit']['page'], $_SERVER["PHP_SELF"], '&'.$TParam['list']['param_url'], $TParam['sortfield'], $TParam['sortorder'], $massactionbutton, $this->totalRowToShow+$dolibarr_decalage, $this->totalRow, $TParam['list']['image'], 0, '', '', $TParam['limit']['nbLine'], $hideselectlimit);
+		$out = ob_get_clean();
 		
 		$classliste='liste';
 		if(!empty($TParam['list']['head_search'])) {
@@ -910,7 +911,8 @@ class Listview
 
 		// @info le +1 c'est pcq la pagination commence à 0, donc la page 0 = page 1 et 1 = page 2 ... etc, sinon la page 0 et 1 affiche le même contenu
 		$page_number = !empty($TParam['limit']['page']) ? $TParam['limit']['page']+1 : 1;
-		$line_per_page = !empty($TParam['limit']['nbLine']) ? $TParam['limit']['nbLine'] : $conf->liste_limit;
+		if ($TParam['limit']['nbLine'] === 0) $line_per_page = PHP_INT_MAX;
+		else $line_per_page = !empty($TParam['limit']['nbLine']) ? $TParam['limit']['nbLine'] : $conf->liste_limit;
 		
 		$start = ($page_number-1) * $line_per_page;
 		$end = ($page_number* $line_per_page) -1;
@@ -1059,7 +1061,7 @@ class Listview
 		{
 			$sql.=' LIMIT '.(int) $TParam['limit']['global'];
 		}
-		else if(!empty($TParam['limit'])) $sql.= $this->db->plimit($TParam['limit']['nbLine']+1, $TParam['limit']['page'] * $TParam['limit']['nbLine']);
+		else if(!empty($TParam['limit']['nbLine'])) $sql.= $this->db->plimit($TParam['limit']['nbLine']+1, $TParam['limit']['page'] * $TParam['limit']['nbLine']);
 		
 		
 		return $sql;
