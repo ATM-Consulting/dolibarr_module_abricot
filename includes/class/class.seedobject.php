@@ -1296,6 +1296,26 @@ class SeedObject extends SeedObjectDolibarr
 
 
 		}
+		else
+		{
+			// Conversion de l'ancienne table sans auto_increment
+			$resql = $this->db->query('DESC '.MAIN_DB_PREFIX . $this->table_element);
+			if ($resql)
+			{
+				while ($desc = $this->db->fetch_object($resql))
+				{
+					if ($desc->Field == 'rowid')
+					{
+						if (strpos($desc->Extra, 'auto_increment') === false)
+						{
+							$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX . $this->table_element.' MODIFY COLUMN rowid INT auto_increment');
+						}
+
+						break;
+					}
+				}
+			}
+		}
 
 		$this->addFieldsInDb();
 	}
