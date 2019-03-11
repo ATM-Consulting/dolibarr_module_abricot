@@ -870,6 +870,7 @@ class Listview
 
 		foreach ($TParam['title'] as $field => $label)
 		{
+			$total_rank = 0;
 			$visible = (!in_array($field, $TParam['hide'])) ? 1 : 0;
 			if($visible)
 			{
@@ -881,10 +882,12 @@ class Listview
 					'rank'=>(!empty($TParam['position']['rank'][$field]) ? $TParam['position']['rank'][$field] : 0),
 					'more'=>''
 				);
+				$total_rank+= $THeader[$field]['rank'];
 			}
 		}
-		
-		uasort($THeader,array('Listview','sortHeaderRank'));
+
+		// Uniquement si au moins 1 valeur a été définie, sinon il y a un problème d'affichage entre du php 5 et 7
+		if ($total_rank > 0) uasort($THeader,array('Listview','sortHeaderRank'));
 		
 		if (!empty($selectedfields)) $THeader['selectedfields']['label']=$selectedfields;
 		
