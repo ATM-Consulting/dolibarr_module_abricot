@@ -868,9 +868,9 @@ class Listview
 			$selectedfields = $this->form->multiSelectArrayWithCheckbox('Listview'.$this->id.'_selectedfields', $TFieldVisibility, $contextpage);	// This also change content of $arrayfields_0
 		}
 
+		$rank_used = false;
 		foreach ($TParam['title'] as $field => $label)
 		{
-			$total_rank = 0;
 			$visible = (!in_array($field, $TParam['hide'])) ? 1 : 0;
 			if($visible)
 			{
@@ -882,13 +882,13 @@ class Listview
 					'rank'=>(!empty($TParam['position']['rank'][$field]) ? $TParam['position']['rank'][$field] : 0),
 					'more'=>''
 				);
-				$total_rank+= $THeader[$field]['rank'];
+				if (!$rank_used && $THeader[$field]['rank'] !== 0) $rank_used = true;
 			}
 		}
 
 		// Uniquement si au moins 1 valeur a été définie, sinon il y a un problème d'affichage entre du php 5 et 7
-		if ($total_rank > 0) uasort($THeader,array('Listview','sortHeaderRank'));
-		
+		if ($rank_used) uasort($THeader,array('Listview','sortHeaderRank'));
+
 		if (!empty($selectedfields)) $THeader['selectedfields']['label']=$selectedfields;
 		
 		return $THeader;
