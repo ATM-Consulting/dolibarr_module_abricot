@@ -719,7 +719,7 @@ class SeedObject extends SeedObjectDolibarr
     {
 		if($this->withChild && !empty($this->childtables) && !empty($this->fk_element))
 		{
-			foreach($this->childtables as $className => &$childTable)
+			foreach($this->childtables as $childTable => $className)
 			{
 				if (is_int($className)) {
 					$className = $childTable;
@@ -761,7 +761,7 @@ class SeedObject extends SeedObjectDolibarr
     {
 		if($this->withChild && !empty($this->childtables) && !empty($this->fk_element))
 		{
-			foreach($this->childtables as $className => &$childTable)
+			foreach($this->childtables as $childTable=>$className)
 			{
 				if (is_int($className)) $className = ucfirst($childTable);
 
@@ -874,7 +874,7 @@ class SeedObject extends SeedObjectDolibarr
         {
             if($this->withChild && !empty($this->childtables))
             {
-                foreach($this->childtables as $className => &$childTable)
+                foreach($this->childtables as  $childTable=>$className )
                 {
 					if (is_int($className)) $className = ucfirst($childTable);
 
