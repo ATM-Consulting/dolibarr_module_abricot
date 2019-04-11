@@ -871,6 +871,10 @@ class Listview
 
 			$selectedfields = $this->form->multiSelectArrayWithCheckbox('Listview'.$this->id.'_selectedfields', $TFieldVisibility, $contextpage);	// This also change content of $arrayfields_0
 		}
+		else
+        {
+            $selectedfields = '&nbsp;';
+        }
 
 		$rank_used = false;
 		foreach ($TParam['title'] as $field => $label)
