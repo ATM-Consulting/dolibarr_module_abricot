@@ -349,6 +349,10 @@ class Listview
 			
 			if(is_array($typeRecherche))
 			{
+                if(!empty($param_search['to_translate'])){
+                    $typeRecherche = array_map ( array($langs,'trans'),  $typeRecherche);
+                }
+
 				$fsearch=$form->selectarray($fieldname, $typeRecherche,$value,1);
 			}
 			else if($typeRecherche==='calendar')
