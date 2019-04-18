@@ -1172,7 +1172,7 @@ class SeedObject extends SeedObjectDolibarr
 	public function deleteCommon(User $user, $notrigger = false, $forcechilddeletion = 0)
 	{
 		// method_exists() with key word 'parent' doesn't work
-		if (is_callable('parent::deleteCommon')) return parent::deleteCommon($user, $notrigger);
+		if (is_callable('parent::deleteCommon')) return parent::deleteCommon($user, $notrigger, $forcechilddeletion);
 
 
 	    $error=0;
