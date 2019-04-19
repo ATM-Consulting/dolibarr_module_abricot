@@ -8,7 +8,7 @@
 //$langs->loadLangs(array("mymodule@mymodule", "admin", "other"));
 //
 //$mymodule = new MyModule($db);
-//$elementtype=$mymodule->element;  //Must be the $element of the class that manage extrafield
+//$elementtype=$mymodule->table_element;  //Must be the $table_element of the class that manage extrafield
 //
 //// Page title and texts elements
 //$textobject=$langs->transnoentitiesnoconv("MyModule");

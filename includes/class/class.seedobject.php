@@ -626,6 +626,11 @@ class SeedObject extends SeedObjectDolibarr
     		if ($loadChild) $this->fetchChild();
     	}
 
+        if(!empty($this->isextrafieldmanaged))
+        {
+            $this->fetch_optionals();
+        }
+
     	return $res;
 	}
 
@@ -1318,6 +1323,37 @@ class SeedObject extends SeedObjectDolibarr
 		}
 
 		$this->addFieldsInDb();
+
+		if(!empty($this->isextrafieldmanaged))
+        {
+            $resql = $this->db->query("SHOW TABLES FROM " . $dolibarr_main_db_name . " LIKE '" . MAIN_DB_PREFIX . $this->table_element . "_extrafields'");
+            if($resql === false) {
+                var_dump($this->db);exit;
+            }
+
+            if ($resql && $this->db->num_rows($resql) == 0)
+            {
+                /*
+                 * La table n'existe pas, on la crée
+                 */
+                $charset = $conf->db->character_set;
+
+                $sql = "CREATE TABLE " . MAIN_DB_PREFIX . $this->table_element . "_extrafields (
+ 				rowid integer AUTO_INCREMENT PRIMARY KEY
+ 				,tms timestamp
+ 				,fk_object integer
+ 				,import_key varchar(14)
+ 				,KEY tms (tms)
+ 				, UNIQUE fk_object (fk_object)
+ 				) ENGINE=InnoDB DEFAULT CHARSET=" . $charset;
+
+                $res = $this->db->query($sql);
+                if($res===false) {
+                    var_dump($this->db);exit;
+                }
+
+            }
+        }
 	}
 
 	function get_date($nom_champ,$format_date='day') {
