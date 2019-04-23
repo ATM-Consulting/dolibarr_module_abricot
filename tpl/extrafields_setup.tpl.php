@@ -30,9 +30,6 @@
 
 
 
-if(!defined('loadedFormModuleExtrafieldPage')){
-    die('Access denied');
-}
 
 require_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
 
