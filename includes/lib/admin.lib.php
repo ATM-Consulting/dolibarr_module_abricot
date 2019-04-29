@@ -128,7 +128,7 @@ function setup_print_input_form_part($confkey, $title = false, $desc ='', $metas
     print '</td>';
     print '<td align="center" width="20">&nbsp;</td>';
     print '<td align="right" width="'.$width.'">';
-    print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+    print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'" '.($metas['type'] === 'file' ? 'enctype="multipart/form-data"' : '').'>';
     print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
     print '<input type="hidden" name="action" value="set_'.$confkey.'">';
     if($type=='textarea'){
