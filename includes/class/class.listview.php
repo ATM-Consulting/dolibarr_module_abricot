@@ -349,6 +349,10 @@ class Listview
 			
 			if(is_array($typeRecherche))
 			{
+                if(!empty($param_search['to_translate'])){
+                    $typeRecherche = array_map ( array($langs,'trans'),  $typeRecherche);
+                }
+
 				$fsearch=$form->selectarray($fieldname, $typeRecherche,$value,1);
 			}
 			else if($typeRecherche==='calendar')
@@ -606,7 +610,7 @@ class Listview
 		$dolibarr_decalage = $this->totalRow > $this->totalRowToShow ? 1 : 0;
 		$hideselectlimit = ($TParam['limit']['nbLine'] === 0) ? 1 : 0;
 		ob_start();
-		print_barre_liste($TParam['list']['title'], $TParam['limit']['page'], $_SERVER["PHP_SELF"], '&'.$TParam['list']['param_url'], $TParam['sortfield'], $TParam['sortorder'], $massactionbutton, $this->totalRowToShow+$dolibarr_decalage, $this->totalRow, $TParam['list']['image'], 0, '', '', $TParam['limit']['nbLine'], $hideselectlimit);
+		print_barre_liste($TParam['list']['title'], $TParam['limit']['page'], $_SERVER["PHP_SELF"], '&'.$TParam['list']['param_url'], $TParam['sortfield'], $TParam['sortorder'], $massactionbutton, $this->totalRowToShow+$dolibarr_decalage, $this->totalRow, $TParam['list']['image'], 0, $TParam['list']['morehtmlrighttitle'], '', $TParam['limit']['nbLine'], $hideselectlimit);
 		$out = ob_get_clean();
 		
 		$classliste='liste';
@@ -867,6 +871,10 @@ class Listview
 
 			$selectedfields = $this->form->multiSelectArrayWithCheckbox('Listview'.$this->id.'_selectedfields', $TFieldVisibility, $contextpage);	// This also change content of $arrayfields_0
 		}
+		else
+        {
+            $selectedfields = '&nbsp;';
+        }
 
 		$rank_used = false;
 		foreach ($TParam['title'] as $field => $label)
