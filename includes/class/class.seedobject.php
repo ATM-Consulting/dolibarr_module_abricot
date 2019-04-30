@@ -1292,7 +1292,10 @@ class SeedObject extends SeedObjectDolibarr
  				,KEY tms (tms)
  				) ENGINE=InnoDB DEFAULT CHARSET=" . $charset;
 
-			$res = $this->db->query($sql);
+            if (!empty($conf->db->dolibarr_main_db_collation)) $sql .= ' COLLATE='.$conf->db->dolibarr_main_db_collation;
+
+
+            $res = $this->db->query($sql);
 			if($res===false) {
 				var_dump($this->db);exit;
 
@@ -1346,6 +1349,8 @@ class SeedObject extends SeedObjectDolibarr
  				,KEY tms (tms)
  				, UNIQUE fk_object (fk_object)
  				) ENGINE=InnoDB DEFAULT CHARSET=" . $charset;
+
+                if (!empty($conf->db->dolibarr_main_db_collation)) $sql .= ' COLLATE='.$conf->db->dolibarr_main_db_collation;
 
                 $res = $this->db->query($sql);
                 if($res===false) {

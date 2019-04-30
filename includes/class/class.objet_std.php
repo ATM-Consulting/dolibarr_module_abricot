@@ -205,7 +205,9 @@ function _no_save_vars($lst_chp) {
  				) ENGINE=InnoDB";
 		if (!empty($charset)) $sql .= ' DEFAULT CHARSET='.$charset;
 
-		$db->Execute($sql);
+		if (!empty($conf->db->dolibarr_main_db_collation)) $sql .= ' COLLATE='.$conf->db->dolibarr_main_db_collation;
+
+            $db->Execute($sql);
 	}
 
 	$this->addFieldsInDb($db);
