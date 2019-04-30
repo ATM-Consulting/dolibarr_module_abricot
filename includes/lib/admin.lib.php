@@ -25,13 +25,13 @@
  * Display title
  * @param string $title
  */
-function setup_print_title($title="")
+function setup_print_title($title="", $width = 300)
 {
     global $langs;
     print '<tr class="liste_titre">';
     print '<th>'.$langs->trans($title).'</th>'."\n";
     print '<th align="center" width="20">&nbsp;</th>';
-    print '<th align="center" ></th>'."\n";
+    print '<th align="center" width="'.$width.'"></th>'."\n";
     print '</tr>';
 }
 
@@ -47,7 +47,7 @@ function setup_print_title($title="")
  *
  * exemple _print_on_off('CONSTNAME', 'ParamLabel' , 'ParamDesc');
  */
-function setup_print_on_off($confkey, $title = false, $desc ='', $help = false)
+function setup_print_on_off($confkey, $title = false, $desc ='', $help = false, $width = 300)
 {
     global $var, $bc, $langs, $conf, $form;
     $var=!$var;
@@ -67,7 +67,7 @@ function setup_print_on_off($confkey, $title = false, $desc ='', $help = false)
     }
     print '</td>';
     print '<td align="center" width="20">&nbsp;</td>';
-    print '<td align="center" width="300">';
+    print '<td align="center" width="'.$width.'">';
     print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
     print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
     print '<input type="hidden" name="action" value="set_'.$confkey.'">';
@@ -86,7 +86,7 @@ function setup_print_on_off($confkey, $title = false, $desc ='', $help = false)
  * @param string $type = imput or textarea
  * @param string $help
  */
-function setup_print_input_form_part($confkey, $title = false, $desc ='', $metas = array(), $type='input', $help = false)
+function setup_print_input_form_part($confkey, $title = false, $desc ='', $metas = array(), $type='input', $help = false, $width = 300)
 {
     global $var, $bc, $langs, $conf, $db;
     $var=!$var;
@@ -127,8 +127,8 @@ function setup_print_input_form_part($confkey, $title = false, $desc ='', $metas
     
     print '</td>';
     print '<td align="center" width="20">&nbsp;</td>';
-    print '<td align="right" width="300">';
-    print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+    print '<td align="right" width="'.$width.'">';
+    print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'" '.($metas['type'] === 'file' ? 'enctype="multipart/form-data"' : '').'>';
     print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
     print '<input type="hidden" name="action" value="set_'.$confkey.'">';
     if($type=='textarea'){

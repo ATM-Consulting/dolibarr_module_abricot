@@ -70,7 +70,8 @@ print load_fiche_titre($langs->trans($pageTitle),$linkback,'title_setup');
 
 $activeTab = !empty($activeTab)?$activeTab:'extrafields';
 
-dol_fiche_head($head, $activeTab, $textobject, -1, 'generic');
+if (empty($picto)) $picto='generic';
+dol_fiche_head($head, $activeTab, $textobject, -1, $picto);
 
 require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_view.tpl.php';
 
