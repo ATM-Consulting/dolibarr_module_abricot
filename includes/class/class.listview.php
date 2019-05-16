@@ -117,7 +117,7 @@ class Listview
      * @param string     $TParam array of configuration
      * @return array
      */
-	private function getSearchKey($key, &$TParam)
+	private function getSearchKey($key, &$TParam, $link_to_title=false)
     {
 		$TPrefixe = array();
 		if(!empty($TParam['search'][$key]['table']))
@@ -133,9 +133,12 @@ class Listview
 		$TKey=array();
 		if(!empty($TParam['search'][$key]['field']))
 		{
-			if (!is_array($TParam['search'][$key]['field'])) $TParam['search'][$key]['field'] = array($TParam['search'][$key]['field']);
+			$index = 'field';
+			if ($link_to_title && isset($TParam['search'][$key]['fieldas'])) $index = 'fieldas';
+
+			if (!is_array($TParam['search'][$key][$index])) $TParam['search'][$key][$index] = array($TParam['search'][$key][$index]);
 			
-			foreach ($TParam['search'][$key]['field'] as $i => $field)
+			foreach ($TParam['search'][$key][$index] as $i => $field)
 			{
 				$prefixe = !empty($TPrefixe[$i]) ? $TPrefixe[$i] : $TPrefixe[0];
 				$TKey[] = $prefixe. $field ;
@@ -710,7 +713,7 @@ class Listview
 
 			if (isset($TParam['search'][$field]['search_type']) && $TParam['search'][$field]['search_type'] !== false)
 			{
-				$TsKey = $this->getSearchKey($field, $TParam);
+				$TsKey = $this->getSearchKey($field, $TParam, true);
 				if (!empty($TsKey)) $search = implode(',', $TsKey);
 				else $search = $field;
 			}
