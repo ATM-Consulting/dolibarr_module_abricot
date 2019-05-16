@@ -370,12 +370,12 @@ class Listview
 			{
                 if (!$removeFilter)
                 {
+                    $this->TSearchValue[$fieldname] = GETPOST($fieldname);
                     $this->TSearchValue[$fieldname.'month'] = GETPOST($fieldname.'month');
                     $this->TSearchValue[$fieldname.'day'] = GETPOST($fieldname.'day');
                     $this->TSearchValue[$fieldname.'year'] = GETPOST($fieldname.'year');
                     $value = GETPOST($fieldname) ? mktime(0,0,0, (int) GETPOST($fieldname.'month'), (int) GETPOST($fieldname.'day'), (int) GETPOST($fieldname.'year') ) : '';
                 }
-				
 				$fsearch = $form->select_date($value, $fieldname,0, 0, 1, "", 1, 0, 1);
 			}
 			else if($typeRecherche==='calendars')
@@ -383,9 +383,11 @@ class Listview
 				$value_start = $value_end = '';
 				if (!$removeFilter)
 				{
+                    $this->TSearchValue[$fieldname.'_start'] = GETPOST($fieldname.'_start');
                     $this->TSearchValue[$fieldname.'_startmonth'] = GETPOST($fieldname.'_startmonth');
                     $this->TSearchValue[$fieldname.'_startday'] = GETPOST($fieldname.'_startday');
                     $this->TSearchValue[$fieldname.'_startyear'] = GETPOST($fieldname.'_startyear');
+                    $this->TSearchValue[$fieldname.'_end'] = GETPOST($fieldname.'_end');
                     $this->TSearchValue[$fieldname.'_endmonth'] = GETPOST($fieldname.'_endmonth');
                     $this->TSearchValue[$fieldname.'_endday'] = GETPOST($fieldname.'_endday');
                     $this->TSearchValue[$fieldname.'_endyear'] = GETPOST($fieldname.'_endyear');
