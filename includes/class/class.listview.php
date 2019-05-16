@@ -191,8 +191,8 @@ class Listview
 		if ($value == '') return false;
 		elseif($value==-1) return false;
 
-		if (preg_grep('/^MAX\(|MIN\(|AVG\(|COUNT\(/i', array($sKey))) $TSQL = $TSqlHaving;
-		else $TSQL = $TSQLMore;
+		if (preg_grep('/^MAX\(|MIN\(|AVG\(|COUNT\(/i', array($sKey))) $TSQL = &$TSqlHaving;
+		else $TSQL = &$TSQLMore;
 
 		if(isset($TParam['operator'][$key]))
 		{
