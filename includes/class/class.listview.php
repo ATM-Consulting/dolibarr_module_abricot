@@ -191,51 +191,29 @@ class Listview
 		if ($value == '') return false;
 		elseif($value==-1) return false;
 
-		if (substr($sKey, 0, 4) === 'MAX(')
-        {
-            if(isset($TParam['operator'][$key]))
-            {
-                if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=')
-                {
-                    $TSqlHaving[] = $sKey . ' ' . $TParam['operator'][$key] . ' "' . $value . '"';
-                }
-                elseif ($TParam['operator'][$key]=='IN')
-                {
-                    $TSqlHaving[] = $sKey . ' ' . $TParam['operator'][$key] . ' (' . $value . ')';
-                }
-                else
-                {
-                    if(strpos($value,'%')===false) $value = '%'.$value.'%';
-                    $TSqlHaving[]=$sKey." LIKE '".addslashes($value)."'" ;
-                }
-            }
-            else
-            {
-                if(strpos($value,'%')===false) $value = '%'.$value.'%';
-                $TSqlHaving[]=$sKey." LIKE '".addslashes($value)."'" ;
-            }
-        }
+		if (preg_grep('/^MAX\(|MIN\(|AVG\(|COUNT\(/i', $sKey)) $TSQL = $TSqlHaving;
+		else $TSQL = $TSQLMore;
 
 		if(isset($TParam['operator'][$key]))
 		{
-			if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=')
+			if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=' || $TParam['operator'][$key] == '>='|| $TParam['operator'][$key] == '<=')
 			{
-				$TSQLMore[] = $sKey . ' ' . $TParam['operator'][$key] . ' "' . $value . '"';
+                $TSQL[] = $sKey . ' ' . $TParam['operator'][$key] . ' "' . $value . '"';
 			}
 			elseif ($TParam['operator'][$key]=='IN')
 			{
-				$TSQLMore[] = $sKey . ' ' . $TParam['operator'][$key] . ' (' . $value . ')';
+                $TSQL[] = $sKey . ' ' . $TParam['operator'][$key] . ' (' . $value . ')';
 			}
 			else
 			{
 				if(strpos($value,'%')===false) $value = '%'.$value.'%';
-				$TSQLMore[]=$sKey." LIKE '".addslashes($value)."'" ;
+                $TSQL[]=$sKey." LIKE '".addslashes($value)."'" ;
 			}
 		}
 		else
 		{
             if(strpos($value,'%')===false) $value = '%'.$value.'%';
-            $TSQLMore[]=$sKey." LIKE '".addslashes($value)."'" ;
+            $TSQL[]=$sKey." LIKE '".addslashes($value)."'" ;
 		}
 		
 		return true;
