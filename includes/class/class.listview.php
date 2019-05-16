@@ -24,6 +24,8 @@
  */
 class Listview
 {
+    public $TSearchValue = array();
+
     /**
      *  Constructor
      *
@@ -346,7 +348,16 @@ class Listview
 			
 			$fieldname = !empty($param_search['fieldname']) ? $param_search['fieldname'] : 'Listview_'.$this->id.'_search_'.$key;
 			$value = $removeFilter ? '' : GETPOST($fieldname);
-			
+
+
+            if (!$removeFilter)
+            {
+                if ($typeRecherche !== 'calendar' && $typeRecherche !== 'calendars')
+                {
+                    $this->TSearchValue[$fieldname] = $value;
+                }
+            }
+
 			if(is_array($typeRecherche))
 			{
                 if(!empty($param_search['to_translate'])){
@@ -357,7 +368,13 @@ class Listview
 			}
 			else if($typeRecherche==='calendar')
 			{
-				if (!$removeFilter) $value = GETPOST($fieldname) ? mktime(0,0,0, (int) GETPOST($fieldname.'month'), (int) GETPOST($fieldname.$key.'day'), (int) GETPOST($fieldname.'year') ) : '';
+                if (!$removeFilter)
+                {
+                    $this->TSearchValue[$fieldname.'month'] = GETPOST($fieldname.'month');
+                    $this->TSearchValue[$fieldname.'day'] = GETPOST($fieldname.'day');
+                    $this->TSearchValue[$fieldname.'year'] = GETPOST($fieldname.'year');
+                    $value = GETPOST($fieldname) ? mktime(0,0,0, (int) GETPOST($fieldname.'month'), (int) GETPOST($fieldname.'day'), (int) GETPOST($fieldname.'year') ) : '';
+                }
 				
 				$fsearch = $form->select_date($value, $fieldname,0, 0, 1, "", 1, 0, 1);
 			}
@@ -366,6 +383,12 @@ class Listview
 				$value_start = $value_end = '';
 				if (!$removeFilter)
 				{
+                    $this->TSearchValue[$fieldname.'_startmonth'] = GETPOST($fieldname.'_startmonth');
+                    $this->TSearchValue[$fieldname.'_startday'] = GETPOST($fieldname.'_startday');
+                    $this->TSearchValue[$fieldname.'_startyear'] = GETPOST($fieldname.'_startyear');
+                    $this->TSearchValue[$fieldname.'_endmonth'] = GETPOST($fieldname.'_endmonth');
+                    $this->TSearchValue[$fieldname.'_endday'] = GETPOST($fieldname.'_endday');
+                    $this->TSearchValue[$fieldname.'_endyear'] = GETPOST($fieldname.'_endyear');
 					$value_start = GETPOST($fieldname.'_start') ? mktime(0,0,0, (int) GETPOST($fieldname.'_startmonth'), (int) GETPOST($fieldname.'_startday'), (int) GETPOST($fieldname.'_startyear') ) : '';
 					$value_end = GETPOST($fieldname.'_end') ? mktime(0,0,0, (int) GETPOST($fieldname.'_endmonth'), (int) GETPOST($fieldname.'_endday'), (int) GETPOST($fieldname.'_endyear') ) : '';
 				}
@@ -675,7 +698,16 @@ class Listview
 				else $search = $field;
 			}
 
-			$out .= getTitleFieldOfList($label, 0, $_SERVER["PHP_SELF"], $search, '', '&'.$TParam['list']['param_url'], $moreattrib, $TParam['sortfield'], $TParam['sortorder'], $prefix);
+            $moreparams='';
+            if (!empty($this->TSearchValue))
+            {
+                foreach ($this->TSearchValue as $fieldname => $value)
+                {
+                    $moreparams.= '&'.$fieldname.'='.$value;
+                }
+            }
+
+            $out .= getTitleFieldOfList($label, 0, $_SERVER["PHP_SELF"], $search, '', '&'.$TParam['list']['param_url'].$moreparams, $moreattrib, $TParam['sortfield'], $TParam['sortorder'], $prefix);
 			$out .= $head['more'];
 		}
 
