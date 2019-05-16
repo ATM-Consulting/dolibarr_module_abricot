@@ -185,12 +185,37 @@ class Listview
      * @param string    $key        reference of sKey to find value into TParam
      * @return bool
      */
-    private function addSqlFromOther(&$TSQLMore, &$value, &$TParam, $sKey, $key)
+    private function addSqlFromOther(&$TSQLMore, &$value, &$TParam, $sKey, $key, &$TSqlHaving)
 	{
 		// Do not use empty() function, statut 0 exist
 		if ($value == '') return false;
 		elseif($value==-1) return false;
-			
+
+		if (substr($sKey, 0, 4) === 'MAX(')
+        {
+            if(isset($TParam['operator'][$key]))
+            {
+                if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=')
+                {
+                    $TSqlHaving[] = $sKey . ' ' . $TParam['operator'][$key] . ' "' . $value . '"';
+                }
+                elseif ($TParam['operator'][$key]=='IN')
+                {
+                    $TSqlHaving[] = $sKey . ' ' . $TParam['operator'][$key] . ' (' . $value . ')';
+                }
+                else
+                {
+                    if(strpos($value,'%')===false) $value = '%'.$value.'%';
+                    $TSqlHaving[]=$sKey." LIKE '".addslashes($value)."'" ;
+                }
+            }
+            else
+            {
+                if(strpos($value,'%')===false) $value = '%'.$value.'%';
+                $TSqlHaving[]=$sKey." LIKE '".addslashes($value)."'" ;
+            }
+        }
+
 		if(isset($TParam['operator'][$key]))
 		{
 			if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=')
@@ -224,9 +249,12 @@ class Listview
      */
     private function search($sql, &$TParam)
     {
+        $TSqlHaving=array();
     	$sqlGROUPBY='';
     	if(strpos($sql,'GROUP BY')!==false) {
-    		list($sql, $sqlGROUPBY) = explode('GROUP BY', $sql);
+    		$info = explode('GROUP BY', $sql);
+            $sql = $info[0];
+            $sqlGROUPBY = $info[1];
     	}
     	
     	if (!empty($TParam['search']) && empty($TParam['no-auto-sql-search']) && !GETPOST('button_removefilter_x','alpha') && !GETPOST('button_removefilter.x','alpha') && !GETPOST('button_removefilter','alpha'))
@@ -238,7 +266,6 @@ class Listview
 				$allow_is_null = $this->getSearchNull($field,$TParam);
 				
 				$fieldname = !empty($info['fieldname']) ? $info['fieldname'] : 'Listview_'.$this->id.'_search_'.$field;
-				
 				foreach ($TsKey as $i => &$sKey)
 				{
 					$value = GETPOST($fieldname);
@@ -273,7 +300,7 @@ class Listview
 					}
 					else
 					{
-						$this->addSqlFromOther($TSQLMore, $value, $TParam, $sKey, $field);
+						$this->addSqlFromOther($TSQLMore, $value, $TParam, $sKey, $field, $TSqlHaving);
 					}
 				}
 				
@@ -285,6 +312,11 @@ class Listview
 		}
 		
 		if ($sqlGROUPBY!='') $sql.=' GROUP BY '.$sqlGROUPBY;
+
+		if (!empty($TSqlHaving))
+        {
+            $sql.= 'HAVING '.implode(' AND ', $TSqlHaving);
+        }
 
 		return $sql;
 	}
