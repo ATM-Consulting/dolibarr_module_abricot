@@ -1545,7 +1545,7 @@ private function _combo_option($Tab, $pDefault) {
 			$seleted = false;
 			if (
 			(is_array($pDefault) && !in_array($val,$pDefault))
-			|| (($val!=$pDefault && !$this->strict_string_compare) || ((string)$val!==(string)$pDefault && $this->strict_string_compare))
+			||  !is_array($pDefault) && (($val!=$pDefault && !$this->strict_string_compare) || ((string)$val!==(string)$pDefault && $this->strict_string_compare))
 			){
 		  	   $seleted=false;
 			}
