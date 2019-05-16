@@ -410,7 +410,12 @@ class Listview
 
 			if(!empty($param_search['allow_is_null']))
 			{
-				$valueNull = GETPOST($fieldname.'search_on_null_'.$key) ? 1 : 0;
+                if (!$removeFilter)
+                {
+				    $valueNull = GETPOST($fieldname.'search_on_null_'.$key) ? 1 : 0;
+                    $this->TSearchValue[$fieldname.'search_on_null_'.$key] = $valueNull;
+                }
+                else $valueNull = 0;
 				$fsearch.=' <input type="checkbox" class="" id="" name="'.$fieldname.'search_on_null_'.$key.'" value="1" '.($valueNull ? 'checked' : '').' onclick="if($(this).is(\':checked\')){ $(this).prev().val(\'\'); }" />'.img_help(1, $langs->trans('SearchOnNUllValue'));
 			}
 
