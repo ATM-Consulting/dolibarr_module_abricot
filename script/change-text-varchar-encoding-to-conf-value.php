@@ -44,13 +44,19 @@
         {
             $obj = $db->fetch_object($resql);
 
-            echo '<p><code>' . $obj->queries . '</code> : ';
-
             $resql2 = $db->query($obj->queries);
 
-            echo ($resql2 ? 'OK' : 'KO');
+            $status = $resql2 ? 'OK' : 'KO';
+            $style = $resql2 ? '' : ' style="background: #fbb"';
 
-            if(! $resql2) dol_print_error($db);
+            echo '<p' . $style . '><code>' . $obj->queries . '</code> : ' . $status;
+
+            if(! $resql2)
+            {
+                echo '<br /><br />';
+
+                dol_print_error($db);
+            }
 
             echo '</p>';
         }
