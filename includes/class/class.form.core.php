@@ -50,7 +50,7 @@ function __construct($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE
 }
 
 
-function begin_form($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE,$plus="") {
+function begin_form($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE,$plus="", $addToken = true) {
 	
 	$r='';
 	if (!empty($pName)) {
@@ -64,6 +64,8 @@ function begin_form($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE,
 	    $r.=  ' action="'.$pAction.'"';
 	    $r.=  ' id="'.$pName.'"';
 	    $r.=  ' name="'.$pName.'">';
+
+	    if($addToken) $r.=  '<input type="hidden" name="token" value="' . $_SESSION['newtoken'] . '">';
 	}
 	
 	return $r;
