@@ -727,7 +727,7 @@ class Listview
                 }
             }
 
-            $out .= getTitleFieldOfList($label, 0, $_SERVER["PHP_SELF"], $search, '', '&'.$TParam['list']['param_url'].$moreparams, $moreattrib, $TParam['sortfield'], $TParam['sortorder'], $prefix);
+            $out .= getTitleFieldOfList($label, 0, $_SERVER["PHP_SELF"], $search, '', '&'.$TParam['list']['param_url'].'&limit='.$TParam['limit']['nbLine'].$moreparams, $moreattrib, $TParam['sortfield'], $TParam['sortorder'], $prefix);
 			$out .= $head['more'];
 		}
 
