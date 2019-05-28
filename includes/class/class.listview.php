@@ -407,12 +407,16 @@ class Listview
 					$value_start = GETPOST($fieldname.'_start') ? mktime(0,0,0, (int) GETPOST($fieldname.'_startmonth'), (int) GETPOST($fieldname.'_startday'), (int) GETPOST($fieldname.'_startyear') ) : '';
 					$value_end = GETPOST($fieldname.'_end') ? mktime(0,0,0, (int) GETPOST($fieldname.'_endmonth'), (int) GETPOST($fieldname.'_endday'), (int) GETPOST($fieldname.'_endyear') ) : '';
 				}
-			
+
 				$fsearch = $form->select_date($value_start,$fieldname.'_start',0, 0, 1, "", 1, 0, 1)
 				. $form->select_date($value_end, $fieldname.'_end',0, 0, 1, "", 1, 0, 1);
-				
+
 			}
-			else if(is_string($typeRecherche))
+			elseif($typeRecherche==='override' && !empty($TParam['search'][$key]['override']))
+			{
+				$fsearch = $TParam['search'][$key]['override'];
+			}
+			elseif(is_string($typeRecherche))
 			{
 				$fsearch=$TParam['search'][$key];	
 			}
