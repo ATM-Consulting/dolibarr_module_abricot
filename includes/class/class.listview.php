@@ -266,10 +266,10 @@ class Listview
 							$value = array();
 							
 							$timestart = dol_mktime(0, 0, 0, GETPOST($k.'_startmonth'), GETPOST($k.'_startday'), GETPOST($k.'_startyear'));
-							if ($timestart) $value['start'] = date('Y-m-d', $timestart);
+							if ($timestart) $value['start'] = date('Y-m-d H:i:s', $timestart);
 							
 							$timeend = dol_mktime(23, 59, 59, GETPOST($k.'_endmonth'), GETPOST($k.'_endday'), GETPOST($k.'_endyear'));
-							if ($timeend) $value['end'] = date('Y-m-d', $timeend);
+							if ($timeend) $value['end'] = date('Y-m-d H:i:s', $timeend);
 						}
 						else
 						{
