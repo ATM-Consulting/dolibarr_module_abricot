@@ -746,7 +746,7 @@ class Listview
 		}
 		else
         {
-			$line_number = 0;
+			$line_number = $TParam['limit']['page'] * $TParam['limit']['nbLine'];
 			foreach($TField as $fields)
 			{
 				if($this->in_view($TParam, $line_number))
