@@ -985,11 +985,12 @@ class SeedObject extends SeedObjectDolibarr
 	/**
 	 * Create object into database
 	 *
-	 * @param  User $user      User that creates
-	 * @param  bool $notrigger false=launch triggers after, true=disable triggers
-	 * @return int             <0 if KO, Id of created object if OK
+	 * @param  User $user               User that creates
+	 * @param  bool $notrigger          false=launch triggers after, true=disable triggers
+	 * @param  bool $forcechilddeletion 0/1
+	 * @return int                      <0 if KO, Id of created object if OK
 	 */
-	public function createCommon(User $user, $notrigger = false)
+	public function createCommon(User $user, $notrigger = false, $forcechilddeletion = 0)
 	{
 		// method_exists() with key word 'parent' doesn't work
 		if (is_callable('parent::createCommon')) return parent::createCommon($user, $notrigger);
