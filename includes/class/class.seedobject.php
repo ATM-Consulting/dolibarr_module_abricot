@@ -1130,7 +1130,7 @@ class SeedObject extends SeedObjectDolibarr
 
 		$tmp = array();
 		foreach ($fieldvalues as $k => $v) {
-			if (is_array($key)){
+			if (is_array($key)){ // TODO démêler ce sac de noeuds incompréhensible. D'où sort $key ? Qu'est-ce qu'elle représente ? etc. - MdLL, 07/06/2019
 				$i=array_search($k, $key);
 				if ( $i !== false) {
 					$where[] = $key[$i].'=' . $this->quote($v, $this->fields[$k]);
