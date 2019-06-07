@@ -516,7 +516,7 @@ class SeedObject extends SeedObjectDolibarr
 	public $withChild = true;
 
 	/**
-	 *  @var Array $_fields Fields to synchronize with Database
+	 *  @var array $fields Fields to synchronize with Database
 	 */
 	protected $fields=array();
 
@@ -589,7 +589,7 @@ class SeedObject extends SeedObjectDolibarr
 		}
 
 
-		$this->init();
+		return $this->init();
 	}
 
 
@@ -598,13 +598,13 @@ class SeedObject extends SeedObjectDolibarr
      *
      * @param   string  $field  name of field
      * @param   string  $type   type of field to test
-     * @return                  value of field or false
+     * @return  bool
      */
     private function checkFieldType($field, $type)
     {
-		if (isset($this->fields[$field]) && method_exists($this, 'is_'.$type))
+		if (isset($this->fields[$field]) && method_exists($this, 'is' . ucfirst($type)))
 		{
-			return $this->{'is_'.$type}($this->fields[$field]);
+			return $this->{'is' . ucfirst($type)}($this->fields[$field]);
 		}
 		else
         {
@@ -650,15 +650,20 @@ class SeedObject extends SeedObjectDolibarr
 
 	    $resql = $this->db->query("SELECT rowid FROM ".MAIN_DB_PREFIX.$this->table_element." WHERE ".$field."=".$this->quote($key, $this->fields[$field])." LIMIT 1 ");
 
-	    if($resql) {
-	        $objp = $this->db->fetch_object($resql);
-
-	        $res = $this->fetchCommon($objp->rowid);
-	        if($res>0) {
-	            if ($loadChild) $this->fetchChild();
-	        }
-
+	    if(! $resql)
+	    {
+		    $this->error = $this->db->lasterror();
+		    $this->errors[] = $this->error;
+		    return -1;
 	    }
+
+        $objp = $this->db->fetch_object($resql);
+
+        $res = $this->fetchCommon($objp->rowid);
+        if($res > 0 && ! empty($loadChild))
+		{
+			$this->fetchChild();
+        }
 
 	    return $res;
 	}
@@ -697,6 +702,7 @@ class SeedObject extends SeedObjectDolibarr
     /**
      * Function to set a child as to delete
      *
+     * @param   User    $user           User object
      * @param   string  $className      Class name of child
      * @param   int     $id             Id of child to set as to delete
      * @param   string  $key            Attribute name of the object id
@@ -789,7 +795,7 @@ class SeedObject extends SeedObjectDolibarr
      * Function to update object or create or delete if needed
      *
      * @param   User    $user   user object
-     * @return                  < 0 if ko, > 0 if ok
+     * @return  int                < 0 if ko, > 0 if ok
      */
     public function update(User &$user)
     {
@@ -828,7 +834,7 @@ class SeedObject extends SeedObjectDolibarr
      * Function to create object in database
      *
      * @param   User    $user   user object
-     * @return                  < 0 if ko, > 0 if ok
+     * @return  int                < 0 if ko, > 0 if ok
      */
     public function create(User &$user)
     {
@@ -866,7 +872,7 @@ class SeedObject extends SeedObjectDolibarr
      * Function to delete object in database
      *
      * @param   User    $user   user object
-     * @return                  < 0 if ko, > 0 if ok
+     * @return  int                < 0 if ko, > 0 if ok
      */
 	public function delete(User &$user)
     {
@@ -1122,8 +1128,9 @@ class SeedObject extends SeedObjectDolibarr
 		$fieldvalues = $this->set_save_query();
 		unset($fieldvalues['rowid']);	// We don't update this field, it is the key to define which record to update.
 
+		$tmp = array();
 		foreach ($fieldvalues as $k => $v) {
-			if (is_array($key)){
+			if (is_array($key)){ // TODO démêler ce sac de noeuds incompréhensible. D'où sort $key ? Qu'est-ce qu'elle représente ? etc. - MdLL, 07/06/2019
 				$i=array_search($k, $key);
 				if ( $i !== false) {
 					$where[] = $key[$i].'=' . $this->quote($v, $this->fields[$k]);
@@ -1170,9 +1177,10 @@ class SeedObject extends SeedObjectDolibarr
 	/**
 	 * Delete object in database
 	 *
-	 * @param User $user       User that deletes
-	 * @param bool $notrigger  false=launch triggers after, true=disable triggers
-	 * @return int             <0 if KO, >0 if OK
+	 * @param User $user                User that deletes
+	 * @param bool $notrigger           false=launch triggers after, true=disable triggers
+	 * @param int  $forcechilddeletion  0 = children are not deleted, otherwise they are
+	 * @return int                      <0 if KO, >0 if OK
 	 */
 	public function deleteCommon(User $user, $notrigger = false, $forcechilddeletion = 0)
 	{
@@ -1227,7 +1235,7 @@ class SeedObject extends SeedObjectDolibarr
 		$Tab = array();
 		while ($obj = $this->db->fetch_object($resql))
 		{
-			$Tab[] = $this->db->Field;
+			$Tab[] = $obj->Field;
 		}
 
 		$TChamps = array_merge(array('date_creation' => array('type' => 'date'), 'tms' => array('type' => 'date'),'rowid'=>array('type'=>'integer','index'=>true)), $this->fields);
