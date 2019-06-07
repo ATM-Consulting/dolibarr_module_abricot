@@ -1072,22 +1072,22 @@ class SeedObject extends SeedObjectDolibarr
 		$res = $this->db->query($sql);
 		if ($res)
 		{
+			$num = $this->db->num_rows($res);
+
+			if(empty($num))
+			{
+				return 0;
+			}
+
     		if ($obj = $this->db->fetch_object($res))
     		{
-    		    if ($obj)
-    		    {
-        			$this->id = $id;
-        			$this->set_vars_by_db($obj);
+                $this->id = $id;
+                $this->set_vars_by_db($obj);
 
-        			$this->date_creation = $this->db->idate($obj->date_creation);
-        			$this->tms = $this->db->idate($obj->tms);
+                $this->date_creation = $this->db->idate($obj->date_creation);
+                $this->tms = $this->db->idate($obj->tms);
 
-        			return $this->id;
-    		    }
-    		    else
-    		    {
-    		        return 0;
-    		    }
+                return $this->id;
     		}
     		else
     		{
