@@ -1235,7 +1235,7 @@ class SeedObject extends SeedObjectDolibarr
 		$Tab = array();
 		while ($obj = $this->db->fetch_object($resql))
 		{
-			$Tab[] = $this->db->Field;
+			$Tab[] = $obj->Field;
 		}
 
 		$TChamps = array_merge(array('date_creation' => array('type' => 'date'), 'tms' => array('type' => 'date'),'rowid'=>array('type'=>'integer','index'=>true)), $this->fields);
