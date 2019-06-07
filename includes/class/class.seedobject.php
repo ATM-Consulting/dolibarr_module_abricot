@@ -650,15 +650,20 @@ class SeedObject extends SeedObjectDolibarr
 
 	    $resql = $this->db->query("SELECT rowid FROM ".MAIN_DB_PREFIX.$this->table_element." WHERE ".$field."=".$this->quote($key, $this->fields[$field])." LIMIT 1 ");
 
-	    if($resql) {
-	        $objp = $this->db->fetch_object($resql);
-
-	        $res = $this->fetchCommon($objp->rowid);
-	        if($res>0) {
-	            if ($loadChild) $this->fetchChild();
-	        }
-
+	    if(! $resql)
+	    {
+		    $this->error = $this->db->lasterror();
+		    $this->errors[] = $this->error;
+		    return -1;
 	    }
+
+        $objp = $this->db->fetch_object($resql);
+
+        $res = $this->fetchCommon($objp->rowid);
+        if($res > 0 && ! empty($loadChild))
+		{
+			$this->fetchChild();
+        }
 
 	    return $res;
 	}
