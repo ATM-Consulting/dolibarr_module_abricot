@@ -602,9 +602,9 @@ class SeedObject extends SeedObjectDolibarr
      */
     private function checkFieldType($field, $type)
     {
-		if (isset($this->fields[$field]) && method_exists($this, 'is_'.$type))
+		if (isset($this->fields[$field]) && method_exists($this, 'is' . ucfirst($type)))
 		{
-			return $this->{'is_'.$type}($this->fields[$field]);
+			return $this->{'is' . ucfirst($type)}($this->fields[$field]);
 		}
 		else
         {
