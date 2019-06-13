@@ -518,7 +518,7 @@ class SeedObject extends SeedObjectDolibarr
 	/**
 	 *  @var array $fields Fields to synchronize with Database
 	 */
-	protected $fields=array();
+	public $fields=array();
 
 	protected $fk_element='';
 
