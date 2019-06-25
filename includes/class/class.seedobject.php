@@ -613,15 +613,56 @@ class SeedObject extends SeedObjectDolibarr
 	}
 
     /**
+     * @param User $user object
+     * @return int
+     */
+    public function cloneObject($user)
+    {
+        $this->clear();
+
+        return $this->create($user);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function clear()
+    {
+        $this->is_clone = true;
+        $this->id = 0;
+        if(isset($this->fields['date_creation'])) $this->date_creation=time();
+        if(isset($this->fields['tms'])) $this->tms=time();
+
+        if (method_exists($this, 'clearUniqueFields')) $this->clearUniqueFields();
+
+        if (!empty($this->childtables) && !empty($this->fk_element))
+        {
+            foreach ($this->childtables as $childTable => $className)
+            {
+                if (is_int($className)) $className = $childTable;
+
+                foreach ($this->{'T'.$className} as $i => &$object)
+                {
+                    $object->{$this->fk_element} = 0;
+                    $object->clear();
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
      *	Get object and children from database
      *
      *	@param      int			$id       		Id of object to load
      * 	@param		bool		$loadChild		used to load children from database
+     *  @param      string      $ref            Ref
      *	@return     int         				>0 if OK, <0 if KO, 0 if not found
      */
-	public function fetch($id, $loadChild = true)
+	public function fetch($id, $loadChild = true, $ref = null)
     {
-    	$res = $this->fetchCommon($id);
+    	$res = $this->fetchCommon($id, $ref);
     	if($res>0) {
     		if ($loadChild) $this->fetchChild();
     	}
@@ -639,7 +680,7 @@ class SeedObject extends SeedObjectDolibarr
 	 *	Get object and children from database on custom field
 	 *
 	 *	@param      string		$key       		key of object to load
-	 **	@param      string		$field       	field of object used to load
+	 *	@param      string		$field       	field of object used to load
 	 * 	@param		bool		$loadChild		used to load children from database
 	 *	@return     int         				>0 if OK, <0 if KO, 0 if not found
 	 */
@@ -1246,7 +1287,7 @@ class SeedObject extends SeedObjectDolibarr
 			{
 				if ($this->isInt($info))
 				{
-					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD ' . $champs . ' int(11) NOT NULL DEFAULT \'' . (!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0') . '\'');
+					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD ' . $champs . ' int(11) '.(!empty($info['notnull']) ? ' NOT NULL' : '' ).' DEFAULT \'' . (!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0') . '\'');
 				}
 				else if ($this->isDate($info))
 				{
@@ -1254,7 +1295,7 @@ class SeedObject extends SeedObjectDolibarr
 				}
 				else if ($this->isFloat($info))
 				{
-					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD ' . $champs . ' DOUBLE NOT NULL DEFAULT \'' . (!empty($info['default']) ? $info['default'] : '0') . '\'');
+					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD ' . $champs . ' DOUBLE '.(!empty($info['notnull']) ? ' NOT NULL' : '' ).' DEFAULT \'' . (!empty($info['default']) ? $info['default'] : '0') . '\'');
 				}
 				else if ($this->isArray($info) || $this->isText($info))
 				{
