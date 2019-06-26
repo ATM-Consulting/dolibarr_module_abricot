@@ -1001,8 +1001,7 @@ class Listview
         global $conf;
 
 		// TODO problème d'affichage on passe jamais dans le if in_view
-        $line_number = count($TFieldParsed);
-		
+        $line_number = $TParam['limit']['page'] * $TParam['limit']['nbLine'] + count($TFieldParsed);
         if($this->in_view($TParam,$line_number))
         {
 			$this->totalRowToShow++;
