@@ -724,7 +724,7 @@ class SeedObject extends SeedObjectDolibarr
 		{
 			foreach($this->{'T'.$className} as $k=>&$object)
 			{
-				if($object->{$key} === $id) return $k;
+				if($object->{$key} == $id) return $k;
 			}
 		}
 
