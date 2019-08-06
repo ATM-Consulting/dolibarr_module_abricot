@@ -23,6 +23,11 @@
 class TObjetStd {
 
 	/**
+	 * @var bool Activer l'affichage d'informations supplémentaires
+	 */
+	public $debug = false;
+
+	/**
 	 * constructeur
 	 **/
 	function __construct(){
@@ -976,6 +981,43 @@ function _no_save_vars($lst_chp) {
 	}
 	function getId(){
 		return $this->{OBJETSTD_MASTERKEY};
+	}
+
+
+	/**
+	 * Méthode utilisée par var_dump() pour sélectionner les données à afficher, à partir de PHP 5.6
+	 * Ici, pour plus de clarté, on filtre les champs inhérents à la classe et non aux instances - et qui devraient en fait être static...
+	 *
+	 * @return array Tableau clé => valeur des données à afficher
+	 */
+	public function __debugInfo()
+	{
+		$TKeyVal = get_object_vars($this);
+
+		if(empty($this->debug))
+		{
+			$TKeysToHide = array(
+				'table'
+				, 'TChamps'
+				, 'TConstraint'
+				, 'TChildObjetStd'
+				, 'TNoSaveVars'
+				, 'TList'
+				, 'champs_indexe'
+				, 'date_0'
+			);
+
+			$TKeyVal = array_filter(
+				$TKeyVal
+				, function ($key) use ($TKeysToHide)
+				{
+					return ! in_array($key, $TKeysToHide);
+				}
+				, ARRAY_FILTER_USE_KEY
+			);
+		}
+
+		return $TKeyVal;
 	}
 }
 /*
