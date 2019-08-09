@@ -720,7 +720,7 @@ class TListviewTBS {
 		  	  google.load("visualization", "1", {"packages":["corechart"]});
 		      google.setOnLoadCallback(drawChart'.$this->id.');
 
-			  function drawChart'.$this->id.'() {
+			  function drawChart'.$this->id.'(forceHeight) {
 		        var data = google.visualization.arrayToDataTable([
 		          '.$data.'
 		        ]);
@@ -731,7 +731,7 @@ class TListviewTBS {
 		          ,legend: { position: "bottom" }
 				  ,animation: { "startup": true }
 				  '.(!empty($explorer) ? ',explorer: '.json_encode($explorer) : '').'
-				  ,height : '.$height.'
+				  ,height : forceHeight || '.$height.'
 				  ,hAxis: '.json_encode($hAxis).'
 				  ,vAxis: '.json_encode($vAxis).'
 				  '.( $type == 'PieChart' && !empty($pieHole) ? ',pieHole: '.$pieHole : '').'
