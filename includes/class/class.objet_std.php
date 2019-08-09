@@ -43,6 +43,11 @@ class TObjetStd {
 	public $TConstraint = array();
 
 	/**
+	 * @var array Tableau des champs à charger mais pas à ne passauvegarder
+	 */
+	public $TNoSaveVars = array();
+
+	/**
 	 * @var bool Marque si cette classe a des enfants ou non
 	 */
 	public $withChild = false;
