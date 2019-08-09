@@ -720,7 +720,7 @@ class TListviewTBS {
 		  	  google.load("visualization", "1", {"packages":["corechart"]});
 		      google.setOnLoadCallback(drawChart'.$this->id.');
 
-			  function drawChart'.$this->id.'(forceHeight) {
+			  function drawChart'.$this->id.'(forceHeight = null) {
 		        var data = google.visualization.arrayToDataTable([
 		          '.$data.'
 		        ]);
