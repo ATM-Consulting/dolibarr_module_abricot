@@ -522,7 +522,12 @@ class SeedObject extends SeedObjectDolibarr
 
 	protected $fk_element='';
 
-	protected $childtable=array();
+	protected $childtables=array();
+
+	/**
+	 * @var bool Activer l'affichage d'informations supplémentaires
+	 */
+	public $debug = false;
 
 	/**
 	 *  Constructor
@@ -1525,7 +1530,45 @@ class SeedObject extends SeedObjectDolibarr
 			return $this->id;
 		}
 	}
-	
-	
-	
+
+
+	/**
+	 * Méthode utilisée par var_dump() pour sélectionner les données à afficher, à partir de PHP 5.6
+	 * Ici, pour plus de clarté, on filtre les champs inhérents à la classe et non aux instances - et qui devraient en fait être static... -
+	 * et le $db qui prend toute la place en plus de créer des warnings...
+	 *
+	 * @return array Tableau clé => valeur des données à afficher
+	 */
+	public function __debugInfo()
+	{
+		$TKeyVal = get_object_vars($this);
+
+		if(empty($this->debug))
+		{
+			$TKeysToHide = array(
+				'element'
+				, 'fk_element'
+				, 'table_element'
+				, 'table_element_line'
+				, 'table_ref_field'
+				, 'fields'
+				, 'db'
+				, 'childtables'
+				, 'picto'
+				, 'isextrafieldmanaged'
+				, 'isentitymanaged'
+			);
+
+			$TKeyVal = array_filter(
+				$TKeyVal
+				, function ($key) use ($TKeysToHide)
+				{
+					return ! in_array($key, $TKeysToHide);
+				}
+				, ARRAY_FILTER_USE_KEY
+			);
+		}
+
+		return $TKeyVal;
+	}
 }
