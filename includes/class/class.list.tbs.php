@@ -178,7 +178,8 @@ class TListviewTBS {
 		{
 			if(isset($TParam['operator'][$key]))
 			{
-				if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=' || $TParam['operator'][$key]=='IN')
+				if ($TParam['operator'][$key] === false) { null; }
+				elseif($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=' || $TParam['operator'][$key]=='IN')
 				{
 					$this->TBind[$sBindKey] = $value;
 				}
@@ -198,7 +199,8 @@ class TListviewTBS {
 
 			if(isset($TParam['operator'][$key]))
 			{
-				if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=')
+				if ($TParam['operator'][$key] === false) { null; }
+				elseif ($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=')
 				{
 					$TSQLMore[] = $sKey . ' ' . $TParam['operator'][$key] . ' "' . $value . '"';
 				}
@@ -242,6 +244,12 @@ class TListviewTBS {
 			}
 
 			if(strpos($sql,'WHERE ')===false)$sql.=' WHERE 1 ';
+
+			$matches = array();
+			if (preg_match('/HAVING .*/', $sql, $matches))
+			{
+				$sql = str_replace($matches[0], ' ', $sql);
+			}
 
 			foreach($_REQUEST['TListTBS'][$this->id]['search'] as $key=>$value)
 			{
@@ -292,6 +300,11 @@ class TListviewTBS {
 					$sql.=' AND ( '.implode(' OR ',$TSQLMore).' ) ';
 				}
 
+			}
+
+			if (!empty($matches))
+			{
+				$sql.= ' '.$matches[0];
 			}
 
 			if($sqlGROUPBY!='')	$sql.=' GROUP BY '.$sqlGROUPBY;
