@@ -927,7 +927,7 @@ class TListviewTBS {
 				if ($diff < 50)
 				{
 					$sqlLIMIT = substr($sql, strrpos('LIMIT ', $sql) + 6);
-					$sql = substr($sql, 0, strrpos('LIMIT ', $sql));
+					$sql = substr($sql, 0, strrpos('LIMIT ', $sql)-1);
 				}
 				//list($sql, $sqlLIMIT) = explode('LIMIT ', $sql);
 			}
