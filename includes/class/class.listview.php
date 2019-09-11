@@ -761,7 +761,7 @@ class Listview
 						{
 							$head['text-align']='center';
 							if(!empty($TParam['list']['massactions'])) {
-								$arrayofselected=array(); // TODO get in param
+								$arrayofselected= !empty($TParam['list']['arrayofselected']) ? $TParam['list']['arrayofselected'] : array();
 								$selected=0;
 								if (in_array($fields['rowid'], $arrayofselected)) $selected=1;
 								$value_aff.='<input id="cb'.$fields['rowid'].'" class="flat checkforselect" type="checkbox" name="toselect[]" value="'.$fields['rowid'].'"'.($selected?' checked="checked"':'').'>';
@@ -834,7 +834,7 @@ class Listview
 		$this->parse_array($THeader, $TData, $TParam, $TField);
 		list($TTotal, $TTotalGroup)=$this->get_total($TData, $TParam);
 		
-		return $this->renderList($THeader, $TField, $TTotal, $TTotalGroup, $TParam);
+		return $this->renderList($THeader, $TData, $TTotal, $TTotalGroup, $TParam);
 	}
 
 
