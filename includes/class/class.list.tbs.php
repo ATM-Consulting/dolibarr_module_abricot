@@ -923,13 +923,10 @@ class TListviewTBS {
 				/* On veut récupérer uniquement le dernier LIMIT...
 				sinon ça pête la requête sql en deux mais pas au bon endroit
 				*/
-				$diff = strlen($sql) - strrpos('LIMIT ', $sql);
-				if ($diff < 50)
-				{
-					$sqlLIMIT = substr($sql, strrpos('LIMIT ', $sql) + 6);
-					$sql = substr($sql, 0, strrpos('LIMIT ', $sql)-1);
-				}
-				//list($sql, $sqlLIMIT) = explode('LIMIT ', $sql);
+				$TSQLChunks = array();
+				preg_match('/(.*)LIMIT\s+([0-9, \-;]+)$/si', $sql, $TSQLChunks);
+				$sql = $TSQLChunks[1]; // la requête sans le dernier LIMIT
+				$sqlLIMIT = $TSQLChunks[2]; // la partie à droite du dernier LIMIT
 			}
 
 			$sql.=' ORDER BY ';
