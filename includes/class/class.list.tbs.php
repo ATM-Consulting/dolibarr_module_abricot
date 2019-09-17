@@ -953,8 +953,6 @@ class TListviewTBS {
 
                                 if (strpos($field, '.') === false) $sql .= '`' . $field . '` ' . $order;
                                 else $sql .= $field . ' ' . $order;
-
-                                $first = false;
                             }
 
                             $sql .= ' LIMIT ' . $value;
@@ -973,8 +971,6 @@ class TListviewTBS {
 
                                 if (strpos($field, '.') === false) $sql .= '`' . $field . '` ' . $order;
                                 else $sql .= $field . ' ' . $order;
-
-                                $first = false;
                             }
                         }
                     }
