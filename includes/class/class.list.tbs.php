@@ -918,27 +918,68 @@ class TListviewTBS {
 	private function order_by($sql, &$TParam) {
 		$first = true;
 		//	print_r($TParam['orderBy']);
-		if(!empty($TParam['orderBy'])) {
+
+        if(!empty($TParam['orderBy'])) {
 
 			if(strpos($sql,'LIMIT ')!==false) {
-				list($sql, $sqlLIMIT) = explode('LIMIT ', $sql);
+				$TPartsSQL = explode('LIMIT ', $sql);
 			}
 
-			$sql.=' ORDER BY ';
-			foreach($TParam['orderBy'] as $field=>$order) {
-				if(!$first) $sql.=',';
+            foreach ($TPartsSQL as $key=>$value) {
 
-				if($order=='DESC')$TParam['liste']['orderDown'] = $field;
-				else $TParam['liste']['orderUp'] = $field;
+                //Première partie de la requête
+                if ($key == 0) {
+                    $sql = $value;
+                }
 
-				if(strpos($field,'.')===false)	$sql.='`'.$field.'` '.$order;
-				else $sql.=$field.' '.$order;
+                //Suite de la requête
+                else {
 
-				$first=false;
-			}
+                    if ($value != end($TPartsSQL)) {
+                        $sql .= ' LIMIT ' . $value;
+                    }
 
-			if(!empty($sqlLIMIT))$sql.=' LIMIT '.$sqlLIMIT;
+                    //Dernière partie de la requête
+                    else {
+                        //Si "LIMIT" est la dernière condition de la requête
+                        if (is_int(end($TPartsSQL))) {
 
+                            $sql .= ' ORDER BY ';
+                            foreach ($TParam['orderBy'] as $field => $order) {
+                                if (!$first) $sql .= ',';
+
+                                if ($order == 'DESC') $TParam['liste']['orderDown'] = $field;
+                                else $TParam['liste']['orderUp'] = $field;
+
+                                if (strpos($field, '.') === false) $sql .= '`' . $field . '` ' . $order;
+                                else $sql .= $field . ' ' . $order;
+
+                                $first = false;
+                            }
+
+                            $sql .= ' LIMIT ' . $value;
+                        }
+                        //Si "LIMIT" n'est pas la dernière condition de la requête
+                        else {
+
+                            $sql .= ' LIMIT ' . $value;
+
+                            $sql .= ' ORDER BY ';
+                            foreach ($TParam['orderBy'] as $field => $order) {
+                                if (!$first) $sql .= ',';
+
+                                if ($order == 'DESC') $TParam['liste']['orderDown'] = $field;
+                                else $TParam['liste']['orderUp'] = $field;
+
+                                if (strpos($field, '.') === false) $sql .= '`' . $field . '` ' . $order;
+                                else $sql .= $field . ' ' . $order;
+
+                                $first = false;
+                            }
+                        }
+                    }
+                }
+            }
 		}
 
 		return $sql;
