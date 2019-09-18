@@ -340,7 +340,6 @@ class TListviewTBS {
 		$sql = $this->order_by($sql, $TParam);
 
 		$this->parse_sql($db, $TEntete, $TChamps, $TParam, $sql);
-
 		list($TTotal, $TTotalGroup)=$this->get_total($TChamps, $TParam);
 
 		$view_type = $this->getViewType($TParam);
@@ -921,7 +920,13 @@ class TListviewTBS {
 		if(!empty($TParam['orderBy'])) {
 
 			if(strpos($sql,'LIMIT ')!==false) {
-				list($sql, $sqlLIMIT) = explode('LIMIT ', $sql);
+				/* On veut récupérer uniquement le dernier LIMIT...
+				sinon ça pête la requête sql en deux mais pas au bon endroit
+				*/
+				$TSQLChunks = array();
+				preg_match('/(.*)LIMIT\s+([0-9, \-;]+)$/si', $sql, $TSQLChunks);
+				$sql = $TSQLChunks[1]; // la requête sans le dernier LIMIT
+				$sqlLIMIT = $TSQLChunks[2]; // la partie à droite du dernier LIMIT
 			}
 
 			$sql.=' ORDER BY ';
