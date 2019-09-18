@@ -918,7 +918,6 @@ class TListviewTBS {
 		$first = true;
 		//	print_r($TParam['orderBy']);
 		if(!empty($TParam['orderBy'])) {
-			print_r($sql);
 			if(strpos($sql,'LIMIT ')!==false) {
 				/* On veut récupérer uniquement le dernier LIMIT...
 				sinon ça pête la requête sql en deux mais pas au bon endroit
