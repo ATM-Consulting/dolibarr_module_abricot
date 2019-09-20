@@ -931,8 +931,10 @@ class TListviewTBS {
 				if(!empty($sqlLIMIT)) {
 					$nbOpeningBracket = substr_count($sqlLIMIT, '(');
 					$nbClosingBracket = substr_count($sqlLIMIT, ')');
-					if($nbClosingBracket > $nbOpeningBracket) $sql .= ' LIMIT ' . $sqlLIMIT;
-					$sqlLIMIT = '';
+					if($nbClosingBracket > $nbOpeningBracket) {
+						$sql .= ' LIMIT ' . $sqlLIMIT;
+						$sqlLIMIT = '';
+					}
 				}
 			}
 
