@@ -918,15 +918,24 @@ class TListviewTBS {
 		$first = true;
 		//	print_r($TParam['orderBy']);
 		if(!empty($TParam['orderBy'])) {
-
 			if(strpos($sql,'LIMIT ')!==false) {
 				/* On veut récupérer uniquement le dernier LIMIT...
 				sinon ça pête la requête sql en deux mais pas au bon endroit
 				*/
-				$TSQLChunks = array();
-				preg_match('/(.*)LIMIT\s+([0-9, \-;]+)$/si', $sql, $TSQLChunks);
-				$sql = $TSQLChunks[1]; // la requête sans le dernier LIMIT
-				$sqlLIMIT = $TSQLChunks[2]; // la partie à droite du dernier LIMIT
+
+				$TSQLChunks = preg_split('/(\bLIMIT\b)(?!.*\1)/si', $sql);
+				$sql = $TSQLChunks[0]; // la requête sans le dernier LIMIT
+				$sqlLIMIT = $TSQLChunks[1]; // la partie à droite du dernier LIMIT
+
+				//S'il y a plus de parentheses fermantes qu'ouvrantes cela signifie que nous somme dans une sous requete
+				if(!empty($sqlLIMIT)) {
+					$nbOpeningBracket = substr_count($sqlLIMIT, '(');
+					$nbClosingBracket = substr_count($sqlLIMIT, ')');
+					if($nbClosingBracket > $nbOpeningBracket) {
+						$sql .= ' LIMIT ' . $sqlLIMIT;
+						$sqlLIMIT = '';
+					}
+				}
 			}
 
 			$sql.=' ORDER BY ';
@@ -945,7 +954,6 @@ class TListviewTBS {
 			if(!empty($sqlLIMIT))$sql.=' LIMIT '.$sqlLIMIT;
 
 		}
-
 		return $sql;
 	}
 	private function parse_xml(&$db, &$TEntete, &$TChamps, &$TParam, $xmlString) {
