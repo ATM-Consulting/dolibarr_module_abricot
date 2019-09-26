@@ -520,7 +520,7 @@ class SeedObject extends SeedObjectDolibarr
 	 */
 	public $fields=array();
 
-	protected $fk_element='';
+	public $fk_element='';
 
 	protected $childtables=array();
 
