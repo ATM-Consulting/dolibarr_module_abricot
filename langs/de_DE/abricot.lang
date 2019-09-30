@@ -1,0 +1,9 @@
+﻿SearchOnNUllValue=Suche auch nach dem NULL-Wert
+
+Settings=Parameter
+set_ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING=Verwenden Sie den alten Datenbankcodierungsparameter
+set_ABRICOT_USE_OLD_EMPTY_DATE_FORMAT=Verwenden Sie das alte, leere Datumsformat
+set_ABRICOT_CONVERTPDF_CMD=
+
+MIGRATE_DATETIME_DEFAULT_TO_NULL=Ändern Sie den Standardwert für Datum auf Null
+Migrate=Migrieren
