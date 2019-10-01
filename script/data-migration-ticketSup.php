@@ -8,6 +8,8 @@
 
     include($dir."master.inc.php");
 
+    require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
+
     $error = 0;
 
     /*
@@ -20,37 +22,39 @@
     $sql = "SELECT * FROM ".MAIN_DB_PREFIX."c_ticketsup_category";
     $resql = $db->query($sql);
 
-    if ($resql)
-    {
+    if ($resql) {
         $i = 0;
-        $num_rows=$db->num_rows($resql);
+        $num_rows = $db->num_rows($resql);
 
-        while ($i < $num_rows){
+        while ($i < $num_rows) {
 
             $object = $db->fetch_object($resql);
 
-            $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_ticket_category (rowid, entity, code, pos, label, active, use_default, description)";
-            $sql.= " VALUES (";
-            $sql.= "'".$object->rowid."',";
-            $sql.= "'1',";
-            $sql.= "'".$db->escape($object->code)."',";
-            $sql.= "'".$db->escape($object->pos)."',";
-            $sql.= "'".$db->escape($object->label)."',";
-            $sql.= "'".$db->escape($object->active)."',";
-            $sql.= "'".$db->escape($object->use_default)."',";
-            $sql.= "'".$db->escape($object->description)."'";
-            $sql.= ")";
+            $sql = "INSERT INTO " . MAIN_DB_PREFIX . "c_ticket_category (rowid, entity, code, pos, label, active, use_default, description)";
+            $sql .= " VALUES (";
+            $sql .= "'" . $object->rowid . "',";
+            $sql .= "'1',";
+            $sql .= "'" . $db->escape($object->code) . "',";
+            $sql .= "'" . $db->escape($object->pos) . "',";
+            $sql .= "'" . $db->escape($object->label) . "',";
+            $sql .= "'" . $db->escape($object->active) . "',";
+            $sql .= "'" . $db->escape($object->use_default) . "',";
+            $sql .= "'" . $db->escape($object->description) . "'";
+            $sql .= ")";
 
             $result = $db->query($sql);
 
-            if($result){
-                echo $sql . ' : OK' . '<br><br>';
-            } else {
+            if (!$result) {
                 dol_print_error($db);
                 $error++;
+                $error_category = 1;
             }
 
             $i++;
+        }
+
+        if (empty($error_category)) {
+            echo MAIN_DB_PREFIX . 'c_ticket_category : OK' . '<br><br>';
         }
     }
 
@@ -137,14 +141,17 @@
 
             $result = $db->query($sql);
 
-            if($result){
-                echo $sql . ' : OK' . '<br><br>';
-            } else {
+            if(!$result){
                 dol_print_error($db);
                 $error++;
+                $error_extrafields = 1;
             }
 
             $i++;
+        }
+
+        if (empty($error_extrafields)) {
+            echo MAIN_DB_PREFIX . 'ticket_extrafields : OK' . '<br><br>';
         }
     }
 
@@ -172,14 +179,17 @@
 
             $result = $db->query($sql);
 
-            if($result){
-                echo $sql . ' : OK' . '<br><br>';
-            } else {
+            if(!$result){
                 dol_print_error($db);
                 $error++;
+                $error_severity = 1;
             }
 
             $i++;
+        }
+
+        if (empty($error_severity)) {
+            echo MAIN_DB_PREFIX . 'c_ticket_severity : OK' . '<br><br>';
         }
     }
 
@@ -208,14 +218,17 @@
 
             $result = $db->query($sql);
 
-            if($result){
-                echo $sql . ' : OK' . '<br><br>';
-            } else {
+            if(!$result){
                 dol_print_error($db);
                 $error++;
+                $error_type = 1;
             }
 
             $i++;
+        }
+
+        if (empty($error_type)) {
+            echo MAIN_DB_PREFIX . 'c_ticket_type : OK' . '<br><br>';
         }
     }
 
@@ -268,15 +281,19 @@
 
             $result = $db->query($sql);
 
-            if($result){
-                echo ' Ticket n°'.$object->rowid.' dans llx_c_ticket : OK' . '<br><br>';
-            } else {
+            if(!$result){
                 dol_print_error($db);
                 $error++;
+                $error_ticket = 1;
             }
 
             $i++;
         }
+
+        if (empty($error_ticket)) {
+            echo MAIN_DB_PREFIX . 'ticket : OK' . '<br><br>';
+        }
+
     }
 
     /*
@@ -326,15 +343,65 @@
 
                 $result = $db->query($sql);
 
-                if($result){
-                    echo $sql . ' : OK' . '<br><br>';
-                } else {
+                if(!$result){
                     dol_print_error($db);
                     $error++;
+                    $error_actioncomm = 1;
                 }
             }
             $i++;
         }
+
+        if (empty($error_actioncomm)) {
+            echo MAIN_DB_PREFIX . 'actioncomm : OK' . '<br><br>';
+        }
     }
+
+    $dir_ticket = $dolibarr_main_data_root . '/ticket';
+    $dir_ticketsup = $dolibarr_main_data_root . '/ticketsup';
+
+    if(!dol_is_dir($dir_ticket)) {
+        $res = mkdir($dir_ticket);
+    }
+
+    $TDirs = dol_dir_list($dir_ticketsup, 'directories');
+
+    foreach ($TDirs as $dir){
+
+        $track_id = $dir['name'];
+
+        $sql = "SELECT ref FROM ".MAIN_DB_PREFIX."ticket WHERE track_id ='".$track_id."'";
+        $result = $db->query($sql);
+
+        if($result){
+            $object = $db->fetch_object($result);
+
+            if(!empty($object->ref)) {
+                $dir_source = $dir_ticketsup . '/' . $track_id;
+                $dir_dest = $dir_ticket . '/' . $object->ref;
+
+                $res = dolCopyDir($dir_source, $dir_dest, 0, 1);
+
+                if ($res < 0) {
+                    echo 'Dossier ' . $object->ref . ' : KO <br><br>';
+                    $error++;
+                    $error_dir = 1;
+                }
+            }
+        }
+    }
+
+    if (empty($error_actioncomm)) {
+        echo 'Pièces jointes : OK' . '<br><br>';
+    }
+
+
+    if($error){
+        echo 'EXECUTION DU SCRIPT KO';
+    } else {
+        echo 'EXECUTION DU SCRIPT OK';
+    }
+
+
 
 
