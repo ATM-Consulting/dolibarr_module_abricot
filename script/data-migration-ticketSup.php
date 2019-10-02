@@ -331,7 +331,7 @@
     }
 
     /*
-     * Messages
+     * MESSAGES
      */
 
     //on vide la table standard si on a la table de ticketsup
@@ -400,7 +400,7 @@
     }
 
     /*
-     * Pièces jointes
+     * PIECES JOINTES
      */
 
     $dir_ticket = $dolibarr_main_data_root . '/ticket';
@@ -459,7 +459,7 @@
     }
 
     /*
-     * Suppression des tables de la bdd
+     * SUPPRESSION DES TABLES DANS LA BDD
      */
 
     $sql = "DROP TABLE " .MAIN_DB_PREFIX. "c_ticketsup_category";
@@ -479,6 +479,10 @@
 
     $sql = "DROP TABLE " .MAIN_DB_PREFIX. "ticketsup_msg";
     $db->query($sql);
+
+    /*
+     * RESULTAT SCRIPT
+     */
 
     if(!empty($error_dir) || !empty($error_actioncomm) || !empty($error_category) || !empty($error_extrafields) || !empty($error_severity) || !empty($error_severity) || !empty($error_type)){
         echo 'EXECUTION DU SCRIPT KO';
