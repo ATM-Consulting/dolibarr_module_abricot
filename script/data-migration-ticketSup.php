@@ -10,27 +10,35 @@
 
     require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
 
-    $error = 0;
 
     /*
      * CATEGORY
      */
 
-    $sql = "TRUNCATE TABLE ".MAIN_DB_PREFIX."c_ticket_category";
-    $db->query($sql);
+    //on vide la table standard si on a la table de ticketsup
+    $resql = $db->query("SHOW TABLES LIKE '".MAIN_DB_PREFIX."c_ticketsup_category'");
 
+    if ($db->num_rows($resql) > 0) {
+        $sql = "TRUNCATE TABLE " . MAIN_DB_PREFIX . "c_ticket_category";
+        $db->query($sql);
+    }
+
+    //on sélectionne les données de ticketsup
     $sql = "SELECT * FROM ".MAIN_DB_PREFIX."c_ticketsup_category";
     $resql = $db->query($sql);
 
     if ($resql) {
+
         $i = 0;
         $num_rows = $db->num_rows($resql);
 
+        //on insère les données de ticketsup dans la table de ticket standard
         while ($i < $num_rows) {
 
             $object = $db->fetch_object($resql);
 
             $sql = "INSERT INTO " . MAIN_DB_PREFIX . "c_ticket_category (rowid, entity, code, pos, label, active, use_default, description)";
+
             $sql .= " VALUES (";
             $sql .= "'" . $object->rowid . "',";
             $sql .= "'1',";
@@ -46,7 +54,6 @@
 
             if (!$result) {
                 dol_print_error($db);
-                $error++;
                 $error_category = 1;
             }
 
@@ -62,13 +69,21 @@
      * EXTRAFIELDS
      */
 
+    //on vide la table standard si on a la table de ticketsup
+    $resql = $db->query("SHOW TABLES LIKE '".MAIN_DB_PREFIX."ticketsup_extrafields'");
+
+    if ($db->num_rows($resql) > 0) {
+        $sql = "TRUNCATE TABLE " . MAIN_DB_PREFIX . "ticket_extrafields";
+        $db->query($sql);
+    }
+
     //Infos sur la table d'extrafields de ticketsup
     $sql = "DESCRIBE ".MAIN_DB_PREFIX."ticketsup_extrafields";
     $resql = $db->query($sql);
 
     if ($resql)
     {
-        //tableau des colonnes et du type de données de la table
+        //tableau des colonnes de la table
         $TColumnsExtrafields = array();
 
         $i = 0;
@@ -89,18 +104,14 @@
             $i++;
         }
 
-        //pour chaque extrafield, on rajoute la colonne dans la table de tickets standard
+        //pour chaque extrafield, on rajoute la colonne dans la table de ticket standard
         foreach ($TColumnsExtrafields as $column){
             $sql = "ALTER TABLE ".MAIN_DB_PREFIX."ticket_extrafields ADD ".$column['name']." ".$column['type'];
             $db->query($sql);
         }
     }
 
-    //on vide la table standard
-    $sql = "TRUNCATE TABLE ".MAIN_DB_PREFIX."ticket_extrafields";
-    $db->query($sql);
-
-    //on sélection tous les extrafields de la table ticketsup
+    //on sélectionne toutes les valeurs des extrafields de la table ticketsup
     $sql = "SELECT * FROM ".MAIN_DB_PREFIX."ticketsup_extrafields";
     $resql = $db->query($sql);
 
@@ -113,7 +124,7 @@
 
             $object = $db->fetch_object($resql);
 
-            //on insert les données de ticket sup dans la table standard
+            //on insère les données de ticket sup dans la table standard
             $sql = "INSERT INTO ".MAIN_DB_PREFIX."ticket_extrafields (rowid, tms, fk_object, import_key";
 
             //si des extrafields en plus dans ticket sup, on rajoute les données dans la table standard
@@ -124,12 +135,14 @@
             }
 
             $sql.= ")";
+
             $sql.= " VALUES (";
             $sql.="'".$object->rowid."',";
             $sql.="'".$object->tms."',";
             $sql.="'".$object->fk_object."',";
             $sql.="'".$object->import_key."'";
 
+            //si des extrafields en plus dans ticket sup, on rajoute les données dans la table standard
             if(!empty($TColumnsExtrafields)){
                 foreach ($TColumnsExtrafields as $column){
                     $extrafieldName = $column['name'];
@@ -143,7 +156,6 @@
 
             if(!$result){
                 dol_print_error($db);
-                $error++;
                 $error_extrafields = 1;
             }
 
@@ -159,9 +171,15 @@
      * SEVERITY
      */
 
-    $sql = "TRUNCATE TABLE ".MAIN_DB_PREFIX."c_ticket_severity";
-    $db->query($sql);
+    //on vide la table standard si on a la table de ticketsup
+    $resql = $db->query("SHOW TABLES LIKE '".MAIN_DB_PREFIX."c_ticketsup_severity'");
 
+    if ($db->num_rows($resql) > 0) {
+        $sql = "TRUNCATE TABLE " . MAIN_DB_PREFIX . "c_ticket_severity";
+        $db->query($sql);
+    }
+
+    //on sélectionne les données de ticketsup
     $sql = "SELECT * FROM ".MAIN_DB_PREFIX."c_ticketsup_severity";
     $resql = $db->query($sql);
 
@@ -170,18 +188,19 @@
         $i = 0;
         $num_rows=$db->num_rows($resql);
 
+        //on insère les données de ticketsup dans la table de ticket standard
         while ($i < $num_rows){
 
             $object = $db->fetch_object($resql);
 
             $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_ticket_severity (rowid, entity, code, pos, label, color, active, use_default, description)";
+
             $sql.= " VALUES ('".$object->rowid."', '1', '".$db->escape($object->code)."', '".$object->pos."', '".$db->escape($object->label)."', '".$db->escape($object->color)."', '".$object->active."', '".$object->use_default."', '".$db->escape($object->description)."')";
 
             $result = $db->query($sql);
 
             if(!$result){
                 dol_print_error($db);
-                $error++;
                 $error_severity = 1;
             }
 
@@ -198,9 +217,16 @@
      * TYPE
      */
 
-    $sql = "TRUNCATE TABLE ".MAIN_DB_PREFIX."c_ticket_type";
-    $db->query($sql);
+    //on vide la table standard si on a la table de ticketsup
+    $resql = $db->query("SHOW TABLES LIKE '".MAIN_DB_PREFIX."c_ticketsup_type'");
 
+    if ($db->num_rows($resql) > 0) {
+        $sql = "TRUNCATE TABLE " . MAIN_DB_PREFIX . "c_ticket_type";
+        $db->query($sql);
+    }
+
+
+    //on sélectionne les données de ticketsup
     $sql = "SELECT * FROM ".MAIN_DB_PREFIX."c_ticketsup_type";
     $resql = $db->query($sql);
 
@@ -209,18 +235,19 @@
         $i = 0;
         $num_rows=$db->num_rows($resql);
 
+        //on insère les données de ticketsup dans la table de ticket standard
         while ($i < $num_rows){
 
             $object = $db->fetch_object($resql);
 
             $sql = "INSERT INTO ".MAIN_DB_PREFIX."c_ticket_type (rowid, entity, code, pos, label, active, use_default, description)";
+
             $sql.= " VALUES ('".$object->rowid."', '1', '".$db->escape($object->code)."', '".$object->pos."', '".$db->escape($object->label)."', '".$object->active."', '".$object->use_default."', '".$db->escape($object->description)."')";
 
             $result = $db->query($sql);
 
             if(!$result){
                 dol_print_error($db);
-                $error++;
                 $error_type = 1;
             }
 
@@ -237,9 +264,15 @@
      * TICKET
      */
 
-    $sql = "TRUNCATE TABLE ".MAIN_DB_PREFIX."ticket";
-    $db->query($sql);
+    //on vide la table standard si on a la table de ticketsup
+    $resql = $db->query("SHOW TABLES LIKE '".MAIN_DB_PREFIX."ticketsup'");
 
+    if ($db->num_rows($resql) > 0) {
+        $sql = "TRUNCATE TABLE " . MAIN_DB_PREFIX . "ticket";
+        $db->query($sql);
+    }
+
+    //on sélectionne les données de ticketsup
     $sql = "SELECT * FROM ".MAIN_DB_PREFIX."ticketsup";
     $resql = $db->query($sql);
 
@@ -248,11 +281,13 @@
         $i = 0;
         $num_rows=$db->num_rows($resql);
 
+        //on insère les données de ticketsup dans la table de ticket standard
         while ($i < $num_rows){
 
             $object = $db->fetch_object($resql);
 
             $sql = "INSERT INTO ".MAIN_DB_PREFIX."ticket (rowid, entity, ref, track_id, fk_soc, fk_project, origin_email, fk_user_create, fk_user_assign, subject, message, fk_statut, resolution, progress, timing, type_code, category_code, severity_code, datec, date_read, date_close, notify_tiers_at_create, tms)";
+
             $sql.= " VALUES (";
             $sql.= "'".$object->rowid."',";
             $sql.= "'".$object->entity."',";
@@ -283,7 +318,6 @@
 
             if(!$result){
                 dol_print_error($db);
-                $error++;
                 $error_ticket = 1;
             }
 
@@ -300,9 +334,15 @@
      * Messages
      */
 
-    $sql = "DELETE FROM ".MAIN_DB_PREFIX."actioncomm WHERE elementtype = 'ticket'";
-    $db->query($sql);
+    //on vide la table standard si on a la table de ticketsup
+    $resql = $db->query("SHOW TABLES LIKE '".MAIN_DB_PREFIX."ticketsup_msg'");
 
+    if ($db->num_rows($resql) > 0) {
+        $sql = "DELETE FROM " . MAIN_DB_PREFIX . "actioncomm WHERE elementtype = 'ticket'";
+        $db->query($sql);
+    }
+
+    //on sélectionne les données de ticketsup
     $sql = "SELECT * FROM ".MAIN_DB_PREFIX."ticketsup_msg";
     $resql = $db->query($sql);
 
@@ -321,6 +361,7 @@
             $note = $object->message;
             $elementtype = 'ticket';
 
+            //on récupère l'id du ticket auquel est associé la note en fonction dut track_id
             $sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."ticketsup WHERE track_id ='".$object->fk_track_id."'";
             $result = $db->query($sql);
 
@@ -329,9 +370,11 @@
                 $fk_element = $ticketsup->rowid;
             }
 
+            //on insère les données de ticketsup dans la table de ticket standard si la note est associée à un ticket
             if(!empty($fk_element)){
 
                 $sql = "INSERT INTO ".MAIN_DB_PREFIX."actioncomm (entity, fk_user_action, datec, note, fk_element, elementtype)";
+
                 $sql.= " VALUES (";
                 $sql.= "'".$entity."',";
                 $sql.= "'".$fk_user_action."',";
@@ -345,7 +388,6 @@
 
                 if(!$result){
                     dol_print_error($db);
-                    $error++;
                     $error_actioncomm = 1;
                 }
             }
@@ -357,46 +399,88 @@
         }
     }
 
+    /*
+     * Pièces jointes
+     */
+
     $dir_ticket = $dolibarr_main_data_root . '/ticket';
     $dir_ticketsup = $dolibarr_main_data_root . '/ticketsup';
 
-    if(!dol_is_dir($dir_ticket)) {
-        $res = mkdir($dir_ticket);
-    }
+    if(dol_is_dir($dir_ticketsup)) {
 
-    $TDirs = dol_dir_list($dir_ticketsup, 'directories');
+        //si le répertoire "ticket" n'existe pas on le créée
+        if (!dol_is_dir($dir_ticket)) {
+            $res = mkdir($dir_ticket);
+        }
 
-    foreach ($TDirs as $dir){
+        //on récupère la lise des dossiers dans le répertoire "ticketsup"
+        $TDirs = dol_dir_list($dir_ticketsup, 'directories');
 
-        $track_id = $dir['name'];
+        //on copie-colle chaque dossier du répertoire "ticketsup" dans le répertoire "ticket"
+        foreach ($TDirs as $dir) {
 
-        $sql = "SELECT ref FROM ".MAIN_DB_PREFIX."ticket WHERE track_id ='".$track_id."'";
-        $result = $db->query($sql);
+            $track_id = $dir['name'];
 
-        if($result){
-            $object = $db->fetch_object($result);
+            //on récupère la référence du ticket suivant son track_id
+            $sql = "SELECT ref FROM " . MAIN_DB_PREFIX . "ticket WHERE track_id ='" . $track_id . "'";
+            $result = $db->query($sql);
 
-            if(!empty($object->ref)) {
-                $dir_source = $dir_ticketsup . '/' . $track_id;
-                $dir_dest = $dir_ticket . '/' . $object->ref;
+            if ($result) {
+                $object = $db->fetch_object($result);
 
-                $res = dolCopyDir($dir_source, $dir_dest, 0, 1);
+                if (!empty($object->ref)) {
+                    $dir_source = $dir_ticketsup . '/' . $track_id;
+                    $dir_dest = $dir_ticket . '/' . $object->ref;
 
-                if ($res < 0) {
-                    echo 'Dossier ' . $object->ref . ' : KO <br><br>';
-                    $error++;
-                    $error_dir = 1;
+                    $res = dolCopyDir($dir_source, $dir_dest, 0, 1);
+
+                    if ($res < 0) {
+                        echo 'Dossier ' . $object->ref . ' : KO <br><br>';
+                        $error_dir = 1;
+                    }
                 }
             }
         }
+
+        //on supprime le dossier source "ticketsup"
+        if (!$error_dir) {
+
+            $res = dol_delete_dir_recursive($dir_ticketsup);
+
+            if (!$res) {
+                echo 'Suppression du dossier ' . $dir_source . ' : KO <br><br>';
+                $error_dir = 1;
+            }
+        }
+
+        if (!$error_dir) {
+            echo 'Pièces jointes : OK' . '<br><br>';
+        }
     }
 
-    if (empty($error_actioncomm)) {
-        echo 'Pièces jointes : OK' . '<br><br>';
-    }
+    /*
+     * Suppression des tables de la bdd
+     */
 
+    $sql = "DROP TABLE " .MAIN_DB_PREFIX. "c_ticketsup_category";
+    $db->query($sql);
 
-    if($error){
+    $sql = "DROP TABLE " .MAIN_DB_PREFIX. "c_ticketsup_severity";
+    $db->query($sql);
+
+    $sql = "DROP TABLE " .MAIN_DB_PREFIX. "c_ticketsup_type";
+    $db->query($sql);
+
+    $sql = "DROP TABLE " .MAIN_DB_PREFIX. "ticketsup";
+    $db->query($sql);
+
+    $sql = "DROP TABLE " .MAIN_DB_PREFIX. "ticketsup_extrafields";
+    $db->query($sql);
+
+    $sql = "DROP TABLE " .MAIN_DB_PREFIX. "ticketsup_msg";
+    $db->query($sql);
+
+    if(!empty($error_dir) || !empty($error_actioncomm) || !empty($error_category) || !empty($error_extrafields) || !empty($error_severity) || !empty($error_severity) || !empty($error_type)){
         echo 'EXECUTION DU SCRIPT KO';
     } else {
         echo 'EXECUTION DU SCRIPT OK';
