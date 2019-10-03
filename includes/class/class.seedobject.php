@@ -704,6 +704,7 @@ class SeedObject extends SeedObjectDolibarr
 	    }
 
         $objp = $this->db->fetch_object($resql);
+        if (!$objp) return 0;
 
         $res = $this->fetchCommon($objp->rowid);
         if($res > 0 && ! empty($loadChild))
