@@ -10,6 +10,7 @@
 
     require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
 
+    $db->begin();
 
     /*
      * CATEGORY
@@ -459,34 +460,14 @@
     }
 
     /*
-     * SUPPRESSION DES TABLES DANS LA BDD
-     */
-
-    $sql = "DROP TABLE " .MAIN_DB_PREFIX. "c_ticketsup_category";
-    $db->query($sql);
-
-    $sql = "DROP TABLE " .MAIN_DB_PREFIX. "c_ticketsup_severity";
-    $db->query($sql);
-
-    $sql = "DROP TABLE " .MAIN_DB_PREFIX. "c_ticketsup_type";
-    $db->query($sql);
-
-    $sql = "DROP TABLE " .MAIN_DB_PREFIX. "ticketsup";
-    $db->query($sql);
-
-    $sql = "DROP TABLE " .MAIN_DB_PREFIX. "ticketsup_extrafields";
-    $db->query($sql);
-
-    $sql = "DROP TABLE " .MAIN_DB_PREFIX. "ticketsup_msg";
-    $db->query($sql);
-
-    /*
      * RESULTAT SCRIPT
      */
 
     if(!empty($error_dir) || !empty($error_actioncomm) || !empty($error_category) || !empty($error_extrafields) || !empty($error_severity) || !empty($error_severity) || !empty($error_type)){
+        $db->rollback();
         echo 'EXECUTION DU SCRIPT KO';
     } else {
+        $db->commit();
         echo 'EXECUTION DU SCRIPT OK';
     }
 
