@@ -1,0 +1,10 @@
+﻿SearchOnNUllValue=Suche auch nach dem NULL-Wert
+
+Settings=Parameter
+set_ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING=Verwenden Sie den alten Datenbankcodierungsparameter
+set_ABRICOT_USE_OLD_EMPTY_DATE_FORMAT=Verwenden Sie das alte, leere Datumsformat
+set_ABRICOT_CONVERTPDF_CMD=set_ABRICOT_CONVERTPDF_CMD
+set_ABRICOT_WKHTMLTOPDF_CMD=Befehl zur PDF-Erzeugung von Labels (WkHTMLtoPDF muss auf dem Server http://wkhtmltopdf.org/ installiert sein)
+
+MIGRATE_DATETIME_DEFAULT_TO_NULL=Ändern Sie den Standardwert für Datum auf Null
+Migrate=Migrieren

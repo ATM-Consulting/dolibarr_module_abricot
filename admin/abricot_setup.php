@@ -172,7 +172,7 @@ print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("MIGRATE_DATETIME_DEFAULT_TO_NULL").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="center" width="100">';
-print '<a class="butAction" href="../script/change-datetime-defaul-to-null.php">'.$langs->trans("Migrate").'</a>';
+print '<a class="butAction" href="../script/change-datetime-default-to-null.php">' . $langs->trans("Migrate") . '</a>';
 print '</form>';
 print '</td></tr>';
 
