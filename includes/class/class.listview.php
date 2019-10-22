@@ -789,10 +789,13 @@ class Listview
 					if (isset($TTotal[$field]))
 					{
 						$moreattrib = 'style="width:'.$head['width'].';text-align:'.$head['text-align'].'"';
-						$out.='<td align="right" class="'.$field.'" '.$moreattrib.'>'.price($TTotal[$field]).'</td>';
+						$out.='<td align="right" class="'.$field.'" '.$moreattrib.'>';
+						if ($TTotal[$field] !== '') $out.=price($TTotal[$field]);
+						$out.='</td>';
 					}
 				}
-					
+
+				if (isset($THeader['selectedfields'])) $out.= '<td class="selectedfields"></td>';
 				$out.='</tr></tfoot>';
 			}
 		}
