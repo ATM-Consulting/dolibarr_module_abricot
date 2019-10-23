@@ -33,6 +33,7 @@ class TListviewTBS {
 
 		$this->sql = '';
 
+		$this->line_counter = 0;
 	}
 	private function init(&$TParam) {
 
@@ -1084,7 +1085,7 @@ class TListviewTBS {
 
 	}
 
-	private function in_view(&$TParam, $line_number) {
+	private function in_view(&$TParam) {
 		global $conf;
 //		var_dump($_REQUEST['get-all-for-export']);
 		if(!empty($_REQUEST['get-all-for-export'])) return true; // doit être dans la vue
@@ -1095,7 +1096,7 @@ class TListviewTBS {
 		$start = ($page_number-1) * $line_per_page;
 		$end = ($page_number* $line_per_page) -1;
 
-		if($line_number>=$start && $line_number<=$end) return true;
+		if($this->line_counter >= $start && $this->line_counter <= $end) return true;
 		else return false;
 	}
 
@@ -1103,9 +1104,7 @@ class TListviewTBS {
 
 			global $conf;
 
-			$line_number = count($TChamps);
-
-			if($this->in_view($TParam,$line_number)) {
+			if($this->in_view($TParam)) {
 
 				$row=array(); $trans = array();
 				foreach($currentLine as $field=>$value) {
@@ -1209,7 +1208,9 @@ class TListviewTBS {
 				}
 			}
 			}
+
 			$TChamps[] = $row;
+			$this->line_counter++;
 	}
 
 	private function getBind(&$TParam) {
