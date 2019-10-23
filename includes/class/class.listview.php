@@ -41,6 +41,7 @@ class Listview
 		$this->form = null;
 		$this->totalRowToShow=0;
 		$this->totalRow=0;
+		$this->lineCounter=0;
 		
 		$this->TField=array();
 		
@@ -1004,8 +1005,8 @@ class Listview
         global $conf;
 
 		// TODO problème d'affichage on passe jamais dans le if in_view
-        $line_number = $TParam['limit']['page'] * $TParam['limit']['nbLine'] + count($TFieldParsed);
-        if($this->in_view($TParam,$line_number))
+        $line_number = $TParam['limit']['page'] * $TParam['limit']['nbLine'] + $this->lineCounter;
+        if($this->in_view($TParam, $line_number))
         {
 			$this->totalRowToShow++;
             $row=array(); 
@@ -1117,6 +1118,7 @@ class Listview
         }
 
         $TFieldParsed[] = $row;
+        $this->lineCounter++;
 	}
 
     /**
