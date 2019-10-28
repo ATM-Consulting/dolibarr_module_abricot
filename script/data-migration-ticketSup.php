@@ -140,14 +140,14 @@
             $sql.= " VALUES (";
             $sql.="'".$object->rowid."',";
             $sql.="'".$object->tms."',";
-            $sql.="'".$object->fk_object."',";
+            $sql.="'".$db->escape($object->fk_object)."',";
             $sql.="'".$object->import_key."'";
 
             //si des extrafields en plus dans ticket sup, on rajoute les données dans la table standard
             if(!empty($TColumnsExtrafields)){
                 foreach ($TColumnsExtrafields as $column){
                     $extrafieldName = $column['name'];
-                    $sql.= ",'".$object->$extrafieldName."'";
+                    $sql.= ",'".$db->escape($object->$extrafieldName)."'";
                 }
             }
 
