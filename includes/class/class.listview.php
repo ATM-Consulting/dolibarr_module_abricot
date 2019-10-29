@@ -957,7 +957,7 @@ class Listview
 		// Uniquement si au moins 1 valeur a été définie, sinon il y a un problème d'affichage entre du php 5 et 7
 		if ($rank_used) uasort($THeader,array('Listview','sortHeaderRank'));
 
-		if (!empty($selectedfields)) $THeader['selectedfields']['label']=$selectedfields;
+		if (!empty($selectedfields) && !empty($TParam['allow-fields-select'])) $THeader['selectedfields']['label']=$selectedfields;
 		
 		return $THeader;
 	}
