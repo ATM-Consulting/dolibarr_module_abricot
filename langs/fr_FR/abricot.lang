@@ -6,3 +6,4 @@ set_ABRICOT_USE_OLD_EMPTY_DATE_FORMAT = Utiliser l'ancien format de dates vides
 
 MIGRATE_DATETIME_DEFAULT_TO_NULL = Changer la valeur par défaut des dates à null
 Migrate=Migrer
+ABRICOT_MAILS_FORMAT=Encodage des caractères utilisé pour les mails envoyés avec le module abricot (hors envois via méthode SMTP car entièrement géré par Dolibarr)

@@ -47,7 +47,9 @@ class TReponseMail{
 	 **/
 	function send($html=true,$encoding='iso-8859-1'){
 		global $conf;
-		
+
+		if(!empty($conf->global->ABRICOT_MAILS_FORMAT)) $encoding=$conf->global->ABRICOT_MAILS_FORMAT;
+
 		if(!empty($conf->global->MAIN_DISABLE_ALL_MAILS)) return false; // désactivé globalement
 		
 		if($this->reply_to==""){

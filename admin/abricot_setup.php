@@ -176,6 +176,18 @@ print '<a class="butAction" href="../script/change-datetime-defaul-to-null.php">
 print '</form>';
 print '</td></tr>';
 
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("ABRICOT_MAILS_FORMAT").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="center" width="200">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="action" value="set_ABRICOT_MAILS_FORMAT">';
+print $form->selectarray('ABRICOT_MAILS_FORMAT',array('iso-8859-1'=>'iso-8859-1', 'UTF-8'=>'UTF-8'),$conf->global->ABRICOT_MAILS_FORMAT);
+print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+print '</form>';
+print '</td></tr>';
+
 print '<tbody>';
 print '</table>';
 
