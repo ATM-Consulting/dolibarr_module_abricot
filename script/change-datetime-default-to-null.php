@@ -1,13 +1,10 @@
 <?php
-	
-	if(is_file('../main.inc.php'))$dir = '../';
-	else  if(is_file('../../../main.inc.php'))$dir = '../../../';
-	else  if(is_file('../../../../main.inc.php'))$dir = '../../../../';
-	else $dir = '../../';
+    if(is_file('../master.inc.php')) include '../master.inc.php';
+    elseif(is_file('../../../master.inc.php')) include '../../../master.inc.php';
+    elseif(is_file('../../../../master.inc.php')) include '../../../../master.inc.php';
+    elseif(is_file('../../../../../master.inc.php')) include '../../../../../master.inc.php';
+    else include '../../master.inc.php';
 
-
-	include($dir."master.inc.php");
-	
 	$db->query("SET SQL_MODE='ALLOW_INVALID_DATES';");
 
 	$res1 = $db->query("SHOW TABLES");

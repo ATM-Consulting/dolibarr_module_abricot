@@ -1,11 +1,10 @@
 <?php
-	
-	if(is_file('../main.inc.php'))$dir = '../';
-	else  if(is_file('../../../main.inc.php'))$dir = '../../../';
-	else  if(is_file('../../../../main.inc.php'))$dir = '../../../../';
-	else $dir = '../../';
 
-	include($dir."master.inc.php");
+    if(is_file('../master.inc.php')) include '../master.inc.php';
+    elseif(is_file('../../../master.inc.php')) include '../../../master.inc.php';
+    elseif(is_file('../../../../master.inc.php')) include '../../../../master.inc.php';
+    elseif(is_file('../../../../../master.inc.php')) include '../../../../../master.inc.php';
+    else include '../../master.inc.php';
 
     $sql = '
         SELECT DISTINCT
