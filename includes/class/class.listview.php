@@ -206,6 +206,20 @@ class Listview
 			}
 			elseif ($TParam['operator'][$key]=='IN')
 			{
+				if (is_array($value)) {
+					if (!empty($value)) {
+						foreach ($value as $k => $v)
+						{
+							$value[$k]="'".$this->db->escape($v)."'";
+						}
+						$value = implode(', ', $value);
+					}
+				}
+				else
+				{
+					$value = $this->db->escape($value);
+				}
+
                 $TSQL[] = $sKey . ' ' . $TParam['operator'][$key] . ' (' . $value . ')';
 			}
 			else
@@ -329,7 +343,7 @@ class Listview
 		
 		$this->parse_sql($THeader, $TField, $TParam, $sql);
 		list($TTotal, $TTotalGroup)=$this->get_total($TField, $TParam);
-		
+//		var_dump('lol'); echo '<pre>'; print_r($sql);
 		return $this->renderList($THeader, $TField, $TTotal, $TTotalGroup, $TParam);
 	}
 
@@ -352,7 +366,7 @@ class Listview
 		{
 			if(empty($TSearch[$key]))$TSearch[$key]='';
 		}
-		
+
 		$removeFilter = (GETPOST('button_removefilter_x','alpha') || GETPOST('button_removefilter.x','alpha') || GETPOST('button_removefilter','alpha'));
 		foreach($TParam['search'] as $key => $param_search)
 		{
