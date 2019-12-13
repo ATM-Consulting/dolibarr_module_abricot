@@ -206,6 +206,20 @@ class Listview
 			}
 			elseif ($TParam['operator'][$key]=='IN')
 			{
+				if (is_array($value)) {
+					if (!empty($value)) {
+						foreach ($value as $k => $v)
+						{
+							$value[$k]="'".$this->db->escape($v)."'";
+						}
+						$value = implode(', ', $value);
+					}
+				}
+				else
+				{
+					$value = $this->db->escape($value);
+				}
+
                 $TSQL[] = $sKey . ' ' . $TParam['operator'][$key] . ' (' . $value . ')';
 			}
 			else
@@ -329,7 +343,7 @@ class Listview
 		
 		$this->parse_sql($THeader, $TField, $TParam, $sql);
 		list($TTotal, $TTotalGroup)=$this->get_total($TField, $TParam);
-		
+//		var_dump('lol'); echo '<pre>'; print_r($sql);
 		return $this->renderList($THeader, $TField, $TTotal, $TTotalGroup, $TParam);
 	}
 
@@ -352,7 +366,7 @@ class Listview
 		{
 			if(empty($TSearch[$key]))$TSearch[$key]='';
 		}
-		
+
 		$removeFilter = (GETPOST('button_removefilter_x','alpha') || GETPOST('button_removefilter.x','alpha') || GETPOST('button_removefilter','alpha'));
 		foreach($TParam['search'] as $key => $param_search)
 		{
@@ -650,7 +664,23 @@ class Listview
 		$TSearch = $this->setSearch($THeader, $TParam);
 		$TExport = $this->setExport($TParam, $TField, $THeader);
 		$TField = $this->addTotalGroup($TField,$TTotalGroup);
-		
+
+		$moreparams='';
+		if (!empty($this->TSearchValue))
+		{
+			foreach ($this->TSearchValue as $fieldname => $value)
+			{
+				if (!is_array($value)) $moreparams.= '&'.$fieldname.'='.$value;
+				elseif (!empty($value))
+				{
+					foreach ($value as $v)
+					{
+						$moreparams.= '&'.$fieldname.'[]='.$v;
+					}
+				}
+			}
+		}
+
 		//$out = $this->getJS();
 		
 		$massactionbutton= empty($TParam['list']['massactions']) ? '' : $form->selectMassAction('', $TParam['list']['massactions']);
@@ -658,7 +688,7 @@ class Listview
 		$dolibarr_decalage = $this->totalRow > $this->totalRowToShow ? 1 : 0;
 		$hideselectlimit = ($TParam['limit']['nbLine'] === 0) ? 1 : 0;
 		ob_start();
-		print_barre_liste($TParam['list']['title'], $TParam['limit']['page'], $_SERVER["PHP_SELF"], '&'.$TParam['list']['param_url'], $TParam['sortfield'], $TParam['sortorder'], $massactionbutton, $this->totalRowToShow+$dolibarr_decalage, $this->totalRow, $TParam['list']['image'], 0, $TParam['list']['morehtmlrighttitle'], '', $TParam['limit']['nbLine'], $hideselectlimit);
+		print_barre_liste($TParam['list']['title'], $TParam['limit']['page'], $_SERVER["PHP_SELF"], '&'.$TParam['list']['param_url'].$moreparams, $TParam['sortfield'], $TParam['sortorder'], $massactionbutton, $this->totalRowToShow+$dolibarr_decalage, $this->totalRow, $TParam['list']['image'], 0, $TParam['list']['morehtmlrighttitle'], '', $TParam['limit']['nbLine'], $hideselectlimit);
 		$out = ob_get_clean();
 		
 		$classliste='liste';
@@ -723,14 +753,7 @@ class Listview
 				else $search = $field;
 			}
 
-            $moreparams='';
-            if (!empty($this->TSearchValue))
-            {
-                foreach ($this->TSearchValue as $fieldname => $value)
-                {
-                    $moreparams.= '&'.$fieldname.'='.$value;
-                }
-            }
+
 
             $out .= getTitleFieldOfList($label, 0, $_SERVER["PHP_SELF"], $search, '', '&'.$TParam['list']['param_url'].'&limit='.$TParam['limit']['nbLine'].$moreparams, $moreattrib, $TParam['sortfield'], $TParam['sortorder'], $prefix);
 			$out .= $head['more'];
