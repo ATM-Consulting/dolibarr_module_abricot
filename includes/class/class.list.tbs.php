@@ -1136,7 +1136,10 @@ class TListviewTBS {
 						$row[$field]=$value;
 
 						if(isset($TParam['eval'][$field]) && in_array($field,array_keys($row))) {
-							$strToEval = 'return '.strtr( $TParam['eval'][$field] ,  array_merge( $trans, array('@val@'=>$row[$field])  )).';';
+							$strToEval = 'return '.strtr(
+								$TParam['eval'][$field],
+								array_merge($trans, array('@val@'=>addslashes($row[$field])))
+								).';';
 							$row[$field] = eval($strToEval);
 						}
 
