@@ -704,7 +704,7 @@ class SeedObject extends SeedObjectDolibarr
         {
             while ($obj = $this->db->fetch_object($resql))
             {
-                $o = new self($this->db);
+                $o = new static($this->db);
                 $o->fetch($obj->rowid, $loadChild);
 
                 $TRes[] = $o;
