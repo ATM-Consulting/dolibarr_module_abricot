@@ -685,13 +685,20 @@ class SeedObject extends SeedObjectDolibarr
      * @param bool $loadChild   used to load children from database
      * @return array
      */
-    public static function fetchAll($limit = 0, $loadChild = true)
+    public function fetchAll($limit = 0, $loadChild = true, $TFilter = array())
     {
         global $db;
 
         $TRes = array();
 
-        $sql = 'SELECT rowid FROM '.MAIN_DB_PREFIX;
+        $sql = 'SELECT rowid FROM '.MAIN_DB_PREFIX.$this->table_element.' WHERE 1';
+        if (!empty($TFilter))
+        {
+            foreach ($TFilter as $field => $value)
+            {
+                $sql.= ' AND '.$field.' = '.$this->quote($value, $this->fields[$field]);
+            }
+        }
         if ($limit) $sql.= ' LIMIT '.$limit;
 
         $resql = $db->query($sql);
