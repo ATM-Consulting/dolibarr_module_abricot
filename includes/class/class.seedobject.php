@@ -687,8 +687,6 @@ class SeedObject extends SeedObjectDolibarr
      */
     public function fetchAll($limit = 0, $loadChild = true, $TFilter = array())
     {
-        global $db;
-
         $TRes = array();
 
         $sql = 'SELECT rowid FROM '.MAIN_DB_PREFIX.$this->table_element.' WHERE 1';
@@ -701,7 +699,7 @@ class SeedObject extends SeedObjectDolibarr
         }
         if ($limit) $sql.= ' LIMIT '.$limit;
 
-        $resql = $db->query($sql);
+        $resql = $this->db->query($sql);
         if ($resql)
         {
             while ($obj = $db->fetch_object($resql))
