@@ -680,6 +680,35 @@ class SeedObject extends SeedObjectDolibarr
     	return $res;
 	}
 
+    /**
+     * @param int  $limit       Limit element returned
+     * @param bool $loadChild   used to load children from database
+     * @return array
+     */
+    public static function fetchAll($limit = 0, $loadChild = true)
+    {
+        global $db;
+
+        $TRes = array();
+
+        $sql = 'SELECT rowid FROM '.MAIN_DB_PREFIX;
+        if ($limit) $sql.= ' LIMIT '.$limit;
+
+        $resql = $db->query($sql);
+        if ($resql)
+        {
+            while ($obj = $db->fetch_object($resql))
+            {
+                $o = new self($db);
+                $o->fetch($obj->rowid, $loadChild);
+
+                $TRes[] = $o;
+            }
+        }
+
+        return $TRes;
+    }
+
 
 	/**
 	 *	Get object and children from database on custom field
