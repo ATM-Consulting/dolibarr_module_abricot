@@ -1040,7 +1040,7 @@ class SeedObject extends SeedObjectDolibarr
 
 		if(empty($this->table_element))exit('NoDataTableDefined');
 
-		$resql = $this->db->query("SHOW TABLES FROM " . $dolibarr_main_db_name . " LIKE '" . MAIN_DB_PREFIX . $this->table_element . "'");
+		$resql = $this->db->query("SHOW TABLES FROM `" . $dolibarr_main_db_name . "` LIKE '" . MAIN_DB_PREFIX . $this->table_element . "'");
 		if($resql === false) {
 			var_dump($this->db);exit;
 
