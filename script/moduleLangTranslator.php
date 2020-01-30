@@ -168,11 +168,6 @@ if(!empty($scanDirFrom) && is_array($scanDirFrom)){
 			else
 			{
 
-				// Ecrit le contenu dans le fichier à la suite du fichier et
-				// LOCK_EX pour empêcher quiconque d'autre d'écrire dans le fichier en même temps
-				$newLine = "\n\n#\n# MISSSING TRANSLATION FROM ".$param->langFrom."\n#\n";
-				file_put_contents($dirTarget . $filename, $newLine, FILE_APPEND | LOCK_EX);
-
 				$TNewLines = array();
 				$TNewLines[] = '';
 				$TNewLines[] = '#';
