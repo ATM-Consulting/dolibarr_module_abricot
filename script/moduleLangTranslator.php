@@ -54,7 +54,7 @@ if (substr($sapi_type, 0, 3) == 'cgi' || $sapi_type == 'apache2handler') {
 $argsList = array(
 	1 => 'securitykey',
 	2 => 'moduleName',
-	3 => 'langToCheck',
+	3 => 'langTarget',
 	4 => 'langFrom'
 );
 
@@ -94,15 +94,15 @@ if (!ctype_alnum($param->moduleName) || !is_dir ( $customFolder . $param->module
 
 
 $dirFrom 	= $customFolder . $param->moduleName. '/langs/' . $param->langFrom;
-$dirToCheck = $customFolder . $param->moduleName. '/langs/' . $param->langToCheck;
+$dirTarget = $customFolder . $param->moduleName. '/langs/' . $param->langTarget;
 
-if(!is_dir($dirToCheck) || !is_dir($dirToCheck)){
+if(!is_dir($dirTarget) || !is_dir($dirTarget)){
 	print "Error: lang folder does not exists\n";
 	exit(-1);
 }
 
-if(!preg_match ( '/^[a-z]{2}_[A-Z]{2}$/' , $param->langToCheck) || !is_dir($dirToCheck)){
-	print "Error: Invalid lang to check\n".$dirToCheck."\n";
+if(!preg_match ( '/^[a-z]{2}_[A-Z]{2}$/' , $param->langTarget) || !is_dir($dirTarget)){
+	print "Error: Invalid lang to check\n".$dirTarget."\n";
 	exit(-1);
 }
 
@@ -113,7 +113,7 @@ if(!preg_match ( '/^[a-z]{2}_[A-Z]{2}$/' , $param->langFrom) || !is_dir($dirFrom
 
 
 $scanDirFrom 	= scandir($dirFrom);
-$scanDirToCheck = scandir($dirToCheck);
+$scanDirTarget = scandir($dirTarget);
 
 if(!empty($scanDirFrom) && is_array($scanDirFrom)){
 	foreach ($scanDirFrom as $filename){
@@ -128,39 +128,77 @@ if(!empty($scanDirFrom) && is_array($scanDirFrom)){
 
 			$file_lang_osencoded=dol_osencode($dirFrom.'/'.$filename);
 
-			$tab_translate = array();
+			// Load "from" translations
+			$trads_from = _loadTranslation($dirFrom.'/'.$filename);
+			if(!is_array($trads_from)){
+				print "Error: lang file content\n".$dirFrom .'/'. $filename."\n";
+				exit(-1);
+			}
 
-			/**
-			 * Read each lines until a '=' (with any combination of spaces around it)
-			 * and split the rest until a line feed.
-			 * This is more efficient than fgets + explode + trim by a factor of ~2.
-			 */
-			if ($fp = @fopen($dirFrom.'/'.$filename,"rt")) {
-				while ($line = fscanf($fp, "%[^= ]%*[ =]%[^\n]")) {
-					if (isset($line[1])) {
-						list($key, $value) = $line;
-						//if ($domain == 'orders') print "Domain=$domain, found a string for $tab[0] with value $tab[1]. Currently in cache ".$this->tab_translate[$key]."<br>";
-						//if ($key == 'Order') print "Domain=$domain, found a string for key=$key=$tab[0] with value $tab[1]. Currently in cache ".$this->tab_translate[$key]."<br>";
-						if (empty($tab_translate[$key])) { // If translation was already found, we must not continue, even if MAIN_FORCELANGDIR is set (MAIN_FORCELANGDIR is to replace lang dir, not to overwrite entries)
-							$value = preg_replace('/\\n/', "\n", $value); // Parse and render carriage returns
-							if ($key == 'DIRECTION') { // This is to declare direction of language
-								// TODO
-								continue;
-							} elseif ($key[0] == '#') {
-								continue;
-							} else {
-								$tab_translate[$key] = $value;
-							}
-						}
+			// Load "target" translation if exists
+			$trads_target = array();
+			$targetFileExist = false;
+			if(file_exists($dirTarget .'/'. $filename)){
+				$targetFileExist = true;
+				$trads_target = _loadTranslation($dirTarget .'/'. $filename);
+
+				if(!is_array($trads_target)){
+					print "Error: lang file content\n".$dirTarget .'/'. $filename."\n";
+					exit(-1);
+				}
+			}
+
+			// extract missing translation
+			// $trads_missing = array_diff_key($trads_from, $trads_target);
+			if(empty($trads_target)){
+				$trads_missing = $trads_from;
+			}else{
+				$trads_missing = array();
+				foreach($trads_from as $tfKey => $tfValue){
+					if(!isset($trads_target[$tfKey])){
+						$trads_missing[$tfKey]=$tfValue;
 					}
 				}
-				fclose($fp);
 			}
 
-			if(!file_exists($dirToCheck . $filename)){
-
+			if(empty($trads_missing))
+			{
+				print $filename." is Ok\n";
 			}
+			else
+			{
 
+				// Ecrit le contenu dans le fichier à la suite du fichier et
+				// LOCK_EX pour empêcher quiconque d'autre d'écrire dans le fichier en même temps
+				$newLine = "\n\n#\n# MISSSING TRANSLATION FROM ".$param->langFrom."\n#\n";
+				file_put_contents($dirTarget . $filename, $newLine, FILE_APPEND | LOCK_EX);
+
+				$TNewLines = array();
+				$TNewLines[] = '';
+				$TNewLines[] = '#';
+				$TNewLines[] = '# MISSING TRANSLATION FROM '.$param->langFrom;
+				$TNewLines[] = '#';
+
+				foreach($trads_missing as $tmKey => $tmValue){
+					$TNewLines[] = $tmKey."=".$tmValue;
+				}
+
+				$TNewLines[] = '';
+
+				// Ecrit le contenu dans le fichier à la suite du fichier et
+				// LOCK_EX pour empêcher quiconque d'autre d'écrire dans le fichier en même temps
+				$writeRes = file_put_contents($dirTarget .'/'. $filename, implode("\n", $TNewLines), FILE_APPEND | LOCK_EX);
+
+				if($writeRes === false)
+				{
+					print "Error: writing file\n".$dirTarget .'/'. $filename."\n";
+					exit(-1);
+				}
+				else
+				{
+					print $filename." Updated ".count($trads_missing)." missing translations\n";
+				}
+			}
 		}
 	}
 }
@@ -174,13 +212,48 @@ if(!empty($scanDirFrom) && is_array($scanDirFrom)){
 
 
 
+function _loadTranslation($filename){
+	$tab_translate = array();
 
+	if(!is_file($filename)){
+		return false;
+	}
+
+	/**
+	 * Read each lines until a '=' (with any combination of spaces around it)
+	 * and split the rest until a line feed.
+	 * This is more efficient than fgets + explode + trim by a factor of ~2.
+	 */
+	if ($fp = @fopen($filename,"rt")) {
+		while ($line = fscanf($fp, "%[^= ]%*[ =]%[^\n]")) {
+			if (isset($line[1])) {
+				list($key, $value) = $line;
+				//if ($domain == 'orders') print "Domain=$domain, found a string for $tab[0] with value $tab[1]. Currently in cache ".$this->tab_translate[$key]."<br>";
+				//if ($key == 'Order') print "Domain=$domain, found a string for key=$key=$tab[0] with value $tab[1]. Currently in cache ".$this->tab_translate[$key]."<br>";
+				if (empty($tab_translate[$key])) { // If translation was already found, we must not continue, even if MAIN_FORCELANGDIR is set (MAIN_FORCELANGDIR is to replace lang dir, not to overwrite entries)
+					$value = preg_replace('/\\n/', "\n", $value); // Parse and render carriage returns
+					if ($key == 'DIRECTION') { // This is to declare direction of language
+						// TODO
+						continue;
+					} elseif ($key[0] == '#') {
+						continue;
+					} else {
+						$tab_translate[$key] = $value;
+					}
+				}
+			}
+		}
+		fclose($fp);
+	}
+
+	return $tab_translate;
+}
 
 function _helpUsage($path,$script_file)
 {
 	global $conf;
 
-	print "Usage: ".$script_file." cronSecuritykey moduleFolderName langKeyToCheck langKeyFrom(optional)  \n";
+	print "Usage: ".$script_file." cronSecuritykey moduleFolderName langKeyTarget langKeyFrom(optional default fr_FR)  \n";
 	print "".$script_file." moduleFolderName en_EN fr_FR.\n";
 	print "The script return 1 when everything worked successfully.\n";
 	print "\n";
