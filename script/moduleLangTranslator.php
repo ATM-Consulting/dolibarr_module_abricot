@@ -254,8 +254,7 @@ function _helpUsage($path,$script_file)
 	global $conf;
 
 	print "Usage: ".$script_file." cronSecuritykey moduleFolderName langKeyTarget langKeyFrom(optional default fr_FR)  \n";
-	print "".$script_file." moduleFolderName en_EN fr_FR.\n";
-	print "The script return 1 when everything worked successfully.\n";
+	print "Exemple: ./".$script_file." khce86zgj84fzefef8f48 moduleFolderName en_EN fr_FR\n";
 	print "\n";
 
 }
