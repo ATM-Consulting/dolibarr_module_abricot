@@ -162,6 +162,10 @@
         }
 
         if (empty($error_extrafields)) {
+        	// euh la définition des extrafields ce serait bien aussi...
+        	$sql = "UPDATE ".MAIN_DB_PREFIX."extrafields SET elementtype='ticket' WHERE elementtype='ticketsup'";
+        	$db->query($sql);
+
             echo MAIN_DB_PREFIX . 'ticket_extrafields : OK' . '<br><br>';
         }
     }
@@ -461,7 +465,7 @@
      * RESULTAT SCRIPT
      */
 
-    if(!empty($error_dir) || !empty($error_actioncomm) || !empty($error_category) || !empty($error_extrafields) || !empty($error_severity) || !empty($error_severity) || !empty($error_type)){
+    if(!empty($error_dir) || !empty($error_actioncomm) || !empty($error_category) || !empty($error_extrafields) || !empty($error_severity) || !empty($error_severity) || !empty($error_type) || !empty($error_ticket)){
         $db->rollback();
         echo 'EXECUTION DU SCRIPT KO';
     } else {
