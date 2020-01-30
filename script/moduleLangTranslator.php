@@ -1,0 +1,188 @@
+#!/usr/bin/env php
+<?php
+/* Copyright (C) 2020     ATM consulting
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ *  \file       scripts/moduleLangTranslator.php
+ *  \ingroup    cron
+ *  \brief      copy missing lang trans from fr_FR
+ */
+if (! defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL','1'); // Disables token renewal
+if (! defined('NOREQUIREMENU'))  define('NOREQUIREMENU','1');
+if (! defined('NOREQUIREHTML'))  define('NOREQUIREHTML','1');
+if (! defined('NOREQUIREAJAX'))  define('NOREQUIREAJAX','1');
+if (! defined('NOLOGIN'))        define('NOLOGIN','1');
+//if (! defined('NOREQUIRETRAN'))  define('NOREQUIRETRAN','1');
+
+if(is_file('../main.inc.php'))$dir = '../';
+else  if(is_file('../../../main.inc.php'))$dir = '../../../';
+else  if(is_file('../../../../main.inc.php'))$dir = '../../../../';
+else $dir = '../../';
+
+
+include($dir."master.inc.php");
+
+
+$sapi_type = php_sapi_name();
+$script_file = basename(__FILE__);
+$path=dirname(__FILE__).'/';
+$customFolder = DOL_DOCUMENT_ROOT . '/custom/'; // pour l'instant ...
+
+// Test if batch mode
+if (substr($sapi_type, 0, 3) == 'cgi' || $sapi_type == 'apache2handler') {
+	echo "Error: You are using PHP for CGI. To execute ".$script_file." from command line, you must use PHP for CLI mode.\n";
+	exit(-1);
+}
+// $argv[0] is filename
+
+// Check parameters
+
+$argsList = array(
+	1 => 'securitykey',
+	2 => 'moduleName',
+	3 => 'langToCheck',
+	4 => 'langFrom'
+);
+
+$optionalArgsList = array(
+	'langFrom' => 'fr_FR' // set default value
+);
+
+// Récupération des arguments
+$param = new stdClass();
+foreach ($argsList as $argKey => $paramName  ){
+
+	if (! isset($argv[$argKey]) || ! $argv[$argKey]) {
+		if(!isset($optionalArgsList[$paramName])){
+			_helpUsage($path,$script_file);
+			exit(-1);
+		}
+		else{
+			$param->{$paramName} = $optionalArgsList[$paramName];
+		}
+	}
+	else{
+		$param->{$paramName} = $argv[$argKey];
+	}
+}
+
+// Check security key
+if ($param->securitykey !== $conf->global->CRON_KEY)
+{
+	print "Error: securitykey is wrong\n";
+	exit(-1);
+}
+
+if (!ctype_alnum($param->moduleName) || !is_dir ( $customFolder . $param->moduleName ) ){
+	print "Error: Invalid module name\n";
+	exit(-1);
+}
+
+
+$dirFrom 	= $customFolder . $param->moduleName. '/langs/' . $param->langFrom;
+$dirToCheck = $customFolder . $param->moduleName. '/langs/' . $param->langToCheck;
+
+if(!is_dir($dirToCheck) || !is_dir($dirToCheck)){
+	print "Error: lang folder does not exists\n";
+	exit(-1);
+}
+
+if(!preg_match ( '/^[a-z]{2}_[A-Z]{2}$/' , $param->langToCheck) || !is_dir($dirToCheck)){
+	print "Error: Invalid lang to check\n".$dirToCheck."\n";
+	exit(-1);
+}
+
+if(!preg_match ( '/^[a-z]{2}_[A-Z]{2}$/' , $param->langFrom) || !is_dir($dirFrom)){
+	print "Error: Invalid lang from\n";
+	exit(-1);
+}
+
+
+$scanDirFrom 	= scandir($dirFrom);
+$scanDirToCheck = scandir($dirToCheck);
+
+if(!empty($scanDirFrom) && is_array($scanDirFrom)){
+	foreach ($scanDirFrom as $filename){
+
+		// skip folders
+		if($filename == "." || $filename == ".."  || is_dir($dirFrom.'/'.$filename) ){
+			continue;
+		}
+
+		// check is a lang file
+		if(preg_match ( '/^(.)+(\.lang)$/' , $filename)){
+
+			$file_lang_osencoded=dol_osencode($dirFrom.'/'.$filename);
+
+			$tab_translate = array();
+
+			/**
+			 * Read each lines until a '=' (with any combination of spaces around it)
+			 * and split the rest until a line feed.
+			 * This is more efficient than fgets + explode + trim by a factor of ~2.
+			 */
+			if ($fp = @fopen($dirFrom.'/'.$filename,"rt")) {
+				while ($line = fscanf($fp, "%[^= ]%*[ =]%[^\n]")) {
+					if (isset($line[1])) {
+						list($key, $value) = $line;
+						//if ($domain == 'orders') print "Domain=$domain, found a string for $tab[0] with value $tab[1]. Currently in cache ".$this->tab_translate[$key]."<br>";
+						//if ($key == 'Order') print "Domain=$domain, found a string for key=$key=$tab[0] with value $tab[1]. Currently in cache ".$this->tab_translate[$key]."<br>";
+						if (empty($tab_translate[$key])) { // If translation was already found, we must not continue, even if MAIN_FORCELANGDIR is set (MAIN_FORCELANGDIR is to replace lang dir, not to overwrite entries)
+							$value = preg_replace('/\\n/', "\n", $value); // Parse and render carriage returns
+							if ($key == 'DIRECTION') { // This is to declare direction of language
+								// TODO
+								continue;
+							} elseif ($key[0] == '#') {
+								continue;
+							} else {
+								$tab_translate[$key] = $value;
+							}
+						}
+					}
+				}
+				fclose($fp);
+			}
+
+			if(!file_exists($dirToCheck . $filename)){
+
+			}
+
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+function _helpUsage($path,$script_file)
+{
+	global $conf;
+
+	print "Usage: ".$script_file." cronSecuritykey moduleFolderName langKeyToCheck langKeyFrom(optional)  \n";
+	print "".$script_file." moduleFolderName en_EN fr_FR.\n";
+	print "The script return 1 when everything worked successfully.\n";
+	print "\n";
+
+}
