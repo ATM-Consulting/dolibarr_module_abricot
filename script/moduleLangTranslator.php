@@ -199,14 +199,42 @@ if(!empty($scanDirFrom) && is_array($scanDirFrom)){
 }
 
 
+/**
+ * Use GOOGLE translate API
+ * 		$text = 'My name is john';
+ *		if(!empty($conf->global->GOOGLE_TRAD_API)){
+ *		_googleTranslate($conf->global->GOOGLE_TRAD_API, $text, $param->langFrom, $param->langTarget);
+ *		}
+ * @param $api_key
+ * @param $text
+ * @param $langFrom
+ * @param $langTarget
+ */
+function _googleTranslate($api_key, $text, $langFrom, $langTarget) {
+	$url = 'https://translation.googleapis.com/language/translate/v2?key=' . $api_key;
 
+	$form = [
+		'q' => $text,
+		'target' => $langTarget,
+		'from' => $langFrom,
+	];
 
+	$ch = curl_init( $url );
+	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+	curl_setopt( $ch, CURLOPT_POSTFIELDS, $form );
 
+	$response = curl_exec( $ch );
 
+	curl_close( $ch );
 
+	$response = json_decode( $response );
+	var_dump( $response );
+}
 
-
-
+/**
+ * @param $filename
+ * @return array|bool
+ */
 function _loadTranslation($filename){
 	$tab_translate = array();
 
@@ -244,6 +272,10 @@ function _loadTranslation($filename){
 	return $tab_translate;
 }
 
+/**
+ * @param $path
+ * @param $script_file
+ */
 function _helpUsage($path,$script_file)
 {
 	global $conf;
