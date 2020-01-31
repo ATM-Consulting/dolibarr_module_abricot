@@ -337,6 +337,18 @@
 
     if ($resql)
     {
+    	$TStatusChange = array(
+			0 => 0
+			,1 => 1
+			,2 => 2
+			,3 => 3
+			,4 => 2
+			,5 => 3
+			,6 => 7
+			,8 => 8
+			,9 => 9
+    	);
+
         $i = 0;
         $num_rows=$db->num_rows($resql);
         $DistinctTarckIDs = array();
@@ -367,7 +379,7 @@
             $sql.= "'".$object->fk_user_assign."',";
             $sql.= "'".$db->escape($object->subject)."',";
             $sql.= "'".$db->escape($object->message)."',";
-            $sql.= "'".$object->fk_statut."',";
+            $sql.= "'".$TStatusChange[$object->fk_statut]."',";
             $sql.= "'".$object->resolution."',";
             $sql.= "'".$object->progress."',";
             $sql.= "'".$object->timing."',";
