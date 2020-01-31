@@ -163,8 +163,33 @@
 
         if (empty($error_extrafields)) {
         	// euh la définition des extrafields ce serait bien aussi...
-        	$sql = "UPDATE ".MAIN_DB_PREFIX."extrafields SET elementtype='ticket' WHERE elementtype='ticketsup'";
-        	$db->query($sql);
+        	$sqlextDef = "SELECT * FROM ".MAIN_DB_PREFIX."extrafields WHERE elementtype='ticketsup'";
+			$resqlExtDef = $db->query($sqlextDef);
+			if ($resqlExtDef)
+			{
+				$fields = array();
+				while ($obj = $db->fetch_array($resqlExtDef))
+				{
+					if (empty($fields))
+					{
+						$tmpfields = array_keys($obj);
+						foreach ($tmpfields as $f) if (!is_numeric($f) && $f != 'rowid') $fields[] = $f;
+					}
+
+					$obj['elementtype'] = 'ticket';
+
+					$sql = "INSERT INTO ".MAIN_DB_PREFIX."extrafields (";
+					$sql.= '`'.implode('`,`', $fields).'`';
+					$sql.= ") values (";
+					foreach ($fields as $k => $fieldkey) {
+						if ($k != 0) $sql.= ",";
+						$sql.= "'".$obj[$fieldkey]."'";
+					}
+					$sql.= ")";
+
+					$db->query($sql);
+				}
+			}
 
             echo MAIN_DB_PREFIX . 'ticket_extrafields : OK' . '<br><br>';
         }
@@ -283,11 +308,19 @@
     {
         $i = 0;
         $num_rows=$db->num_rows($resql);
+        $DistinctTarckIDs = array();
 
         //on insère les données de ticketsup dans la table de ticket standard
         while ($i < $num_rows){
 
             $object = $db->fetch_object($resql);
+
+			// fix bug connu de ticketsup : dupplicate track_id
+			if (!in_array($object->track_id, $DistinctTarckIDs)) $DistinctTarckIDs[] = $object->track_id;
+			else
+			{
+				while (in_array($object->track_id, $DistinctTarckIDs)) $object->track_id.='a';
+			}
 
             $sql = "INSERT INTO ".MAIN_DB_PREFIX."ticket (rowid, entity, ref, track_id, fk_soc, fk_project, origin_email, fk_user_create, fk_user_assign, subject, message, fk_statut, resolution, progress, timing, type_code, category_code, severity_code, datec, date_read, date_close, notify_tiers_at_create, tms)";
 
