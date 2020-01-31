@@ -11,6 +11,37 @@
     $db->begin();
 
     /*
+     * CONF
+     */
+    $resql = $db->query("SELECT *  FROM ".MAIN_DB_PREFIX."const WHERE name LIKE 'TICKETS\_%'");
+
+    if ($db->num_rows($resql))
+	{
+		$error_conf = 0;
+
+		while ($object = $db->fetch_object($resql))
+		{
+			$sql = "INSERT IGNORE INTO ".MAIN_DB_PREFIX."const (`name`, `entity`, `value`, `type`, `visible`, `note`, `tms`)";
+			$sql.= " VALUES ('";
+			$sql.= str_replace("TICKETS_", "TICKET_", $object->name)."','";
+			$sql.= $object->entity."','";
+			$sql.= $db->escape($object->value)."','";
+			$sql.= $db->escape($object->type)."','";
+			$sql.= $db->escape($object->visible)."','";
+			$sql.= $db->escape($object->note)."','";
+			$sql.= $object->tms."'";
+			$sql.= ")";
+
+			$result = $db->query($sql);
+			if (!$result) {
+				dol_print_error($db);
+				$error_conf++;
+			}
+
+		}
+	}
+
+    /*
      * CATEGORY
      */
 
@@ -498,7 +529,7 @@
      * RESULTAT SCRIPT
      */
 
-    if(!empty($error_dir) || !empty($error_actioncomm) || !empty($error_category) || !empty($error_extrafields) || !empty($error_severity) || !empty($error_severity) || !empty($error_type) || !empty($error_ticket)){
+    if(!empty($error_dir) || !empty($error_actioncomm) || !empty($error_category) || !empty($error_extrafields) || !empty($error_severity) || !empty($error_severity) || !empty($error_type) || !empty($error_ticket) || !empty($error_conf)){
         $db->rollback();
         echo 'EXECUTION DU SCRIPT KO';
     } else {
