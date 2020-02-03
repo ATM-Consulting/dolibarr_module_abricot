@@ -618,14 +618,15 @@ class SeedObject extends SeedObjectDolibarr
 	}
 
     /**
-     * @param User $user object
-     * @return int
+     * @param 	User 	$user 		object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
+     * @return  int
      */
-    public function cloneObject($user)
+    public function cloneObject($user, $notrigger = false)
     {
         $this->clear();
 
-        return $this->create($user);
+        return $this->create($user, $notrigger);
     }
 
     /**
@@ -847,9 +848,10 @@ class SeedObject extends SeedObjectDolibarr
     /**
      * Function to update children data
      *
-     * @param   User    $user   user object
+     * @param   User    $user   	user object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
      */
-	public function saveChild(User &$user)
+	public function saveChild(User &$user, $notrigger = false)
     {
 		if($this->withChild && !empty($this->childtables) && !empty($this->fk_element))
 		{
@@ -863,7 +865,7 @@ class SeedObject extends SeedObjectDolibarr
 					{
 						$object->{$this->fk_element} = $this->id;
 
-						$object->update($user);
+						$object->update($user, $notrigger);
 						if($this->unsetChildDeleted && isset($object->to_delete) && $object->to_delete==true) unset($this->{'T'.$className}[$i]);
 					}
 				}
@@ -875,21 +877,22 @@ class SeedObject extends SeedObjectDolibarr
     /**
      * Function to update object or create or delete if needed
      *
-     * @param   User    $user   user object
-     * @return  int                < 0 if ko, > 0 if ok
+     * @param   User    $user   	user object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
+     * @return  int                 < 0 if ko, > 0 if ok
      */
-    public function update(User &$user)
+    public function update(User &$user, $notrigger = false)
     {
-		if (empty($this->id)) return $this->create($user); // To test, with that, no need to test on high level object, the core decide it, update just needed
-        elseif (isset($this->to_delete) && $this->to_delete==true) return $this->delete($user);
+		if (empty($this->id)) return $this->create($user, $notrigger); // To test, with that, no need to test on high level object, the core decide it, update just needed
+        elseif (isset($this->to_delete) && $this->to_delete==true) return $this->delete($user, $notrigger);
 
         $error = 0;
         $this->db->begin();
 
-        $res = $this->updateCommon($user);
+        $res = $this->updateCommon($user, $notrigger);
         if ($res)
         {
-           $this->saveChild($user);
+           $this->saveChild($user, $notrigger);
         }
         else
         {
@@ -914,21 +917,22 @@ class SeedObject extends SeedObjectDolibarr
     /**
      * Function to create object in database
      *
-     * @param   User    $user   user object
-     * @return  int                < 0 if ko, > 0 if ok
+     * @param   User    $user		user object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
+     * @return  int                 < 0 if ko, > 0 if ok
      */
-    public function create(User &$user)
+    public function create(User &$user, $notrigger = false)
     {
-		if($this->id > 0) return $this->update($user);
+		if($this->id > 0) return $this->update($user, $notrigger);
 
         $error = 0;
         $this->db->begin();
 
-        $res = $this->createCommon($user);
+        $res = $this->createCommon($user, $notrigger);
 		if($res)
 		{
 
-			$this->saveChild($user);
+			$this->saveChild($user, $notrigger);
 		}
 		else
         {
@@ -952,17 +956,18 @@ class SeedObject extends SeedObjectDolibarr
     /**
      * Function to delete object in database
      *
-     * @param   User    $user   user object
-     * @return  int                < 0 if ko, > 0 if ok
+     * @param   User    $user   	user object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
+     * @return  int                 < 0 if ko, > 0 if ok
      */
-	public function delete(User &$user)
+	public function delete(User &$user, $notrigger = false)
     {
 		if ($this->id <= 0) return 0;
 
         $error = 0;
         $this->db->begin();
 
-        if ($this->deleteCommon($user)>0)
+        if ($this->deleteCommon($user, $notrigger)>0)
         {
             if($this->withChild && !empty($this->childtables))
             {
@@ -974,7 +979,7 @@ class SeedObject extends SeedObjectDolibarr
                     {
                         foreach($this->{'T'.$className} as &$object)
                         {
-                            $object->delete($user);
+                            $object->delete($user, $notrigger);
                         }
                     }
                 }
@@ -1117,10 +1122,10 @@ class SeedObject extends SeedObjectDolibarr
     	    }
 	    }
 
-        if (! $error && ! $notrigger) {
+        if (! $error) {
             $this->id = $this->db->last_insert_id(MAIN_DB_PREFIX . $this->table_element);
 
-            if (!$notrigger) {
+            if (! $notrigger) {
                 // Call triggers
                 $result=$this->call_trigger(strtoupper(get_class($this)).'_CREATE',$user);
                 if ($result < 0) { $error++; }
