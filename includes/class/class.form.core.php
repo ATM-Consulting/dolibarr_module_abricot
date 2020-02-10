@@ -50,7 +50,7 @@ function __construct($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE
 }
 
 
-function begin_form($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE,$plus="") {
+function begin_form($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE,$plus="", $addToken = true) {
 	
 	$r='';
 	if (!empty($pName)) {
@@ -64,6 +64,8 @@ function begin_form($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE,
 	    $r.=  ' action="'.$pAction.'"';
 	    $r.=  ' id="'.$pName.'"';
 	    $r.=  ' name="'.$pName.'">';
+
+	    if($addToken) $r.=  '<input type="hidden" name="token" value="' . $_SESSION['newtoken'] . '">';
 	}
 	
 	return $r;
@@ -1545,7 +1547,7 @@ private function _combo_option($Tab, $pDefault) {
 			$seleted = false;
 			if (
 			(is_array($pDefault) && !in_array($val,$pDefault))
-			|| (($val!=$pDefault && !$this->strict_string_compare) || ((string)$val!==(string)$pDefault && $this->strict_string_compare))
+			||  !is_array($pDefault) && (($val!=$pDefault && !$this->strict_string_compare) || ((string)$val!==(string)$pDefault && $this->strict_string_compare))
 			){
 		  	   $seleted=false;
 			}

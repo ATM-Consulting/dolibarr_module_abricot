@@ -1,0 +1,21 @@
+{
+  "name": "atm-consulting/abricot",
+  "description": "Collection of specific ATM functions and classes",
+  "type": "dolibarr-module",
+  "license": "GPL-3.0+",
+  "authors": [
+    {
+      "name": "ATM Consulting",
+      "email": "contact@atm-consulting.fr",
+      "homepage": "https://www.atm-consulting.fr"
+    }
+  ],
+  "support": {
+    "email": "support@atm-consulting.fr",
+    "issues": "https://github.com/ATM-Consulting/dolibarr_module_abricot/issues",
+    "source": "https://github.com/ATM-Consulting/dolibarr_module_abricot"
+  },
+  "require": {
+    "composer/installers": "~1.0"
+  }
+}

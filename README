@@ -1,5 +1,13 @@
 Noyau ATM pour modules spécifiques
 ====================
-Le module doit s'appeler abricot dans votre répertoire custom ou htdocs
+Le module doit s'appeler abricot dans votre répertoire `htdocs/custom/` ou `htdocs/`
 
 Forkable sur Github : https://github.com/ATM-Consulting/dolibarr_module_abricot
+
+-----
+
+ATM core for specific modules
+====================
+The module must be called `abricot` in your `htdocs/custom/` or `htdocs/` directory
+
+Fork on Github: https://github.com/ATM-Consulting/dolibarr_module_abricot

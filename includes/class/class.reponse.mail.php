@@ -63,11 +63,10 @@ class TReponseMail{
 
 //var_dump($this->use_dolibarr_for_smtp , $conf->global->MAIN_MAIL_SENDMODE , $this->TPiece);exit;
 
-		if($this->use_dolibarr_for_smtp && $conf->global->MAIN_MAIL_SENDMODE == 'smtps') {
+		if($this->use_dolibarr_for_smtp && in_array($conf->global->MAIN_MAIL_SENDMODE, array('smtps', 'swiftmailer'))) {
 			// Si la conf global indique du smtp et qu'il n'y a pas de pièce jointe, envoi via dolibarr
 			dol_include_once('/core/class/CMailFile.class.php');
 			if(class_exists('CMailFile')) {
-				
 				$TFilePath = $TMimeType = $TFileName = array();
 				foreach($this->TPiece as &$piece) {
 					$TFilePath[] = $piece['file'];

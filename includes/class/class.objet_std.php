@@ -23,20 +23,58 @@
 class TObjetStd {
 
 	/**
+	 * @var string Table contenant les données
+	 */
+	public $table = '';
+
+	/**
+	 * @var array Tableau contenant la déclaration des champs
+	 */
+	public $TChamps = array();
+
+	/**
+	 * @var array Tableau permettant la construction d'une liste
+	 */
+	public $TList = array();
+
+	/**
+	 * @var array Tableau de définition des contraintes des champs
+	 */
+	public $TConstraint = array();
+
+	/**
+	 * @var array Tableau des champs à charger mais pas à ne passauvegarder
+	 */
+	public $TNoSaveVars = array();
+
+	/**
+	 * @var bool Marque si cette classe a des enfants ou non
+	 */
+	public $withChild = false;
+
+	/**
+	 * @var bool Marque un objet à supprimer
+	 */
+	public $to_delete = false;
+
+	/**
+	 * @var array Tableau de stockage des erreurs
+	 */
+	public $errors = array();
+
+	/**
+	 * @var bool Activer l'affichage d'informations supplémentaires
+	 */
+	public $debug = false;
+
+	/**
 	 * constructeur
-	 **/
+	 */
 	function __construct(){
 
-		$this->table=''; /* table contenant les données */
 		$this->{OBJETSTD_MASTERKEY}=0; /* clef primaire */
 		$this->{OBJETSTD_DATECREATE}=time();
 		$this->{OBJETSTD_DATEUPDATE}=time();
-		$this->TChamps=array(); /* tableau contenant la d?claration de variables */
-		$this->TNoSaveVars=array(); /* tableau des variables ? charger mais pas ? sauvegarder */
-		$this->TList=array(); /* tableau permettant la construction d'une liste */
-		$this->TConstraint=array();
-
-		$this->errors=array();
 		
 		$this->start();
 		
@@ -48,11 +86,14 @@ class TObjetStd {
     	$this->table=$nom_table;
 		//TODO $this->table_element
     }
+
 	/**
-	  * @param boolean $create_new When true returns a new stdClass.
-	  *
-	  * @return stdClass|null
-	  */
+	 * Ajoute un nouveau champ
+	 *
+	 * @param   string  $nom            Clé du champ
+	 * @param   array   $infos          Descripteur du champ
+	 * @param   array   $constraint     Descripteur des contraintes du champ
+	 */
 	function add_champs($nom, $infos=array(),$constraint=array()){
 
 		if(is_string($infos)) $infos = $this->_to_info_array($infos); // deprecated
@@ -103,8 +144,11 @@ class TObjetStd {
   }
 
 
-//récupère les données de la base de données
-	// d'ou le nom, set vars BY db
+	/**
+	 * Récupère les données de la base de données, d'où le nom, set vars BY db
+	 *
+	 * @param TPDOdb    $db     Connecteur de base de données
+	 */
 	function _set_vars_by_db(&$db){
 
 		foreach ($this->TChamps as $nom_champ=>$info) {
@@ -149,6 +193,9 @@ function _no_save_vars($lst_chp) {
       }
   }
 
+	/**
+	 * @param TPDOdb    $db     Connecteur de base de données
+	 */
   function addFieldsInDb(&$db) {
 
 		$db->Execute('SHOW FIELDS FROM `'.$this->get_table().'`');
@@ -184,6 +231,9 @@ function _no_save_vars($lst_chp) {
 
   }
 
+	/**
+	 * @param TPDOdb    $db     Connecteur de base de données
+	 */
   function init_db_by_vars(&$db) {
 	global $conf;
 	
@@ -205,13 +255,18 @@ function _no_save_vars($lst_chp) {
  				) ENGINE=InnoDB";
 		if (!empty($charset)) $sql .= ' DEFAULT CHARSET='.$charset;
 
-		$db->Execute($sql);
+		if (!empty($conf->db->dolibarr_main_db_collation)) $sql .= ' COLLATE='.$conf->db->dolibarr_main_db_collation;
+
+            $db->Execute($sql);
 	}
 
 	$this->addFieldsInDb($db);
 
   }
 
+	/**
+	 * @param TPDOdb    $db     Connecteur de base de données
+	 */
   function init_vars_by_db(&$db) {
   	$db->Execute("SHOW COLUMNS FROM `".$this->get_table()."`");
 	while($db->Get_line()) {
@@ -398,6 +453,8 @@ function _no_save_vars($lst_chp) {
 
 
   function _set_save_query(&$query){
+	  global $conf;
+	  
     foreach ($this->TChamps as $nom_champ=>$info) {
 
      // /* modification des dates au format français vers un format anglais
@@ -411,7 +468,8 @@ function _no_save_vars($lst_chp) {
       }
       else if($this->_is_date($info)){
 		if(empty($this->{$nom_champ})){
-			$query[$nom_champ] = NULL;
+			if (!empty($conf->global->ABRICOT_INSERT_OLD_EMPTY_DATE_FORMAT)) $query[$nom_champ] = $this->date_0;
+			else $query[$nom_champ] = NULL;
 		}
 		else{
 			$date = date('Y-m-d H:i:s',$this->{$nom_champ});
@@ -465,7 +523,13 @@ function _no_save_vars($lst_chp) {
 			$db->close();
 	 }
 	 
+	$this->date_0 = empty($conf->global->ABRICOT_USE_OLD_EMPTY_DATE_FORMAT) ? '1000-01-01 00:00:00' : '0000-00-00 00:00:00';
   }
+
+	/**
+	 * @param   TPDOdb  $ATMdb  Connecteur de base de données
+	 * @param   string  $state  Type de trigger à appeler
+	 */
 	function run_trigger(&$ATMdb, $state)
 	{
 		global $db,$user,$langs,$conf;
@@ -530,9 +594,9 @@ function _no_save_vars($lst_chp) {
 	 * @param TPDOdb	$db			Object PDO database
 	 * @param array		$value		Contain value for sql test
 	 * @param array		$field		Contain field for sql test
-	 * @param boolean	$annexe		1 = load childs; 0 = Only load object
+	 * @param bool	    $annexe		true = load childs; false = Only load object
 	 *
-	 * @return array	$TRes	Array of objects
+	 * @return bool                 true = OK; false = KO
 	 */
 	function loadBy(&$db, $value, $field, $annexe=false) {
 		$db->Execute("SELECT ".OBJETSTD_MASTERKEY." FROM ".$this->get_table()." WHERE ".$field."='".$value."' LIMIT 1");
@@ -546,11 +610,12 @@ function _no_save_vars($lst_chp) {
   
   /**
    * Function Load. Load an object with id
+   *
    * @param TPDOdb	$db			Object PDO database
    * @param int		$id			Contain rowid of object
-   * @param boolean	$loadChild	1 = load childs; 0 = Only load object
+   * @param bool	$loadChild	true = load childs; false = Only load object
    *
-   * @return boolean	1 = OK; 0 = KO
+   * @return bool	            true = OK; false = KO
    */
   function load(&$db,$id,$loadChild=true){
   	//TODO add oldcopy for history module
@@ -615,7 +680,15 @@ function _no_save_vars($lst_chp) {
 		
 		return false;
 	}
-	
+
+	/**
+	 * @param   TPDOdb      $db             Connecteur de base de données
+	 * @param   string      $tabName        Nom du tableau des enfants
+	 * @param   int         $id             ID de l'enfant à ajouter
+	 * @param   string      $key            Champ de recherche de l'enfant
+	 * @param   bool        $try_to_load    true = va chercher à charger l'enfant, false = non
+	 * @return  int                         Indice de l'enfant dans le tableau des enfants
+	 */
 	function addChild(&$db, $tabName, $id=0, $key=OBJETSTD_MASTERKEY, $try_to_load = false) {
 		if($id>0) {
 			foreach($this->{$tabName} as $k=>&$object) {
@@ -635,6 +708,10 @@ function _no_save_vars($lst_chp) {
 
 		return $k;
 	}
+
+	/**
+	 * @param   TPDOdb  $db     Connecteur de base de données
+	 */
 	function loadChild(&$db) {
 		if($this->withChild) {
 
@@ -667,6 +744,10 @@ function _no_save_vars($lst_chp) {
 		}
 
 	}
+
+	/**
+	 * @param   TPDOdb  $db     Connecteur de base de données
+	 */
 	function saveChild(&$db) {
 
 		if($this->withChild) {
@@ -720,6 +801,11 @@ function _no_save_vars($lst_chp) {
 		return ($error == 0);
 	}
 
+	/**
+	 * @param   TPDOdb  $db     Connecteur de base de données
+	 *
+	 * @return  bool            true = OK, false = KO
+	 */
 	function cloneObject(&$db)
 	{
 		$this->is_clone = true;
@@ -748,7 +834,12 @@ function _no_save_vars($lst_chp) {
 		
 		return true;
 	}
-	
+
+	/**
+	 * @param   TPDOdb      $db     Connecteur de base de données
+	 *
+	 * @return  false|int           false = erreur, l'ID de l'objet sinon
+	 */
 	function save(&$db){
 		//$this->save_log($db);
 		if(isset($this->to_delete) && $this->to_delete==true) {
@@ -788,6 +879,9 @@ function _no_save_vars($lst_chp) {
 	}
 
 
+	/**
+	 * @param   TPDOdb  $db     Connecteur de base de données
+	 */
 	function delete(&$db){
 		if($this->{OBJETSTD_MASTERKEY}!=0){
 			$this->run_trigger($db, 'delete');
@@ -815,6 +909,10 @@ function _no_save_vars($lst_chp) {
 		}
 
 	}
+
+	/**
+	 * @param   TPDOdb  $db     Connecteur de base de données
+	 */
 	function get_newid(&$db){
 		$sql="SELECT max(".OBJETSTD_MASTERKEY.") as 'maxi' FROM ".$this->get_table();
 		$db->Execute($sql);
@@ -957,9 +1055,13 @@ function _no_save_vars($lst_chp) {
 	}
 
 	/**
-	 *  méthode renvoyant le nb total
-	 *  une condition WHERE peut-être passée
-	 **/
+	 * Méthode renvoyant le nb total d'objets. Une condition WHERE peut-être passée
+	 *
+	 * @param   TPDOdb  $db     Connecteur de base de données
+	 * @param   string  $cond   Condition SQL
+	 *
+	 * @return  int             Nombre d'objets correspondant
+	 */
 	function getNb(&$db,$cond='1'){
 		$table =  $this->get_table();
 		$sql = 'SELECT count(*) as nb FROM '.$table.' WHERE '.$cond;
@@ -970,6 +1072,43 @@ function _no_save_vars($lst_chp) {
 	}
 	function getId(){
 		return $this->{OBJETSTD_MASTERKEY};
+	}
+
+
+	/**
+	 * Méthode utilisée par var_dump() pour sélectionner les données à afficher, à partir de PHP 5.6
+	 * Ici, pour plus de clarté, on filtre les champs inhérents à la classe et non aux instances - et qui devraient en fait être static...
+	 *
+	 * @return array Tableau clé => valeur des données à afficher
+	 */
+	public function __debugInfo()
+	{
+		$TKeyVal = get_object_vars($this);
+
+		if(empty($this->debug))
+		{
+			$TKeysToHide = array(
+				'table'
+				, 'TChamps'
+				, 'TConstraint'
+				, 'TChildObjetStd'
+				, 'TNoSaveVars'
+				, 'TList'
+				, 'champs_indexe'
+				, 'date_0'
+			);
+
+			$TKeyVal = array_filter(
+				$TKeyVal
+				, function ($key) use ($TKeysToHide)
+				{
+					return ! in_array($key, $TKeysToHide);
+				}
+				, ARRAY_FILTER_USE_KEY
+			);
+		}
+
+		return $TKeyVal;
 	}
 }
 /*
