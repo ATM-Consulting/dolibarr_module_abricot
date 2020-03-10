@@ -47,7 +47,7 @@ function setup_print_title($title="", $width = 300)
  *
  * exemple _print_on_off('CONSTNAME', 'ParamLabel' , 'ParamDesc');
  */
-function setup_print_on_off($confkey, $title = false, $desc ='', $help = false, $width = 300)
+function setup_print_on_off($confkey, $title = false, $desc ='', $help = false, $width = 300, $forcereload = false)
 {
     global $var, $bc, $langs, $conf, $form;
     $var=!$var;
@@ -68,7 +68,15 @@ function setup_print_on_off($confkey, $title = false, $desc ='', $help = false, 
     print '</td>';
     print '<td align="center" width="20">&nbsp;</td>';
     print '<td align="center" width="'.$width.'">';
-    print ajax_constantonoff($confkey);
+
+    if($forcereload){
+        $link = $_SERVER['PHP_SELF'].'?action=set_'.$confkey.'&token='.$_SESSION['newtoken'].'&'.$confkey.'='.intval((empty($conf->global->{$confkey})));
+        $toggleClass = empty($conf->global->{$confkey})?'fa-toggle-off':'fa-toggle-on font-status4';
+        print '<a href="'.$link.'" ><span class="fas '.$toggleClass.' marginleftonly" style=" color: #999;"></span></a>';
+    }
+    else{
+        print ajax_constantonoff($confkey);
+    }
     print '</td></tr>';
 }
 
