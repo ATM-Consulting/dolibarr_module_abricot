@@ -264,6 +264,10 @@ class Listview
 				$fieldname = !empty($info['fieldname']) ? $info['fieldname'] : 'Listview_'.$this->id.'_search_'.$field;
 				foreach ($TsKey as $i => &$sKey)
 				{
+				    if(!empty($TParam['search'][$field]['no-auto-sql-search'])){
+				        continue;
+                    }
+
 					$value = GETPOST($fieldname);
 					$value_null = GETPOST('Listview_'.$this->id.'_search_on_null_'.$field);
 					
