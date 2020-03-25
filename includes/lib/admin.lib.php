@@ -137,11 +137,10 @@ function setup_print_input_form_part($confkey, $title = false, $desc ='', $metas
     print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
     print '<input type="hidden" name="action" value="set_'.$confkey.'">';
 
-
 		if($type=='textarea'){
 			print '<textarea '.$metascompil.'  >'.dol_htmlentities($conf->global->{$confkey}).'</textarea>';
 		}
-		elseif($type=='imput'){
+		elseif($type=='input'){
 			print '<input '.$metascompil.'  />';
 		}
 		else{
