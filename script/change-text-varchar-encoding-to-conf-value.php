@@ -39,6 +39,8 @@
     {
         $num = $db->num_rows($sql);
 
+	    $resql3 = $db->query("SET FOREIGN_KEY_CHECKS = 0");
+
         for($i = 0; $i < $num; $i++)
         {
             $obj = $db->fetch_object($resql);
