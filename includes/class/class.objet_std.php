@@ -130,17 +130,19 @@ class TObjetStd {
 	}
 
   function get_table(){
-    return $this->table;
+    	return $this->table;
   }
-	function get_champs(){
-    return $this->TChamps;
+
+  function get_champs(){
+    	return $this->TChamps;
   }
-	function _get_field_list(){
-    $r="";
-    foreach ($this->TChamps as $nom_champ=>$info) {
-    	$r.=$nom_champ.",";
-    }
-    return $r;
+
+  function _get_field_list(){
+		$r="";
+		foreach ($this->TChamps as $nom_champ=>$info) {
+			$r.='`'.$nom_champ."`,";
+		}
+   	 	return $r;
   }
 
 
