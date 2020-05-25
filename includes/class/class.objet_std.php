@@ -75,9 +75,9 @@ class TObjetStd {
 		$this->{OBJETSTD_MASTERKEY}=0; /* clef primaire */
 		$this->{OBJETSTD_DATECREATE}=time();
 		$this->{OBJETSTD_DATEUPDATE}=time();
-		
+
 		$this->start();
-		
+
 	}
 	/**
 	 * change la table
@@ -236,14 +236,14 @@ function _no_save_vars($lst_chp) {
 	 */
   function init_db_by_vars(&$db) {
 	global $conf;
-	
+
 	$db->Execute("SHOW TABLES FROM `".DB_NAME."` LIKE '".$this->get_table()."'");
 	if(!$db->Get_line()) {
 		/*
 		 * La table n'existe pas, on la crée
 		 */
-		$charset = $conf->db->character_set;	
-		
+		$charset = $conf->db->character_set;
+
 		$sql = "CREATE TABLE `".$this->get_table()."` (
  				`".OBJETSTD_MASTERKEY."` int(11) NOT NULL DEFAULT '0'
  				,`".OBJETSTD_DATECREATE."` datetime NULL
@@ -454,7 +454,7 @@ function _no_save_vars($lst_chp) {
 
   function _set_save_query(&$query){
 	  global $conf;
-	  
+
     foreach ($this->TChamps as $nom_champ=>$info) {
 
      // /* modification des dates au format français vers un format anglais
@@ -522,7 +522,7 @@ function _no_save_vars($lst_chp) {
 			$this->init_db_by_vars($db);
 			$db->close();
 	 }
-	 
+
 	$this->date_0 = empty($conf->global->ABRICOT_USE_OLD_EMPTY_DATE_FORMAT) ? '1000-01-01 00:00:00' : '0000-00-00 00:00:00';
   }
 
@@ -550,7 +550,7 @@ function _no_save_vars($lst_chp) {
 
 		}
 	}
-	
+
 	/**
 	 * Function LoadAllBy. Load an object with id
 	 * @param TPDOdb	$db				Object PDO database
@@ -587,8 +587,8 @@ function _no_save_vars($lst_chp) {
 		}
 		return $TRes;
 	}
-	
-	
+
+
 	/**
 	 * Function LoadBy. Load an object with id
 	 * @param TPDOdb	$db			Object PDO database
@@ -607,7 +607,7 @@ function _no_save_vars($lst_chp) {
 			return false;
 		}
 	}
-  
+
   /**
    * Function Load. Load an object with id
    *
@@ -668,16 +668,16 @@ function _no_save_vars($lst_chp) {
 		}
 		return false;
 	}
-	
+
 	function searchChild($tabName, $id=0, $key=OBJETSTD_MASTERKEY) {
-		
+
 		if($id>0) {
 			foreach($this->{$tabName} as $k=>&$object) {
 				if($object->{$key} == $id) return $k;
 
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -811,10 +811,10 @@ function _no_save_vars($lst_chp) {
 		$this->is_clone = true;
 		$this->start();
 		$this->clearChildren();
-		
+
 		return $this->save($db);
 	}
-	
+
 	protected function clearChildren()
 	{
 		if (!empty($this->TChildObjetStd))
@@ -826,12 +826,12 @@ function _no_save_vars($lst_chp) {
 					$child->{$childObjetStd['foreignKey']} = 0;
 					$child->is_clone = true;
 					$child->start();
-					
+
 					$child->clearChildren();
 				}
 			}
 		}
-		
+
 		return true;
 	}
 
