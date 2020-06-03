@@ -52,6 +52,12 @@ function setup_print_on_off($confkey, $title = false, $desc ='', $help = false, 
 
     print '<tr '.$bc[$var].'>';
     print '<td>';
+
+
+	if(empty($help) && !empty($langs->tab_translate[$confkey . '_HELP'])){
+		$help = $confkey . '_HELP';
+	}
+
     if(!empty($help)){
         print $form->textwithtooltip( ($title?$title:$langs->trans($confkey)) , $langs->trans($help),2,1,img_help(1,''));
     }
