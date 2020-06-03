@@ -29,9 +29,7 @@ function setup_print_title($title="", $width = 300)
 {
     global $langs;
     print '<tr class="liste_titre">';
-    print '<th>'.$langs->trans($title).'</th>'."\n";
-    print '<th align="center" width="20">&nbsp;</th>';
-    print '<th align="center" width="'.$width.'"></th>'."\n";
+    print '<th colspan="3">'.$langs->trans($title).'</th>'."\n";
     print '</tr>';
 }
 
