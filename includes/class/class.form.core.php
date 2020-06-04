@@ -704,7 +704,7 @@ function calendrier($pLib,$pName,$pVal,$pTaille=12,$pTailleMax=10,$plus='',$clas
 }
 
 
-function timepicker($pLib,$pName,$pVal,$pTaille=12,$pTailleMax=10,$plus='',$class='text',$format='H:i'){
+function timepicker($pLib,$pName,$pVal,$pTaille=12,$pTailleMax=10,$plus='',$class='text',$format='H:i', $minTime = '', $maxTime = ''){
   /* jquery datepicker requis */
   
   $id = strtr($pName,array('['=>'_', ']'=>'_'));
@@ -744,7 +744,9 @@ function timepicker($pLib,$pName,$pVal,$pTaille=12,$pTailleMax=10,$plus='',$clas
 		        $( "#'.$id.'" ).timepicker({
 		        	 timeFormat: "'.$format.'"
 		        	 ,setTime: '.strtotime(date('Y-m-d').' '.$dateValue).' 
-		        	 ,step: 15 
+		        	 ,step: 15
+		        	 ,minTime: "'.$minTime.'"
+		        	 ,maxTime: "'.$maxTime.'"
 				});
 		    });
 	</script>';
