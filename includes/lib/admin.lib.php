@@ -42,10 +42,11 @@ function setup_print_title($title="", $width = 300)
  * @param string $confkey
  * @param string $title
  * @param string $desc
+ * @param $ajaxConstantOnOffInput will be send to ajax_constantonoff() input param
  *
  * exemple _print_on_off('CONSTNAME', 'ParamLabel' , 'ParamDesc');
  */
-function setup_print_on_off($confkey, $title = false, $desc ='', $help = false, $width = 300, $forcereload = false)
+function setup_print_on_off($confkey, $title = false, $desc ='', $help = false, $width = 300, $forcereload = false, $ajaxConstantOnOffInput = array())
 {
     global $var, $bc, $langs, $conf, $form;
     $var=!$var;
@@ -79,7 +80,7 @@ function setup_print_on_off($confkey, $title = false, $desc ='', $help = false, 
         print '<a href="'.$link.'" ><span class="fas '.$toggleClass.' marginleftonly" style=" color: #999;"></span></a>';
     }
     else{
-        print ajax_constantonoff($confkey);
+        print ajax_constantonoff($confkey, $ajaxConstantOnOffInput);
     }
     print '</td></tr>';
 }
@@ -152,7 +153,7 @@ function setup_print_input_form_part($confkey, $title = false, $desc ='', $metas
 			print $type;
 		}
 
-    print '<input type="submit" class="butAction" value="'.$langs->trans("Modify").'">';
+    print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
     print '</form>';
     print '</td></tr>';
 }
