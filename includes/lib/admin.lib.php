@@ -48,6 +48,7 @@ function isAbricotMinVersion($minVersion)
  * @param int $skipDolVersion 0 no , 1 skip, -1 auto
  * @return int    -4,-3,-2,-1 if $minVersion < Abricot version (value depends on level of difference)
  *                0 if same
+ * 				  false on fail
  *                1,2,3,4 if $minVersion > Abricot version (value depends on level of difference)
  */
 function compareModuleVersion($module, $minVersion, $skipDolVersion = -1)
