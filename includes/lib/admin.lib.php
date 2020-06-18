@@ -22,6 +22,89 @@
  */
 
 /**
+ * Check abricot module version
+ * @param string $minVersion minnimum version compatibility to test against current abricot version
+ * @return int 	-4,-3,-2,-1 if $minVersion < Abricot version (value depends on level of difference)
+ * 				0 if same
+ * 				1,2,3,4 if $minVersion > Abricot version (value depends on level of difference)
+ *
+ * Usage exemple :
+ * // Check abricot version
+ * if(!function_exists('isAbricotMinVersion') || isAbricotMinVersion('3.0.5') < 0 ){
+ * 		print '<div class="error" >'.$langs->trans('AbricotNeedUpdate').' : <a href="http://wiki.atm-consulting.fr/index.php/Accueil#Abricot" target="_blank"><i class="fa fa-info"></i> Wiki</a></div>';
+ * 		exit;
+ * }
+ */
+function isAbricotMinVersion($minVersion)
+{
+	return  compareModuleVersion('Abricot', $minVersion);
+}
+
+
+/**
+ * Compare module version
+ * @param $module use same case of the module class : thetargetmodulename/core/modules/modTheTargetModuleName.class.php
+ * @param string $minVersion minimum version compatibility to test against current module version
+ * @param int $skipDolVersion 0 no , 1 skip, -1 auto
+ * @return int    -4,-3,-2,-1 if $minVersion < Abricot version (value depends on level of difference)
+ *                0 if same
+ *                1,2,3,4 if $minVersion > Abricot version (value depends on level of difference)
+ */
+function compareModuleVersion($module, $minVersion, $skipDolVersion = -1)
+{
+	global $db;
+	$includeRes = dol_include_once(strtolower($module).'/core/modules/mod'.$module.'.class.php');
+
+	if($includeRes){
+		$classname = 'mod'.$module;
+		$mod = new $classname($db);
+		$modVersion = $mod->version;
+		if($skipDolVersion < 0){
+			$skipDolVersion = !empty($mod->versionDol)?1:0;
+		}
+
+		return  TModuleVersionCompare($modVersion, $minVersion, $skipDolVersion);
+	}
+
+	return false;
+}
+
+/**
+ * Compare 2 modules versions from string
+ * @param string $versionSource
+ * @param $versionTarget
+ * @param $skipDolVersion remove first block if not relevant like a dolibarr version compatibility flag : 12.1.2.4 and 11.1.2.4 -> only compare 1.2.4
+ * @param int $level
+ * @return int -4,-3,-2,-1 if versionSource < versionTarget version (value depends on level of difference)
+ *                0 if same
+ *                1,2,3,4 if versionSource > versionTarget version (value depends on level of difference)
+ */
+function TModuleVersionCompare($versionSource,$versionTarget, $skipDolVersion = 0){
+	$level = 0;
+	$TSource = explode('.', $versionSource);
+	$TTarget = explode('.', $versionTarget);
+	$countSource = count($TSource);
+	$countTarget = count($TTarget);
+	$maxSlices = max($countSource, $countTarget);
+
+	if($skipDolVersion && empty($level)){ $level ++; } // skip dolibarr compatibility version flag
+
+	for ($i = $level; $i < $maxSlices; $i++) {
+		$slotNumb = $i+1;
+		$curentSlotSource = intval(isset($TSource[$i])?$TSource[$i]:0);
+		$curentSlotTarget = intval(isset($TTarget[$i])?$TTarget[$i]:0);
+
+		if($curentSlotSource > $curentSlotTarget){
+			return $slotNumb;
+		}elseif($curentSlotSource < $curentSlotTarget){
+			return -$slotNumb;
+		}
+	}
+
+	return 0;
+}
+
+/**
  * Display title
  * @param string $title
  */
