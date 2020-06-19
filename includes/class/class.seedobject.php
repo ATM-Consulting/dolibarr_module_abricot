@@ -1033,7 +1033,7 @@ class SeedObject extends SeedObjectDolibarr
 		else
         {
 			require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
-			$this->{$field} = dol_stringtotime($date);
+			$this->{$field} = dol_stringtotime($date, 0);
 		}
 
 		return $this->{$field};
