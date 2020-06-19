@@ -711,7 +711,7 @@ class Listview
 
     	if(count($TSearch)>0)
 		{
-			$out.='<tr class="liste_titre liste_titre_search barre-recherche">';
+			$out.='<tr class="liste_titre liste_titre_search barre-recherche liste_titre_filter">';
 
 			foreach ($THeader as $field => $head)
 			{
