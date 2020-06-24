@@ -979,6 +979,7 @@ class SeedObject extends SeedObjectDolibarr
                     {
                         foreach($this->{'T'.$className} as &$object)
                         {
+                            $object->parent = $this;
                             $object->delete($user, $notrigger);
                         }
                     }
