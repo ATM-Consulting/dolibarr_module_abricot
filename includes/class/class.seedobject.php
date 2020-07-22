@@ -1029,7 +1029,7 @@ class SeedObject extends SeedObjectDolibarr
     {
 	  	if (empty($date))
 	  	{
-	  		$this->{$field} = 0;
+	  		$this->{$field} = null;
 	  	}
 		else
         {
@@ -1053,7 +1053,7 @@ class SeedObject extends SeedObjectDolibarr
 		foreach ($Tab as $key => $value)
 		{
             if($this->fields[$key]['type'] == 'datetime'){
-                $value .= ' '. $Tab[$key.'hour'] .':'.$Tab[$key.'min'].':'.$Tab[$key.'sec'];
+                if(!empty($value)) $value .= ' '. $Tab[$key.'hour'] .':'.$Tab[$key.'min'].':'.$Tab[$key.'sec'];
                 $this->setDate($key, $value);
             }
 			else if($this->checkFieldType($key, 'date'))
