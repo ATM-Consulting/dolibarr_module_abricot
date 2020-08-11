@@ -1335,7 +1335,12 @@ class SeedObject extends SeedObjectDolibarr
 			{
 				if ($this->isInt($info))
 				{
-					$this->db->query('ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD ' . $champs . ' int(11) '.(!empty($info['notnull']) ? ' NOT NULL' : '' ).' DEFAULT \'' . (!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0') . '\'');
+                    $sql = 'ALTER TABLE '.MAIN_DB_PREFIX.$this->table_element.' ADD '.$champs.' int(11) '.(! empty($info['notnull']) ? ' NOT NULL' : '').' DEFAULT \''.(! empty($info['default']) && is_int($info['default']) ? $info['default'] : '0')."'";
+                    if(array_key_exists('foreignkey', $info) && ! empty($info['foreignkey'])) {
+                        $fk = explode('.', $info['foreignkey']);    // fk[0] => tablename, fk[1] => field
+                        $sql.= ', ADD CONSTRAINT FOREIGN KEY ('.$champs.') REFERENCES '.$fk[0].'('.$fk[1].')';
+                    }
+					$this->db->query($sql);
 				}
 				else if ($this->isDate($info))
 				{
