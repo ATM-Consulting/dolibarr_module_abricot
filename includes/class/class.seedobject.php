@@ -744,6 +744,7 @@ class SeedObject extends SeedObjectDolibarr
             $TRes[] = $o;
         }
 
+        if($justFetchIfOnlyOneResult) return 0;
         return $TRes;
     }
 
