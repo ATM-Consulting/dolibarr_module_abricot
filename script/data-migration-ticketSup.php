@@ -176,11 +176,22 @@
             if(!empty($TColumnsExtrafields)){
                 foreach ($TColumnsExtrafields as $column){
                     $extrafieldName = $column['name'];
-                    $sql.= ",'".$db->escape($object->$extrafieldName)."'";
+                    $TDateFields = array('date_prev', 'deadline', 'date_detection');
+
+     				if(in_array($extrafieldName, $TDateFields) && ($object->$extrafieldName === '0000-00-00' || empty($object->$extrafieldName))){
+						$sql.= ", NULL ";
+					}
+     				elseif($extrafieldName == 'heure_est'){
+						$sql.= ", ".doubleval($object->$extrafieldName);
+					}
+                    else{
+                    	$sql.= ",'".$db->escape($object->$extrafieldName)."'";
+					}
                 }
             }
 
             $sql.=")";
+
 
             $result = $db->query($sql);
 
@@ -380,7 +391,7 @@
             $sql.= "'".$db->escape($object->subject)."',";
             $sql.= "'".$db->escape($object->message)."',";
             $sql.= "'".$TStatusChange[$object->fk_statut]."',";
-            $sql.= "'".$object->resolution."',";
+            $sql.= intval($object->resolution).",";
             $sql.= "'".$object->progress."',";
             $sql.= "'".$object->timing."',";
             $sql.= "'".$db->escape($object->type_code)."',";
