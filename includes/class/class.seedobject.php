@@ -682,41 +682,16 @@ class SeedObject extends SeedObjectDolibarr
 	}
 
     /**
-     * @param int  $limit       Limit element returned
-     * @param bool $loadChild   used to load children from database
+     * @param int   $limit     Limit element returned
+     * @param bool  $loadChild used to load children from database
+     * @param array $TFilter
      * @return array
      */
-    public function fetchAll($limit = 0, $loadChild = true, $TFilter = array())
-    {
-        $TRes = array();
-
-        $sql = 'SELECT rowid FROM '.MAIN_DB_PREFIX.$this->table_element.' WHERE 1';
-        if (!empty($TFilter))
-        {
-            foreach ($TFilter as $field => $value)
-            {
-                $sql.= ' AND '.$field.' = '.$this->quote($value, $this->fields[$field]);
-            }
-        }
-        if ($limit) $sql.= ' LIMIT '.$limit;
-
-        $resql = $this->db->query($sql);
-        if ($resql)
-        {
-            while ($obj = $this->db->fetch_object($resql))
-            {
-                $o = new static($this->db);
-                $o->fetch($obj->rowid, $loadChild);
-
-                $TRes[] = $o;
-            }
-        }
-
-        return $TRes;
+    public function fetchAll($limit = 0, $loadChild = true, $TFilter = []) {
+        return $this->fetchByArray($limit, $TFilter, $loadChild, false);
     }
 
-
-	/**
+    /**
 	 *	Get object and children from database on custom field
 	 *
 	 *	@param      string		$key       		key of object to load
@@ -724,28 +699,54 @@ class SeedObject extends SeedObjectDolibarr
 	 * 	@param		bool		$loadChild		used to load children from database
 	 *	@return     int         				>0 if OK, <0 if KO, 0 if not found
 	 */
-	public function fetchBy($key, $field, $loadChild = true)
-	{
-
+    public function fetchBy($key, $field, $loadChild = true) {
 	    if(empty($this->fields[$field])) return false;
 
-	    $resql = $this->db->query("SELECT rowid FROM ".MAIN_DB_PREFIX.$this->table_element." WHERE ".$field."=".$this->quote($key, $this->fields[$field])." LIMIT 1 ");
-
-	    if(! $resql)
-	    {
-		    $this->error = $this->db->lasterror();
-		    $this->errors[] = $this->error;
-		    return -1;
-	    }
-
-        $objp = $this->db->fetch_object($resql);
-        if (!$objp) return 0;
-
-        $res = $this->fetch($objp->rowid);
-
-
-	    return $res;
+        return $this->fetchByArray(1, array($field => $key), $loadChild);
 	}
+
+    /**
+     * @param   int     $limit
+     * @param   array   $TFilter
+     * @param   bool    $loadChild
+     * @param   bool    $justFetchIfOnlyOneResult   This parameter affect the function return type only if the query return one result;
+     *                                              true : it will fetch $this and return an integer;
+     *                                              false : it will return an array with objects inside
+     * @return  int|array                           >0 if OK, <0 if KO, 0 if not found or array with all objects inside
+     */
+    public function fetchByArray($limit = 0, $TFilter = array(), $loadChild = true, $justFetchIfOnlyOneResult = true) {
+        $sql = 'SELECT rowid';
+        $sql.= ' FROM '.MAIN_DB_PREFIX.$this->table_element;
+        $sql.= ' WHERE 1 = 1';
+
+        foreach($TFilter as $key => $field) {
+            $sql.= ' AND '.$this->db->escape($key).' = '.$this->quote($field, $this->fields[$key]);
+        }
+        if(! empty($limit)) $sql.= ' LIMIT '.$this->db->escape($limit);
+
+        $resql = $this->db->query($sql);
+        if(! $resql) {
+            $this->error = $this->db->lasterror();
+		    $this->errors[] = $this->error;
+            return -1;
+        }
+
+        $nbRow = $this->db->num_rows($resql);
+
+        $TRes = array();
+        while($obj = $this->db->fetch_object($resql)) {
+            if($justFetchIfOnlyOneResult) {
+                return $this->fetch($obj->rowid, $loadChild);
+            }
+
+            $o = new static($this->db);
+            $o->fetch($obj->rowid, $loadChild);
+            $TRes[] = $o;
+        }
+
+        if($justFetchIfOnlyOneResult) return 0;
+        return $TRes;
+    }
 
     /**
      * Function to instantiate a new child
