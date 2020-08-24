@@ -735,7 +735,7 @@ class SeedObject extends SeedObjectDolibarr
 
         $TRes = array();
         while($obj = $this->db->fetch_object($resql)) {
-            if($justFetchIfOnlyOneResult && $nbRow == 1) {
+            if($justFetchIfOnlyOneResult) {
                 return $this->fetch($obj->rowid, $loadChild);
             }
 
