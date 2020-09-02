@@ -341,7 +341,11 @@ class Listview
         $THeader = $this->initHeader($TParam);
 
 		$sql = $this->search($sql,$TParam);
-		$sql.= $this->db->order($TParam['sortfield'], $TParam['sortorder']);
+		if(!empty($TParam['sortOrderOverride'])){
+			$sql .= ' ORDER BY '.$TParam['sortOrderOverride'];
+		}else{
+			$sql .= $this->db->order($TParam['sortfield'], $TParam['sortorder']);
+		}
 
 		if (empty($conf->global->MAIN_DISABLE_FULL_SCANLIST))
 		{
