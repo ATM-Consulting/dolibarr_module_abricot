@@ -91,9 +91,11 @@ class Listview
 
 		$TParam['limit'] = array_merge(array('page'=>0, 'nbLine' => $conf->liste_limit, 'global'=>0), $TParam['limit']);
 
-		if (GETPOST('sortfield'))
-		{
+		if (GETPOST('sortfield') && empty($TParam['sortfield'])){
 			$TParam['sortfield'] = GETPOST('sortfield');
+		}
+
+		if (GETPOST('sortorder') && empty($TParam['sortorder'])) {
 			$TParam['sortorder'] = GETPOST('sortorder');
 		}
 
