@@ -26,6 +26,11 @@ class Listview
 {
     public $TSearchValue = array();
 
+	/**
+	 * @var DoliDB $db
+	 */
+    public $db;
+
     /**
      *  Constructor
      *
@@ -91,11 +96,11 @@ class Listview
 
 		$TParam['limit'] = array_merge(array('page'=>0, 'nbLine' => $conf->liste_limit, 'global'=>0), $TParam['limit']);
 
-		if (GETPOST('sortfield') && empty($TParam['sortfield'])){
+		if (GETPOST('sortfield')){
 			$TParam['sortfield'] = GETPOST('sortfield');
 		}
 
-		if (GETPOST('sortorder') && empty($TParam['sortorder'])) {
+		if (GETPOST('sortorder')) {
 			$TParam['sortorder'] = GETPOST('sortorder');
 		}
 
