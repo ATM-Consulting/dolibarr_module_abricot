@@ -26,6 +26,11 @@ class Listview
 {
     public $TSearchValue = array();
 
+	/**
+	 * @var DoliDB $db
+	 */
+    public $db;
+
     /**
      *  Constructor
      *
@@ -91,9 +96,11 @@ class Listview
 
 		$TParam['limit'] = array_merge(array('page'=>0, 'nbLine' => $conf->liste_limit, 'global'=>0), $TParam['limit']);
 
-		if (GETPOST('sortfield'))
-		{
+		if (GETPOST('sortfield')){
 			$TParam['sortfield'] = GETPOST('sortfield');
+		}
+
+		if (GETPOST('sortorder')) {
 			$TParam['sortorder'] = GETPOST('sortorder');
 		}
 
@@ -339,7 +346,11 @@ class Listview
         $THeader = $this->initHeader($TParam);
 
 		$sql = $this->search($sql,$TParam);
-		$sql.= $this->db->order($TParam['sortfield'], $TParam['sortorder']);
+		if(!empty($TParam['sortOrderOverride'])){
+			$sql .= ' ORDER BY '.$TParam['sortOrderOverride'];
+		}else{
+			$sql .= $this->db->order($TParam['sortfield'], $TParam['sortorder']);
+		}
 
 		if (empty($conf->global->MAIN_DISABLE_FULL_SCANLIST))
 		{
