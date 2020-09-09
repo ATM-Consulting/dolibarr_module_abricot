@@ -136,7 +136,7 @@
 
         //pour chaque extrafield, on rajoute la colonne dans la table de ticket standard
         foreach ($TColumnsExtrafields as $column){
-            $sql = "ALTER TABLE ".MAIN_DB_PREFIX."ticket_extrafields ADD ".$column['name']." ".$column['type'];
+            $sql = "ALTER TABLE ".MAIN_DB_PREFIX."ticket_extrafields ADD `".$column['name']."` ".$column['type'];
             $db->query($sql);
         }
     }
