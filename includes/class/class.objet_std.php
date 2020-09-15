@@ -865,6 +865,7 @@ function _no_save_vars($lst_chp) {
 				$db->dbinsert($this->get_table(),$query);
 
 				$this->run_trigger($db, 'create');
+				if(OBJETSTD_MASTERKEY !== 'id') $this->id = $this->{OBJETSTD_MASTERKEY};
 			}
 			else {
 				$query[OBJETSTD_MASTERKEY]=$this->{OBJETSTD_MASTERKEY};
