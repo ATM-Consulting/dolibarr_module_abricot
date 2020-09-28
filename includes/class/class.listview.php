@@ -895,6 +895,7 @@ class Listview
     private function parse_array(&$THeader, &$TData, &$TParam, &$TFieldInView)
     {
 		$this->totalRow = count($TData);
+		if(!empty($TParam['list']['totalRow'])) $this->totalRow = $TParam['list']['totalRow'];
 
 		$this->THideFlip = array_flip($TParam['hide']);
 		$this->TTotalTmp=array();

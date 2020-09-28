@@ -149,7 +149,7 @@ print '<td align="right" width="300" style="white-space:nowrap;">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 print '<input type="hidden" name="action" value="set_ABRICOT_CONVERTPDF_CMD">';
-print '<input type="text" name="ABRICOT_CONVERTPDF_CMD" value="'.(empty($conf->global->ABRICOT_CONVERTPDF_CMD) ? '' : $conf->global->ABRICOT_WKHTMLTOPDF_CMD).'" size="80" placeholder="libreoffice --invisible --norestore --headless --convert-to pdf --outdir " />';
+print '<input type="text" name="ABRICOT_CONVERTPDF_CMD" value="'.(empty($conf->global->ABRICOT_CONVERTPDF_CMD) ? '' : $conf->global->ABRICOT_CONVERTPDF_CMD).'" size="80" placeholder="libreoffice --invisible --norestore --headless --convert-to pdf --outdir " />';
 
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
