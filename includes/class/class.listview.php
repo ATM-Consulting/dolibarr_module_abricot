@@ -211,6 +211,8 @@ class Listview
 		{
 			if($TParam['operator'][$key] == '<' || $TParam['operator'][$key] == '>' || $TParam['operator'][$key]=='=' || $TParam['operator'][$key] == '>='|| $TParam['operator'][$key] == '<=')
 			{
+				$operator = substr($value,0,1);
+                if(in_array($operator, array('<', '>'))) $value = ltrim($value, $operator);
                 $TSQL[] = $sKey . ' ' . $TParam['operator'][$key] . ' "' . $value . '"';
 			}
 			elseif ($TParam['operator'][$key]=='IN')
