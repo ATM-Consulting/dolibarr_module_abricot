@@ -772,9 +772,17 @@ class Listview
 				else $search = $field;
 			}
 
+			$disablesortlink = 0;
+			if (isset($TParam['search'][$field]['disablesortlink'])){
+				$disablesortlink = $TParam['search'][$field]['disablesortlink'];
+			}
 
+			$tooltip = '';
+			if (isset($TParam['tooltip'][$field])){
+				$tooltip =$TParam['tooltip'][$field];
+			}
 
-            $out .= getTitleFieldOfList($label, 0, $_SERVER["PHP_SELF"], $search, '', '&'.$TParam['list']['param_url'].'&limit='.$TParam['limit']['nbLine'].$moreparams, $moreattrib, $TParam['sortfield'], $TParam['sortorder'], $prefix);
+            $out .= getTitleFieldOfList($label, 0, $_SERVER["PHP_SELF"], $search, '', '&'.$TParam['list']['param_url'].'&limit='.$TParam['limit']['nbLine'].$moreparams, $moreattrib, $TParam['sortfield'], $TParam['sortorder'], $prefix, $disablesortlink, $tooltip);
 			$out .= $head['more'];
 		}
 
