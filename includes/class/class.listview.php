@@ -932,7 +932,7 @@ class Listview
 			$TField[$field]=true;
 		}
 
-		$contextpage=md5($_SERVER['PHP_SELF']);
+		$contextpage=md5($_SERVER['PHP_SELF'].$this->id);
 		if(!empty($TParam['allow-fields-select']))
 		{
 			$selectedfields = GETPOST('Listview'.$this->id.'_selectedfields');
