@@ -4,7 +4,7 @@ ___
 
 ## [Unreleased]
 
-- NEW : Fix listview context detection for columns [2021-01-04]
+- FIX : Listview context detection for columns [2021-01-04]
 - NEW : Listview tooltip param  [2020-12-15]
   Allow usage of tooltip key in listview params to add tooltips for cols
 
