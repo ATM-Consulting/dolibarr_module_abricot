@@ -86,26 +86,28 @@ if ($param->securitykey !== $conf->global->CRON_KEY)
 	exit(-1);
 }
 
-if (!ctype_alnum($param->oldUrl) || !is_dir ( $customFolder . $param->oldUrl ) ){
+if (empty($param->oldUrl)){
 	print "Error: Invalid oldUrl name\n";
 	exit(-1);
 }
 
-if (!ctype_alnum($param->newUrl) || !is_dir ( $customFolder . $param->newUrl ) ){
+if (empty($param->newUrl)){
 	print "Error: Invalid oldUrl name\n";
 	exit(-1);
 }
 
 $tables = array(
 	'referenceletters_chapters' => array( 'content_text'),
-	'referenceletters_elements' => array( 'header'),
+	'referenceletters_elements' => array( 'header', 'footer'),
 );
 
 foreach ($tables as $tableName => $cols){
-	$resST = $db->query("SHOW TABLES LIKE '".$db->escape($tableName)."' ");
+	$tableName = MAIN_DB_PREFIX.$tableName;
+	$sqlShowTable = "SHOW TABLES LIKE '".$db->escape($tableName)."' ";
+	$resST = $db->query($sqlShowTable);
 	if($resST && $db->num_rows($resST) > 0) {
 		foreach ($cols as $col){
-			$sql = "UPDATE `".MAIN_DB_PREFIX.$db->escape($tableName)."` SET `".$db->escape($col."` = REPLACE(`".$db->escape($col)."`,'".$db->escape($param->oldUrl)."' ,'".$db->escape($param->newUrl)."');";
+			$sql = "UPDATE `".$db->escape($tableName)."` SET `".$db->escape($col)."` = REPLACE(`".$db->escape($col)."`,'".$db->escape($param->oldUrl)."' ,'".$db->escape($param->newUrl)."');";
 			$resCol = $db->query($sql);
 			if(!$sql){
 				print $tableName. " :  ".$col." UPDATE ERROR ".$db->error()." \n";
@@ -114,6 +116,9 @@ foreach ($tables as $tableName => $cols){
 				print $tableName. " :  ".$col." => ".$num." \n";
 			}
 		}
+	}
+	else{
+		print "Error : " .$sqlShowTable. " ". $db->error()." \n";
 	}
 }
 
