@@ -91,7 +91,7 @@ if(dol_mkdir('to_delete', DOL_DATA_ROOT) >= 0) {
             if($filename == "." || $filename == "..") {
                 continue;
             }
-            if(strpos($filename, '(PROV') !== false && is_dir($sourceDir.'/'.$filename)) {
+            if(!empty(preg_match('/^\(PROV[0-9]*\)$/', $filename)) && is_dir($sourceDir.'/'.$filename)) {
                 $scanDirProv = scandir($sourceDir.'/'.$filename);
                 if(is_array($scanDirProv) && count($scanDirProv) === 3 && $scanDirProv[0] === $filename.'.pdf') { //. .. et le pdf
                     //Dans ce cas là on move tout les pdfs
