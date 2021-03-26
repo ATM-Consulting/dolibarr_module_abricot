@@ -4,6 +4,7 @@ ___
 
 ## [Unreleased]
 
+- FIX : Missing help tweak on setup_print_input_form_part lib *26/03/2021* - 3.2.2
 - FIX : Listview context detection for columns [2021-01-04]
 - NEW : Listview tooltip param  [2020-12-15]
   Allow usage of tooltip key in listview params to add tooltips for cols
