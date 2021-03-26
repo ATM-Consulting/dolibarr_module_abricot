@@ -185,6 +185,10 @@ function setup_print_input_form_part($confkey, $title = false, $desc ='', $metas
     global $var, $bc, $langs, $conf, $db;
     $var=!$var;
 
+	if(empty($help) && !empty($langs->tab_translate[$confkey . '_HELP'])){
+		$help = $confkey . '_HELP';
+	}
+
     $form=new Form($db);
 
     $defaultMetas = array(
