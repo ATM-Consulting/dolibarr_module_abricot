@@ -241,8 +241,22 @@ class Listview
 		}
 		else
 		{
-            if(strpos($value,'%')===false) $value = '%'.$value.'%';
-            $TSQL[]=$sKey." LIKE '".addslashes($value)."'" ;
+			if (is_array($value)) {
+				if (!empty($value)) {
+					foreach ($value as $k => $v)
+					{
+						$value[$k]="'".$this->db->escape($v)."'";
+					}
+					$value = implode(', ', $value);
+
+					$TSQL[] = $sKey . ' IN (' . $value . ')';
+				}
+			}
+			else
+			{
+				if(strpos($value,'%')===false) $value = '%'.$value.'%';
+				$TSQL[]=$sKey." LIKE '".addslashes($value)."'" ;
+			}
 		}
 
 		return true;
