@@ -11,6 +11,6 @@ ___
   Allow usage of tooltip key in listview params to add tooltips for cols
 
 ___
-## RELEASE 3.0.0 - 06/03/2019
+## RELEASE 3.0 - 06/03/2019
 
 - FIX : Dolibarr 9.x compatiblity
