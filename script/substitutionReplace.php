@@ -33,9 +33,7 @@ else  if(is_file('../../../main.inc.php'))$dir = '../../../';
 else  if(is_file('../../../../main.inc.php'))$dir = '../../../../';
 else $dir = '../../';
 
-
 include($dir."master.inc.php");
-
 
 $sapi_type = php_sapi_name();
 $script_file = basename(__FILE__);
@@ -47,58 +45,16 @@ if (substr($sapi_type, 0, 3) == 'cgi' || $sapi_type == 'apache2handler') {
 	echo "Error: You are using PHP for CGI. To execute ".$script_file." from command line, you must use PHP for CLI mode.\n";
 	exit(-1);
 }
-// $argv[0] is filename
-
-// Check parameters
-
-$argsList = array(
-	1 => 'securitykey',
-	2 => 'oldRefClient',
-	3 => 'newRefClient',
-);
 
 $optionalArgsList = array(
 	'langFrom' => 'fr_FR' // set default value
 );
 
-// Récupération des arguments
-$param = new stdClass();
-foreach ($argsList as $argKey => $paramName  ){
-
-	if (! isset($argv[$argKey]) || ! $argv[$argKey]) {
-		if(!isset($optionalArgsList[$paramName])){
-			_helpUsage($path,$script_file);
-			exit(-1);
-		}
-		else{
-			$param->{$paramName} = $optionalArgsList[$paramName];
-		}
-	}
-	else{
-		$param->{$paramName} = $argv[$argKey];
-	}
-}
-
-// Check security key
-if ($param->securitykey !== $conf->global->CRON_KEY)
-{
-	print "Error: securitykey is wrong\n";
-	exit(-1);
-}
-
-if (empty($param->oldRefClient)){
-	print "Error: Invalid oldRefClient name\n";
-	exit(-1);
-}
-
-if (empty($param->newRefClient)){
-	print "Error: Invalid oldRefClient name\n";
-	exit(-1);
-}
-
 $tables = array(
 	'llx_c_email_templates' => array( 'topic', 'content')
 );
+
+//$sql = select * from llx_c_email_templates where topic REGEXP '(^|[^_])REFCLIENT($|[^_])' OR content REGEXP '(^|[^_])REFCLIENT($|[^_])';
 
 foreach ($tables as $tableName => $cols){
 	$tableName = MAIN_DB_PREFIX.$tableName;
@@ -106,8 +62,7 @@ foreach ($tables as $tableName => $cols){
 	$resST = $db->query($sqlShowTable);
 	if($resST && $db->num_rows($resST) > 0) {
 		foreach ($cols as $col){
-			$sql = "UPDATE `".$db->escape($tableName)."` SET `".$db->escape($col)."` = REPLACE(`".$db->escape($col)."`,'".$db->escape($param->oldRefClient)."' ,'".$db->escape($param->newRefClient)."');";
-			$sql = "UPDATE `".$db->escape($tableName)."` SET `".$db->escape($col)."` = REPLACE(`".$db->escape($col)."`,'".$db->escape($param->oldRefClient)."' ,'".$db->escape($param->newRefClient)."');";
+			$sql = "UPDATE `".$db->escape($tableName)."` SET `".$db->escape($col)."` = REGEXP_REPLACE(`".$db->escape($col)."`,'(^|[^_])REFCLIENT($|[^_])' ,'_REF_CLIENT_');";
 			$resCol = $db->query($sql);
 			if(!$sql){
 				print $tableName. " :  ".$col." UPDATE ERROR ".$db->error()." \n";
@@ -120,21 +75,4 @@ foreach ($tables as $tableName => $cols){
 	else{
 		print "Error : " .$sqlShowTable. " ". $db->error()." \n";
 	}
-}
-
-
-
-/**
- * @param $path
- * @param $script_file
- */
-function _helpUsage($path,$script_file)
-{
-	global $conf;
-
-	print "MAKE A BACKUP BEFORE DO THAT ";
-	print "Usage: ".$script_file." cronSecuritykey oldRefClient newRefClient \n";
-	print "Exemple: ./".$script_file." khce86zgj84fzefef8f48 name.srv47.atm-consulting.fr name.srv88.atm-consulting.fr\n";
-	print "\n";
-
 }
