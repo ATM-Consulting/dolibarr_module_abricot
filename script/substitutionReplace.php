@@ -54,15 +54,13 @@ $tables = array(
 	'llx_c_email_templates' => array( 'topic', 'content')
 );
 
-//$sql = select * from llx_c_email_templates where topic REGEXP '(^|[^_])REFCLIENT($|[^_])' OR content REGEXP '(^|[^_])REFCLIENT($|[^_])';
-
 foreach ($tables as $tableName => $cols){
 	$tableName = MAIN_DB_PREFIX.$tableName;
 	$sqlShowTable = "SHOW TABLES LIKE '".$db->escape($tableName)."' ";
 	$resST = $db->query($sqlShowTable);
 	if($resST && $db->num_rows($resST) > 0) {
 		foreach ($cols as $col){
-			$sql = "UPDATE `".$db->escape($tableName)."` SET `".$db->escape($col)."` = REGEXP_REPLACE(`".$db->escape($col)."`,'(^|[^_])REFCLIENT($|[^_])' ,'_REF_CLIENT_');";
+			$sql = "UPDATE `".$db->escape($tableName)."` SET `".$db->escape($col)."` = REPLACE(`".$db->escape($col)."`,'__REFCLIENT__' ,'__REF_CLIENT__');";
 			$resCol = $db->query($sql);
 			if(!$sql){
 				print $tableName. " :  ".$col." UPDATE ERROR ".$db->error()." \n";
