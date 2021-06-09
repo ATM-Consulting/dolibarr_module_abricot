@@ -38,7 +38,6 @@ include($dir."master.inc.php");
 $sapi_type = php_sapi_name();
 $script_file = basename(__FILE__);
 $path=dirname(__FILE__).'/';
-$customFolder = DOL_DOCUMENT_ROOT . '/custom/'; // pour l'instant ...
 
 // Test if batch mode
 if (substr($sapi_type, 0, 3) == 'cgi' || $sapi_type == 'apache2handler') {
