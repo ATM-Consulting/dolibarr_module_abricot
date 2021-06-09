@@ -51,7 +51,7 @@ $optionalArgsList = array(
 );
 
 $tables = array(
-	'llx_c_email_templates' => array( 'topic', 'content')
+	'c_email_templates' => array( 'topic', 'content')
 );
 
 foreach ($tables as $tableName => $cols){
