@@ -59,7 +59,7 @@ foreach ($tables as $tableName => $cols){
 	$resST = $db->query($sqlShowTable);
 	if($resST && $db->num_rows($resST) > 0) {
 		foreach ($cols as $col){
-			$sql = "UPDATE `".$db->escape($tableName)."` SET `".$db->escape($col)."` = REPLACE(`".$db->escape($col)."`,'__REFCLIENT__' ,'__REF_CLIENT__');";
+			$sql = "UPDATE ".$db->escape($tableName)." SET ".$db->escape($col)." = REPLACE('".$db->escape($col)."','__REFCLIENT__' ,'__REF_CLIENT__');";
 			$resCol = $db->query($sql);
 			if(!$sql){
 				print $tableName. " :  ".$col." UPDATE ERROR ".$db->error()." \n";
