@@ -64,7 +64,9 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 			$db_type = DB_DRIVER;
 		}
 		else {
-			if ($db_type == 'mysql')
+			if ($db_type == 'pgsql')
+				$db_type = 'pgsql';
+			elseif ($db_type == 'mysql')
 				$db_type = 'mysql';
 			else
 				$db_type = 'mysqli';
@@ -82,9 +84,9 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 		    $this->Error('PDO DB ErrorConnexion : Paramètres de connexion impossible à utiliser (db:'.$db.'/user:'.$usr.')' );
 		}
 
-		$this->connexionString = 'mysql:dbname='.$db.';host='.$host;
+		$this->connexionString = $db_type.':dbname='.$db.';host='.$host;
 		if(!empty($port))$this->connexionString .= ';port='.$port;
-		if(!empty($charset) && empty($conf->global->ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING) )$this->connexionString.=';charset='.$charset;
+		if($db_type != 'pgsql' && !empty($charset) && empty($conf->global->ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING) )$this->connexionString.=';charset='.$charset;
 
 		if(defined('DB_SOCKET') && constant('DB_SOCKET')!='') $this->connexionString .= ';unix_socket='.DB_SOCKET;
 
