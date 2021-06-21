@@ -8,3 +8,5 @@ set_ABRICOT_WKHTMLTOPDF_CMD=Order for the PDF generation of labels (WkHTMLtoPDF 
 
 MIGRATE_DATETIME_DEFAULT_TO_NULL = Change the default value for the dates to null
 Migrate=Migrate
+
+NothingToDisplay=No element found.

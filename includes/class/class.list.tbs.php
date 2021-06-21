@@ -37,7 +37,8 @@ class TListviewTBS {
 	}
 	private function init(&$TParam) {
 
-		global $conf;
+		global $conf, $langs;
+		$langs->load('abricot@abricot');
 
 		if(!isset($TParam['hide']))$TParam['hide']=array();
 		if(!isset($TParam['link']))$TParam['link']=array();
@@ -49,7 +50,7 @@ class TListviewTBS {
 
 		if(!isset($TParam['liste']))$TParam['liste']=array();
 		$TParam['liste'] = array_merge(array(
-			'messageNothing'=>"Il n'y a aucun élément à afficher."
+			'messageNothing'=>$langs->trans("NothingToDisplay")
 			,'picto_precedent'=>'&lt;'
 			,'picto_suivant'=>'&gt;'
 			,'order_down'=>img_down()

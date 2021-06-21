@@ -8,3 +8,5 @@ set_ABRICOT_WKHTMLTOPDF_CMD=Befehl zur PDF-Erzeugung von Labels (WkHTMLtoPDF mus
 
 MIGRATE_DATETIME_DEFAULT_TO_NULL=Ändern Sie den Standardwert für Datum auf Null
 Migrate=Migrieren
+
+NothingToDisplay=Kein Element wurde gefunden
