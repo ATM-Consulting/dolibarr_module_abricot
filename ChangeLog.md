@@ -4,6 +4,7 @@ ___
 
 # NOT RELEASED
 
+- FIX : module family *24/06/2021* - 3.2.5
 - NEW : Compatibility V14 - script which aim at replace __REFCLIENT__ with __REF_CLIENT__ *09/06/2021* - 3.2.4
 - FIX : Listview search input checkbox sql query *30/04/2021* - 3.2.3
 - FIX : Missing help tweak on setup_print_input_form_part lib *26/03/2021* - 3.2.2
