@@ -64,12 +64,10 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 			$db_type = DB_DRIVER;
 		}
 		else {
-			if ($db_type == 'pgsql')
-				$db_type = 'pgsql';
-			elseif ($db_type == 'mysql')
-				$db_type = 'mysql';
-			else
-				$db_type = 'mysqli';
+			if ($db_type == 'pgsql') { $db_type = 'pgsql'; }
+			elseif ($db_type == 'mysql') { $db_type = 'mysql'; }
+			elseif ($db_type == 'mysqli') { $db_type = 'mysql'; } // pour mysqli utiliser mysql
+			else {	$db_type = 'mysqli';}
 		}
 
 

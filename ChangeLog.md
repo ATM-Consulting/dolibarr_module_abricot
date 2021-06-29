@@ -4,6 +4,7 @@ ___
 
 # NOT RELEASED
 
+- FIX : Bad fix for pgsql ... *29/06/2021* - 3.2.6
 - FIX : module family *24/06/2021* - 3.2.5
 - NEW : Compatibility V14 - script which aim at replace __REFCLIENT__ with __REF_CLIENT__ *09/06/2021* - 3.2.4
 - FIX : Listview search input checkbox sql query *30/04/2021* - 3.2.3
