@@ -49,8 +49,16 @@ $optionalArgsList = array(
 	'langFrom' => 'fr_FR' // set default value
 );
 
+
+$TReplace = array(
+	'__REFCLIENT__' => '__REF_CLIENT__',
+	'__SIGNATURE__' => '__USER_SIGNATURE__',
+);
+
+
 $tables = array(
-	'c_email_templates' => array( 'topic', 'content')
+	'c_email_templates' => array( 'topic', 'content'),
+	'mailing' => array( 'sujet', 'body')
 );
 
 foreach ($tables as $tableName => $cols){
@@ -58,14 +66,18 @@ foreach ($tables as $tableName => $cols){
 	$sqlShowTable = "SHOW TABLES LIKE '".$db->escape($tableName)."' ";
 	$resST = $db->query($sqlShowTable);
 	if($resST && $db->num_rows($resST) > 0) {
-		foreach ($cols as $col){
-			$sql = "UPDATE ".$db->escape($tableName)." SET ".$db->escape($col)." = REPLACE('".$db->escape($col)."','__REFCLIENT__' ,'__REF_CLIENT__');";
-			$resCol = $db->query($sql);
-			if(!$sql){
-				print $tableName. " :  ".$col." UPDATE ERROR ".$db->error()." \n";
-			}else{
-				$num = $db->affected_rows($resCol);
-				print $tableName. " :  ".$col." => ".$num." \n";
+
+		foreach ($TReplace as $substitutionKey => $substitutionReplacement) {
+
+			foreach ($cols as $col) {
+				$sql = "UPDATE " . $db->escape($tableName) . " SET " . $db->escape($col) . " = REPLACE(" .$col . ",'".$db->escape($substitutionKey)."' ,'".$db->escape($substitutionReplacement)."');";
+				$resCol = $db->query($sql);
+				if (!$sql) {
+					print $tableName .' ' . $substitutionKey . '=>' . $substitutionReplacement . " :  " . $col . " UPDATE ERROR " . $db->error() . " \n";
+				} else {
+					$num = $db->affected_rows($resCol);
+					print $tableName .' ' . $substitutionKey . '=>' . $substitutionReplacement . " :  " . $col . " => " . $num . " \n";
+				}
 			}
 		}
 	}

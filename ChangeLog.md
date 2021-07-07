@@ -8,6 +8,7 @@ ___
 
 ## RELEASE 3.2 - 29/06/2021
 
+- FIX : Script for MVD add missing substitutions  *07/07/2021* - 3.2.7
 - FIX : Bad fix for pgsql ... *29/06/2021* - 3.2.6
 - FIX : module family *24/06/2021* - 3.2.5
 - NEW : Compatibility V14 - script which aim at replace __REFCLIENT__ with __REF_CLIENT__ *09/06/2021* - 3.2.4
