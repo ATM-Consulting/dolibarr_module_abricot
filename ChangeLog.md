@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 ___
 
 # NOT RELEASED
-
+- NEW: class techATM + version checker - *08/07/2021* - 3.2.9
 
 
 ## RELEASE 3.2 - 29/06/2021

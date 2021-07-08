@@ -62,7 +62,7 @@ class modAbricot extends DolibarrModules
         // (where XXX is value of numeric property 'numero' of module)
         $this->description = "Collection of specific ATM functions and classes";
         // Possible values for version are: 'development', 'experimental' or version
-        $this->version = '3.2.8';
+        $this->version = '3.2.9';
         $this->editor_name = 'ATM-Consulting';
         $this->editor_url = 'https://www.atm-consulting.fr';
 	    $this->url_last_version = \cliatm\TechATM::getLastModuleVersionUrl($this);
