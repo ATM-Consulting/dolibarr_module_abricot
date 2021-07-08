@@ -53,6 +53,8 @@ $optionalArgsList = array(
 $TReplace = array(
 	'__REFCLIENT__' => '__REF_CLIENT__',
 	'__SIGNATURE__' => '__USER_SIGNATURE__',
+	'__PROPREF__' => '__REF__',
+	'__FACREF__' => '__REF__',
 );
 
 
