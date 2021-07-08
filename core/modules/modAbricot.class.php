@@ -24,6 +24,7 @@
  * 	\brief		Description and activation file for module MyModule
  */
 include_once DOL_DOCUMENT_ROOT . "/core/modules/DolibarrModules.class.php";
+include_once dirname(dirname(__DIR__)) . '/class/techatm.class.php';
 
 /**
  * Description and activation class for module MyModule
@@ -64,6 +65,7 @@ class modAbricot extends DolibarrModules
         $this->version = '3.2.8';
         $this->editor_name = 'ATM-Consulting';
         $this->editor_url = 'https://www.atm-consulting.fr';
+	    $this->url_last_version = \cliatm\TechATM::getLastModuleVersionUrl($this);
         // Key used in llx_const table to save module status enabled/disabled
         // (where MYMODULE is value of property name of module in uppercase)
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
