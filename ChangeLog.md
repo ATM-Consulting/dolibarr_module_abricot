@@ -8,7 +8,7 @@ ___
 
 ## RELEASE 3.2 - 29/06/2021
 
-- FIX : Script for MVD add missing substitutions  *15/07/2021* - 3.2.9
+- FIX : Script for MVD add missing substitutions  *08/07/2021* - 3.2.8
 - FIX : Script for MVD add missing substitutions  *07/07/2021* - 3.2.7
 - FIX : Bad fix for pgsql ... *29/06/2021* - 3.2.6
 - FIX : module family *24/06/2021* - 3.2.5

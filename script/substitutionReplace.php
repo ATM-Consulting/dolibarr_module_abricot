@@ -35,8 +35,6 @@ else $dir = '../../';
 
 include($dir."master.inc.php");
 
-include_once __DIR__ . '/../includes/lib/admin.lib.php';
-
 $sapi_type = php_sapi_name();
 $script_file = basename(__FILE__);
 $path=dirname(__FILE__).'/';
