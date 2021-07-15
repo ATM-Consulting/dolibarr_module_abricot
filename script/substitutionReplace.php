@@ -35,6 +35,8 @@ else $dir = '../../';
 
 include($dir."master.inc.php");
 
+include_once __DIR__ . '/../includes/lib/admin.lib.php';
+
 $sapi_type = php_sapi_name();
 $script_file = basename(__FILE__);
 $path=dirname(__FILE__).'/';
@@ -50,11 +52,17 @@ $optionalArgsList = array(
 );
 
 
-$TReplace = array(
-	'__REFCLIENT__' => '__REF_CLIENT__',
-	'__SIGNATURE__' => '__USER_SIGNATURE__',
-);
+$TReplace = array();
 
+if(intval(DOL_VERSION) >= 13){
+	$TReplace['__SIGNATURE__'] = '__USER_SIGNATURE__';
+}
+
+if(intval(DOL_VERSION) >= 14){
+	$TReplace['__REFCLIENT__'] = '__REF_CLIENT__';
+	$TReplace['__PROPREF__'] = '__REF__';
+	$TReplace['__FACREF__'] = '__REF__';
+}
 
 $tables = array(
 	'c_email_templates' => array( 'topic', 'content'),
