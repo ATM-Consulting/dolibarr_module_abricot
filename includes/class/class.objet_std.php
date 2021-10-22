@@ -592,15 +592,16 @@ function _no_save_vars($lst_chp) {
 
 
 	/**
-	 * Function LoadBy. Load an object with id
-	 * @param TPDOdb	$db			Object PDO database
-	 * @param array		$value		Contain value for sql test
-	 * @param array		$field		Contain field for sql test
-	 * @param bool	    $annexe		true = load childs; false = Only load object
-	 *
-	 * @return bool                 true = OK; false = KO
-	 */
-	function loadBy(&$db, $value, $field, $annexe=false) {
+     * Function LoadBy. Load an object with id
+     *
+     * @param TPDOdb $db     Object PDO database
+     * @param string $value  Contain value for sql test
+     * @param string $field  Contain field for sql test
+     * @param bool   $annexe true = load childs; false = Only load object
+     *
+     * @return bool                 true = OK; false = KO
+     */
+    function loadBy(&$db, $value, $field, $annexe=false) {
 		$db->Execute("SELECT ".OBJETSTD_MASTERKEY." FROM ".$this->get_table()." WHERE ".$field."='".$value."' LIMIT 1");
 		if($db->Get_line()) {
 			return $this->load($db, $db->Get_field(OBJETSTD_MASTERKEY), $annexe);
