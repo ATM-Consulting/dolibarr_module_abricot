@@ -145,6 +145,519 @@ class TObjetStd {
    	 	return $r;
   }
 
+      /**
+     *		Set last model used by doc generator
+     *
+     *		@param		User	$user		User object that make change
+     *		@param		string	$modelpdf	Modele name
+     *		@return		int					<0 if KO, >0 if OK
+     */
+    public function setDocModel($user, $modelpdf)
+    {
+        if (! $this->table_element)
+        {
+            dol_syslog(get_class($this)."::setDocModel was called on objet with property table_element not defined", LOG_ERR);
+            return -1;
+        }
+
+        $newmodelpdf=dol_trunc($modelpdf, 255);
+
+        $sql = "UPDATE ".MAIN_DB_PREFIX.$this->table_element;
+        $sql.= " SET model_pdf = '".$this->db->escape($newmodelpdf)."'";
+        $sql.= " WHERE rowid = ".$this->id;
+        // if ($this->element == 'facture') $sql.= " AND fk_statut < 2";
+        // if ($this->element == 'propal')  $sql.= " AND fk_statut = 0";
+
+        dol_syslog(get_class($this)."::setDocModel", LOG_DEBUG);
+        $resql=$this->db->query($sql);
+        if ($resql)
+        {
+            $this->modelpdf=$modelpdf;
+            return 1;
+        }
+        else
+        {
+            dol_print_error($this->db);
+            return 0;
+        }
+    }
+
+    /**
+     * Common function for all objects extending CommonObject for generating documents
+     *
+     * @param 	string 		$modelspath 	Relative folder where generators are placed
+     * @param 	string 		$modele 		Generator to use. Caller must set it to obj->modelpdf or GETPOST('modelpdf') for example.
+     * @param 	Translate 	$outputlangs 	Output language to use
+     * @param 	int 		$hidedetails 	1 to hide details. 0 by default
+     * @param 	int 		$hidedesc 		1 to hide product description. 0 by default
+     * @param 	int 		$hideref 		1 to hide product reference. 0 by default
+     * @param   null|array  $moreparams     Array to provide more information
+     * @return 	int 						>0 if OK, <0 if KO
+     * @see	addFileIntoDatabaseIndex()
+     */
+    protected function commonGenerateDocument($modelspath, $modele, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams = null)
+    {
+        global $conf, $langs, $user, $db;
+
+        $srctemplatepath='';
+        $this->db = $db;
+
+        // Increase limit for PDF build
+        $err=error_reporting();
+        error_reporting(0);
+        @set_time_limit(120);
+        error_reporting($err);
+
+        // If selected model is a filename template (then $modele="modelname" or "modelname:filename")
+        $tmp=explode(':', $modele, 2);
+        if (! empty($tmp[1]))
+        {
+            $modele=$tmp[0];
+            $srctemplatepath=$tmp[1];
+        }
+
+        // Search template files
+        $file=''; $classname=''; $filefound=0;
+        $dirmodels=array('/');
+        if (is_array($conf->modules_parts['models'])) $dirmodels=array_merge($dirmodels, $conf->modules_parts['models']);
+        foreach($dirmodels as $reldir)
+        {
+            foreach(array('doc','pdf') as $prefix)
+            {
+                if (in_array(get_class($this), array('Adherent'))) $file = $prefix."_".$modele.".class.php";     // Member module use prefix_module.class.php
+                else $file = $prefix."_".$modele.".modules.php";
+
+                // On verifie l'emplacement du modele
+                $file=dol_buildpath($reldir.$modelspath.$file, 0);
+                if (file_exists($file))
+                {
+                    $filefound=1;
+                    $classname=$prefix.'_'.$modele;
+                    break;
+                }
+            }
+            if ($filefound) break;
+        }
+
+        // If generator was found
+        if ($filefound)
+        {
+            global $db;  // Required to solve a conception default in commonstickergenerator.class.php making an include of code using $db
+
+            require_once $file;
+
+            $obj = new $classname($this->db);
+
+            // If generator is ODT, we must have srctemplatepath defined, if not we set it.
+            if ($obj->type == 'odt' && empty($srctemplatepath))
+            {
+                $varfortemplatedir=$obj->scandir;
+                if ($varfortemplatedir && ! empty($conf->global->$varfortemplatedir))
+                {
+                    $dirtoscan=$conf->global->$varfortemplatedir;
+
+                    $listoffiles=array();
+
+                    // Now we add first model found in directories scanned
+                    $listofdir=explode(',', $dirtoscan);
+                    foreach($listofdir as $key => $tmpdir)
+                    {
+                        $tmpdir=trim($tmpdir);
+                        $tmpdir=preg_replace('/DOL_DATA_ROOT/', DOL_DATA_ROOT, $tmpdir);
+                        if (! $tmpdir) { unset($listofdir[$key]); continue; }
+                        if (is_dir($tmpdir))
+                        {
+                            $tmpfiles=dol_dir_list($tmpdir, 'files', 0, '\.od(s|t)$', '', 'name', SORT_ASC, 0);
+                            if (count($tmpfiles)) $listoffiles=array_merge($listoffiles, $tmpfiles);
+                        }
+                    }
+
+                    if (count($listoffiles))
+                    {
+                        foreach($listoffiles as $record)
+                        {
+                            $srctemplatepath=$record['fullname'];
+                            break;
+                        }
+                    }
+                }
+
+                if (empty($srctemplatepath))
+                {
+                    $this->error='ErrorGenerationAskedForOdtTemplateWithSrcFileNotDefined';
+                    return -1;
+                }
+            }
+
+            if ($obj->type == 'odt' && ! empty($srctemplatepath))
+            {
+                if (! dol_is_file($srctemplatepath))
+                {
+                    $this->error='ErrorGenerationAskedForOdtTemplateWithSrcFileNotFound';
+                    return -1;
+                }
+            }
+
+            // We save charset_output to restore it because write_file can change it if needed for
+            // output format that does not support UTF8.
+            $sav_charset_output=$outputlangs->charset_output;
+
+            if (in_array(get_class($this), array('Adherent')))
+            {
+                $arrayofrecords = array();   // The write_file of templates of adherent class need this var
+                $resultwritefile = $obj->write_file($this, $outputlangs, $srctemplatepath, 'member', 1, $moreparams);
+            }
+            else
+            {
+                $resultwritefile = $obj->write_file($this, $outputlangs, $srctemplatepath, $hidedetails, $hidedesc, $hideref, $moreparams);
+            }
+            // After call of write_file $obj->result['fullpath'] is set with generated file. It will be used to update the ECM database index.
+
+            if ($resultwritefile > 0)
+            {
+                $outputlangs->charset_output=$sav_charset_output;
+
+                // We delete old preview
+                require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
+                dol_delete_preview($this);
+
+                // Index file in database
+                if (! empty($obj->result['fullpath']))
+                {
+                    $destfull = $obj->result['fullpath'];
+                    $upload_dir = dirname($destfull);
+                    $destfile = basename($destfull);
+                    $rel_dir = preg_replace('/^'.preg_quote(DOL_DATA_ROOT, '/').'/', '', $upload_dir);
+
+                    if (! preg_match('/[\\/]temp[\\/]|[\\/]thumbs|\.meta$/', $rel_dir))     // If not a tmp dir
+                    {
+                        $filename = basename($destfile);
+                        $rel_dir = preg_replace('/[\\/]$/', '', $rel_dir);
+                        $rel_dir = preg_replace('/^[\\/]/', '', $rel_dir);
+
+                        include_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmfiles.class.php';
+                        $ecmfile=new EcmFiles($this->db);
+                        $result = $ecmfile->fetch(0, '', ($rel_dir?$rel_dir.'/':'').$filename);
+
+                        // Set the public "share" key
+                        $setsharekey = false;
+                        if ($this->element == 'propal')
+                        {
+                            $useonlinesignature = $conf->global->MAIN_FEATURES_LEVEL;	// Replace this with 1 when feature to make online signature is ok
+                            if ($useonlinesignature) $setsharekey=true;
+                            if (! empty($conf->global->PROPOSAL_ALLOW_EXTERNAL_DOWNLOAD)) $setsharekey=true;
+                        }
+                        if ($this->element == 'commande' && ! empty($conf->global->ORDER_ALLOW_EXTERNAL_DOWNLOAD)) {
+                            $setsharekey=true;
+                        }
+                        if ($this->element == 'facture' && ! empty($conf->global->INVOICE_ALLOW_EXTERNAL_DOWNLOAD)) {
+                            $setsharekey=true;
+                        }
+                        if ($this->element == 'bank_account' && ! empty($conf->global->BANK_ACCOUNT_ALLOW_EXTERNAL_DOWNLOAD)) {
+                            $setsharekey=true;
+                        }
+
+                        if ($setsharekey)
+                        {
+                            if (empty($ecmfile->share))	// Because object not found or share not set yet
+                            {
+                                require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
+                                $ecmfile->share = getRandomPassword(true);
+                            }
+                        }
+
+                        if ($result > 0)
+                        {
+                            $ecmfile->label = md5_file(dol_osencode($destfull));	// hash of file content
+                            $ecmfile->fullpath_orig = '';
+                            $ecmfile->gen_or_uploaded = 'generated';
+                            $ecmfile->description = '';    // indexed content
+                            $ecmfile->keyword = '';        // keyword content
+                            $result = $ecmfile->update($user);
+                            if ($result < 0)
+                            {
+                                setEventMessages($ecmfile->error, $ecmfile->errors, 'warnings');
+                            }
+                        }
+                        else
+                        {
+                            $ecmfile->entity = $conf->entity;
+                            $ecmfile->filepath = $rel_dir;
+                            $ecmfile->filename = $filename;
+                            $ecmfile->label = md5_file(dol_osencode($destfull));	// hash of file content
+                            $ecmfile->fullpath_orig = '';
+                            $ecmfile->gen_or_uploaded = 'generated';
+                            $ecmfile->description = '';    // indexed content
+                            $ecmfile->keyword = '';        // keyword content
+                            $ecmfile->src_object_type = $this->table_element;
+                            $ecmfile->src_object_id   = $this->id;
+
+                            $result = $ecmfile->create($user);
+
+                            if ($result < 0)
+                            {
+                                setEventMessages($ecmfile->error, $ecmfile->errors, 'warnings');
+                            }
+                        }
+
+                        /*$this->result['fullname']=$destfull;
+                        $this->result['filepath']=$ecmfile->filepath;
+                        $this->result['filename']=$ecmfile->filename;*/
+                        //var_dump($obj->update_main_doc_field);exit;
+
+                        // Update the last_main_doc field into main object (if documenent generator has property ->update_main_doc_field set)
+                        $update_main_doc_field=0;
+                        if (! empty($obj->update_main_doc_field)) $update_main_doc_field=1;
+                        if ($update_main_doc_field && ! empty($this->table_element))
+                        {
+                            $sql = 'UPDATE '.MAIN_DB_PREFIX.$this->table_element." SET last_main_doc = '".$this->db->escape($ecmfile->filepath.'/'.$ecmfile->filename)."'";
+                            $sql.= ' WHERE rowid = '.$this->id;
+
+                            $resql = $this->db->query($sql);
+                            if (! $resql) dol_print_error($this->db);
+                            else
+                            {
+                                $this->last_main_doc = $ecmfile->filepath.'/'.$ecmfile->filename;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    dol_syslog('Method ->write_file was called on object '.get_class($obj).' and return a success but the return array ->result["fullpath"] was not set.', LOG_WARNING);
+                }
+
+                // Success in building document. We build meta file.
+                dol_meta_create($this);
+
+                return 1;
+            }
+            else
+            {
+                $outputlangs->charset_output=$sav_charset_output;
+                dol_print_error($this->db, "Error generating document for ".__CLASS__.". Error: ".$obj->error, $obj->errors);
+                return -1;
+            }
+        }
+        else
+        {
+            $this->error=$langs->trans("Error")." ".$langs->trans("ErrorFileDoesNotExists", $file);
+            dol_print_error('', $this->error);
+            return -1;
+        }
+    }
+
+    /**
+     *	Fetch array of objects linked to current object (object of enabled modules only). Links are loaded into
+     *		this->linkedObjectsIds array and
+     *		this->linkedObjects array if $loadalsoobjects = 1
+     *  Possible usage for parameters:
+     *  - all parameters empty -> we look all link to current object (current object can be source or target)
+     *  - source id+type -> will get target list linked to source
+     *  - target id+type -> will get source list linked to target
+     *  - source id+type + target type -> will get target list of the type
+     *  - target id+type + target source -> will get source list of the type
+     *
+     *	@param	int		$sourceid			Object source id (if not defined, id of object)
+     *	@param  string	$sourcetype			Object source type (if not defined, element name of object)
+     *	@param  int		$targetid			Object target id (if not defined, id of object)
+     *	@param  string	$targettype			Object target type (if not defined, elemennt name of object)
+     *	@param  string	$clause				'OR' or 'AND' clause used when both source id and target id are provided
+     *  @param  int		$alsosametype		0=Return only links to object that differs from source type. 1=Include also link to objects of same type.
+     *  @param  string	$orderby			SQL 'ORDER BY' clause
+     *  @param	int		$loadalsoobjects	Load also array this->linkedObjects (Use 0 to increase performances)
+     *	@return int							<0 if KO, >0 if OK
+     *  @see	add_object_linked(), updateObjectLinked(), deleteObjectLinked()
+     */
+    public function fetchObjectLinked($sourceid = null, $sourcetype = '', $targetid = null, $targettype = '', $clause = 'OR', $alsosametype = 1, $orderby = 'sourcetype', $loadalsoobjects = 1)
+    {
+        global $conf, $db;
+
+        $this->linkedObjectsIds=array();
+        $this->linkedObjects=array();
+
+        $justsource=false;
+        $justtarget=false;
+        $withtargettype=false;
+        $withsourcetype=false;
+
+        if (! empty($sourceid) && ! empty($sourcetype) && empty($targetid))
+        {
+            $justsource=true;  // the source (id and type) is a search criteria
+            if (! empty($targettype)) $withtargettype=true;
+        }
+        if (! empty($targetid) && ! empty($targettype) && empty($sourceid))
+        {
+            $justtarget=true;  // the target (id and type) is a search criteria
+            if (! empty($sourcetype)) $withsourcetype=true;
+        }
+
+        $sourceid = (! empty($sourceid) ? $sourceid : $this->id);
+        $targetid = (! empty($targetid) ? $targetid : $this->id);
+        $sourcetype = (! empty($sourcetype) ? $sourcetype : $this->element);
+        $targettype = (! empty($targettype) ? $targettype : $this->element);
+
+        /*if (empty($sourceid) && empty($targetid))
+         {
+         dol_syslog('Bad usage of function. No source nor target id defined (nor as parameter nor as object id)', LOG_ERR);
+         return -1;
+         }*/
+
+        // Links between objects are stored in table element_element
+        $sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype';
+        $sql.= ' FROM '.MAIN_DB_PREFIX.'element_element';
+        $sql.= " WHERE ";
+        if ($justsource || $justtarget)
+        {
+            if ($justsource)
+            {
+                $sql.= "fk_source = ".$sourceid." AND sourcetype = '".$sourcetype."'";
+                if ($withtargettype) $sql.= " AND targettype = '".$targettype."'";
+            }
+            elseif ($justtarget)
+            {
+                $sql.= "fk_target = ".$targetid." AND targettype = '".$targettype."'";
+                if ($withsourcetype) $sql.= " AND sourcetype = '".$sourcetype."'";
+            }
+        }
+        else
+        {
+            $sql.= "(fk_source = ".$sourceid." AND sourcetype = '".$sourcetype."')";
+            $sql.= " ".$clause." (fk_target = ".$targetid." AND targettype = '".$targettype."')";
+        }
+        $sql .= ' ORDER BY '.$orderby;
+
+        dol_syslog(get_class($this)."::fetchObjectLink", LOG_DEBUG);
+        $resql = $this->db->query($sql);
+        if ($resql)
+        {
+            $num = $this->db->num_rows($resql);
+            $i = 0;
+            while ($i < $num)
+            {
+                $obj = $this->db->fetch_object($resql);
+                if ($justsource || $justtarget)
+                {
+                    if ($justsource)
+                    {
+                        $this->linkedObjectsIds[$obj->targettype][$obj->rowid]=$obj->fk_target;
+                    }
+                    elseif ($justtarget)
+                    {
+                        $this->linkedObjectsIds[$obj->sourcetype][$obj->rowid]=$obj->fk_source;
+                    }
+                }
+                else
+                {
+                    if ($obj->fk_source == $sourceid && $obj->sourcetype == $sourcetype)
+                    {
+                        $this->linkedObjectsIds[$obj->targettype][$obj->rowid]=$obj->fk_target;
+                    }
+                    if ($obj->fk_target == $targetid && $obj->targettype == $targettype)
+                    {
+                        $this->linkedObjectsIds[$obj->sourcetype][$obj->rowid]=$obj->fk_source;
+                    }
+                }
+                $i++;
+            }
+
+            if (! empty($this->linkedObjectsIds))
+            {
+                $tmparray = $this->linkedObjectsIds;
+                foreach($tmparray as $objecttype => $objectids)       // $objecttype is a module name ('facture', 'mymodule', ...) or a module name with a suffix ('project_task', 'mymodule_myobj', ...)
+                {
+                    // Parse element/subelement (ex: project_task, cabinetmed_consultation, ...)
+                    $module = $element = $subelement = $objecttype;
+                    if ($objecttype != 'supplier_proposal' && $objecttype != 'order_supplier' && $objecttype != 'invoice_supplier'
+                        && preg_match('/^([^_]+)_([^_]+)/i', $objecttype, $regs))
+                    {
+                        $module = $element = $regs[1];
+                        $subelement = $regs[2];
+                    }
+
+                    $classpath = $element.'/class';
+                    // To work with non standard classpath or module name
+                    if ($objecttype == 'facture')			{
+                        $classpath = 'compta/facture/class';
+                    }
+                    elseif ($objecttype == 'facturerec')			{
+                        $classpath = 'compta/facture/class'; $module = 'facture';
+                    }
+                    elseif ($objecttype == 'propal')			{
+                        $classpath = 'comm/propal/class';
+                    }
+                    elseif ($objecttype == 'supplier_proposal')			{
+                        $classpath = 'supplier_proposal/class';
+                    }
+                    elseif ($objecttype == 'shipping')			{
+                        $classpath = 'expedition/class'; $subelement = 'expedition'; $module = 'expedition_bon';
+                    }
+                    elseif ($objecttype == 'delivery')			{
+                        $classpath = 'livraison/class'; $subelement = 'livraison'; $module = 'livraison_bon';
+                    }
+                    elseif ($objecttype == 'invoice_supplier' || $objecttype == 'order_supplier')	{
+                        $classpath = 'fourn/class'; $module = 'fournisseur';
+                    }
+                    elseif ($objecttype == 'fichinter')			{
+                        $classpath = 'fichinter/class'; $subelement = 'fichinter'; $module = 'ficheinter';
+                    }
+                    elseif ($objecttype == 'subscription')			{
+                        $classpath = 'adherents/class'; $module = 'adherent';
+                    }
+
+                    // Set classfile
+                    $classfile = strtolower($subelement); $classname = ucfirst($subelement);
+
+                    if ($objecttype == 'order') {
+                        $classfile = 'commande'; $classname = 'Commande';
+                    }
+                    elseif ($objecttype == 'invoice_supplier') {
+                        $classfile = 'fournisseur.facture'; $classname = 'FactureFournisseur';
+                    }
+                    elseif ($objecttype == 'order_supplier')   {
+                        $classfile = 'fournisseur.commande'; $classname = 'CommandeFournisseur';
+                    }
+                    elseif ($objecttype == 'supplier_proposal')   {
+                        $classfile = 'supplier_proposal'; $classname = 'SupplierProposal';
+                    }
+                    elseif ($objecttype == 'facturerec')   {
+                        $classfile = 'facture-rec'; $classname = 'FactureRec';
+                    }
+                    elseif ($objecttype == 'subscription')   {
+                        $classfile = 'subscription'; $classname = 'Subscription';
+                    }
+
+                    // Here $module, $classfile and $classname are set
+                    if ($conf->$module->enabled && (($element != $this->element) || $alsosametype))
+                    {
+                        if ($loadalsoobjects)
+                        {
+                            dol_include_once('/'.$classpath.'/'.$classfile.'.class.php');
+                            //print '/'.$classpath.'/'.$classfile.'.class.php '.class_exists($classname);
+                            if (class_exists($classname))
+                            {
+                                foreach($objectids as $i => $objectid)	// $i is rowid into llx_element_element
+                                {
+                                    $object = new $classname($this->db);
+                                    $ret = $object->fetch($objectid);
+                                    if ($ret >= 0)
+                                    {
+                                        $this->linkedObjects[$objecttype][$i] = $object;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return 1;
+        }
+        else
+        {
+            dol_print_error($this->db);
+            return -1;
+        }
+    }
 
 	/**
 	 * Récupère les données de la base de données, d'où le nom, set vars BY db
