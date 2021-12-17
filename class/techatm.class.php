@@ -5,7 +5,7 @@
  * Class utilisée pour des mises à jours technique du module
  */
 
-namespace cliatm;
+namespace abricot;
 
 class TechATM
 {
