@@ -65,7 +65,7 @@ class modAbricot extends DolibarrModules
         $this->version = '3.2.9';
         $this->editor_name = 'ATM-Consulting';
         $this->editor_url = 'https://www.atm-consulting.fr';
-	    $this->url_last_version = \cliatm\TechATM::getLastModuleVersionUrl($this);
+	    $this->url_last_version = \abricot\TechATM::getLastModuleVersionUrl($this);
         // Key used in llx_const table to save module status enabled/disabled
         // (where MYMODULE is value of property name of module in uppercase)
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
