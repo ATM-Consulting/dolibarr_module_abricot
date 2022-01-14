@@ -16,7 +16,7 @@
  */
 
 /**
- *  \file       scripts/password-encrypt-arcoop-on-all-entity.php
+ *  \file       scripts/password-encrypt-on-all-entities.php
  *  \ingroup    cron
  *  \brief      Ce script sert a passer à 1 les lignes de la configuration urlDeDolibarr/admin/security.php directement en base
  *                Arcoop a beaucoup trop d'entité pour s'amuser à le faire depuis l'interface entité par entité donc
@@ -48,7 +48,7 @@ global $db, $conf;
 $sapi_type = php_sapi_name();
 $script_file = basename(__FILE__);
 
-// Test if batch mode
+// Use only on command line
 if (substr($sapi_type, 0, 3) == 'cgi' || $sapi_type == 'apache2handler') {
 	echo "Error: You are using PHP for CGI. To execute " . $script_file . " from command line, you must use PHP for CLI mode.\n";
 	exit(-1);
