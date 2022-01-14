@@ -5,6 +5,7 @@ ___
 # NOT RELEASED
 
 
+- NEW : Script for set to 1 encrypting of the password in multicompany admin/security conf  *14/01/2022* - 3.3
 
 ## RELEASE 3.2 - 29/06/2021
 
