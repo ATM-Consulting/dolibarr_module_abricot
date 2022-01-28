@@ -34,9 +34,9 @@ if (!defined('NOREQUIREHTML')) define('NOREQUIREHTML', '1');
 if (!defined('NOREQUIREAJAX')) define('NOREQUIREAJAX', '1');
 if (!defined('NOLOGIN')) define('NOLOGIN', '1');
 
-if (is_file('../main.inc.php')) $dir = '../';
-else if (is_file('../../../main.inc.php')) $dir = '../../../';
-else if (is_file('../../../../main.inc.php')) $dir = '../../../../';
+if (is_file('../master.inc.php')) $dir = '../';
+else if (is_file('../../../master.inc.php')) $dir = '../../../';
+else if (is_file('../../../../master.inc.php')) $dir = '../../../../';
 else $dir = '../../';
 
 include($dir . "master.inc.php");
