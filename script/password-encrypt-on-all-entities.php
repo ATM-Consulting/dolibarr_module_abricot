@@ -34,12 +34,13 @@ if (!defined('NOREQUIREHTML')) define('NOREQUIREHTML', '1');
 if (!defined('NOREQUIREAJAX')) define('NOREQUIREAJAX', '1');
 if (!defined('NOLOGIN')) define('NOLOGIN', '1');
 
-if (is_file('../master.inc.php')) $dir = '../';
-else if (is_file('../../../master.inc.php')) $dir = '../../../';
-else if (is_file('../../../../master.inc.php')) $dir = '../../../../';
-else $dir = '../../';
+if(is_file('../master.inc.php')) include '../master.inc.php';
+elseif(is_file('../../../master.inc.php')) include '../../../master.inc.php';
+elseif(is_file('../../../../master.inc.php')) include '../../../../master.inc.php';
+elseif(is_file('../../../../../master.inc.php')) include '../../../../../master.inc.php';
+else include '../../master.inc.php';
 
-include($dir . "master.inc.php");
+
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/security2.lib.php';
 
