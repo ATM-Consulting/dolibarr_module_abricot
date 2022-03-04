@@ -179,7 +179,22 @@ if(!$error) {
                 }
 
                 // @TODO : création du règlement + lien banque
+
+
                 // @TODO : déplacement des fichiers du répertoire documents
+                /*
+                 * La source NDFP préhistorique : dolibarr/documents/ndfp/idDeLaNoteDeFrais
+                 * La source NDFP expense report standard : dolibarr/documents/expenseReport/idDeLaNoteDeFrais
+                 * Utiliser la fonction  pour déplacer un fichier téléchargé depuis NDFP vers expenseReport
+                 */
+
+
+                $ndfpDocumentPath = DOl_DATA_ROOT . '/ndfp/' . $ndfp->id . '/';
+                $expenseReportDocumentPath = DOl_DATA_ROOT . '/expensereport/' . $object->id . '/';
+
+                var_dump($ndfpDocumentPath);
+                var_dump($expenseReportDocumentPath);
+                copy($ndfpDocumentPath, $expenseReportDocumentPath);
 
             }
         } else {
@@ -194,10 +209,12 @@ if(!$error) {
 
 //$error++;
 if($error > 0 || $forceRollback) {
-    print '<br/><pre><strong><span style="background-color: red;">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;ROLLBACK !</strong></pre><br/>';
+//    print '<br/><pre><strong><span style="background-color: red;">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;ROLLBACK !</strong></pre><br/>';
+    print '<br/><pre><strong><span style="background-color: red;">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;ESSAIE ENCORE SALE BATARD !</strong></pre><br/>';
     $db->rollBack();
 } else {
-    print '<br/><pre><strong><span style="background-color: green;">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;COMMIT !</strong></pre><br/>';
+//    print '<br/><pre><strong><span style="background-color: green;">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;COMMIT !</strong></pre><br/>';
+    print '<br/><pre><strong><span style="background-color: green;">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;ENORME RESPECT À TOI MON FREROWWWWW !</strong></pre><br/>';
     $db->commit();
 }
 
