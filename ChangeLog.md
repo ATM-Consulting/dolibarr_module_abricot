@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 ___
 
 # NOT RELEASED
-
+- NEW : Compatibilité Google chart  *04/03/2022* - 3.3.0
 
 
 ## RELEASE 3.2 - 29/06/2021
