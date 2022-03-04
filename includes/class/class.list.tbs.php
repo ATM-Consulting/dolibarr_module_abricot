@@ -738,8 +738,7 @@ class TListviewTBS {
 		        var data = google.visualization.arrayToDataTable([
 		          '.$data.'
 		        ]);
-
-		        var options = {
+		        var options = { chart : {
 		          title: "'.addslashes($TParam['liste']['titre']).'"
 		          '.(!empty($curveType) ? ',curveType: "'.$curveType.'"' : '' ).'
 		          ,legend: { position: "bottom" }
@@ -752,8 +751,8 @@ class TListviewTBS {
 				  '.( $type == 'AreaChart' ? ',isStacked: \'percent\'' : '').'
 
 				  '.(!empty($TParam['chart']['options']['bar']) ? ',bar : {'.$TParam['chart']['options']['bar'].'}' : '').'
-		        };
-
+		        }};
+				
 		        var chart = new google.visualization.'.$type.'(document.getElementById("div_query_chart'.$this->id.'"));
 
 		        chart.draw(data, options);
