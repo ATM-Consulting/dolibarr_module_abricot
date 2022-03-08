@@ -86,6 +86,21 @@ if(!$error) {
     }
 }
 
+// Ajout d'un extrafields si non existant
+
+
+// Add soc for asset
+$param = array (
+	'options' =>
+		array (
+			'Societe:societe/class/societe.class.php::statut=1' => NULL,
+		),
+);
+include_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
+$extrafields=new ExtraFields($this->db);
+$extrafields->addExtraField('fk_societe', 'Company', 'link', 1, 11, 'expensereport', 0, 0, '', $param, 0, '', '1', 0, '', '', 'compagnies',0);
+
+
 // 3. Transfert des ndf
 // @TODO : Extrafield pour stocker le client concerné par la NDF afin de conserver l'info, on verra plus tard si utile ou pas
 if(!$error) {
@@ -127,6 +142,7 @@ if(!$error) {
                 if(empty($ndfp->date_valid) && ($ndfp->statut == Ndfp::STATUS_PAID || $ndfp->statut == Ndfp::STATUS_VALIDATE)) $ndfp->date_valid = $ndfp->datec;
 
                 $object = new ExpenseReport($db);
+				$object->array_options['options_fk_societe'] = $ndfp->fk_soc;
 
                 $object->date_debut = $ndfp->dates;
                 $object->date_fin = $ndfp->datee;
@@ -210,11 +226,11 @@ if(!$error) {
 //$error++;
 if($error > 0 || $forceRollback) {
 //    print '<br/><pre><strong><span style="background-color: red;">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;ROLLBACK !</strong></pre><br/>';
-    print '<br/><pre><strong><span style="background-color: red;">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;ESSAIE ENCORE SALE BATARD !</strong></pre><br/>';
+    print '<br/><pre><strong><span style="background-color: red;">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;RollBack !</strong></pre><br/>';
     $db->rollBack();
 } else {
 //    print '<br/><pre><strong><span style="background-color: green;">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;COMMIT !</strong></pre><br/>';
-    print '<br/><pre><strong><span style="background-color: green;">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;ENORME RESPECT À TOI MON FREROWWWWW !</strong></pre><br/>';
+    print '<br/><pre><strong><span style="background-color: green;">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Commit !</strong></pre><br/>';
     $db->commit();
 }
 
