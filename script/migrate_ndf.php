@@ -248,101 +248,95 @@ if(!$error) {
 
 
 		// Création des règlement + lien banque
-		if(!$error ){
+		_logMsg('4. Création des paiements et les liaison avec les paiements bancaires existants', 'title');
 
-			_logMsg('4. Création des paiements et les liaison avec les paiements bancaires existants', 'title');
+		// TODO : trouver un moyen d'identifier les paiement deja importé car il n'y a pas import_key
+		$sql = 'SELECT n.rowid, fk_ndfp_payment, fk_ndfp, amount, tms FROM ' . MAIN_DB_PREFIX . 'ndfp_pay_det n ORDER BY n.rowid ;';
+		$resList = $db->query($sql);
 
-			// TODO : trouver un moyen d'identifier les paiement deja importé car il n'y a pas import_key
-			$sql = 'SELECT n.rowid, fk_ndfp_payment, fk_ndfp, amount, tms FROM ' . MAIN_DB_PREFIX . 'ndfp_pay_det n ORDER BY n.rowid ;';
-			$resList = $db->query($sql);
+		while($objNdfpPayDet = $db->fetch_object($resList)) {
+			$error = 0;
+			$ndfpPayment = new NdfpPayment($db);
+			$resa = $ndfpPayment->fetch($objNdfpPayDet->fk_ndfp_payment);
+			if ($resa) {
 
-			while($objNdfpPayDet = $db->fetch_object($resList)) {
-				$error = 0;
-				$ndfpPayment = new NdfpPayment($db);
-				$resa = $ndfpPayment->fetch($objNdfpPayDet->fk_ndfp_payment);
-				if ($resa) {
+				_logMsg('#'.__LINE__ . 'Traitement NdfpPayment '.$ndfpPayment->getNomUrl(1));
 
-					_logMsg('#'.__LINE__ . 'Traitement NdfpPayment '.$ndfpPayment->getNomUrl(1));
+				if ($ndfpPayment->fk_bank > 0) {
 
-					if ($ndfpPayment->fk_bank > 0) {
+					// TODO cache
+					$expensereport = new ExpenseReport($db);
+					$sql = "SELECT d.rowid id, d.total_ttc"; // DEFAULT
+					$sql .= " FROM ".MAIN_DB_PREFIX.$expensereport->table_element." as d";
+					$sql .= " WHERE d.import_key = '".$db->escape('ndf'.$objNdfpPayDet->fk_ndfp)."' ";
+					$expenseReportObj = $db->getRow($sql);
 
-						// TODO cache
-						$expensereport = new ExpenseReport($db);
-						$sql = "SELECT d.rowid id, d.total_ttc"; // DEFAULT
-						$sql .= " FROM ".MAIN_DB_PREFIX.$expensereport->table_element." as d";
-						$sql .= " WHERE d.import_key = '".$db->escape('ndf'.$objNdfpPayDet->fk_ndfp)."' ";
-						$expenseReportObj = $db->getRow($sql);
+					if($expenseReportObj){
 
-						if($expenseReportObj){
+						// Create a line of payments
+						$paymentExpenseReport = new PaymentExpenseReport($db);
+						$paymentExpenseReport->fk_expensereport = $expenseReportObj->id;
+						$paymentExpenseReport->datepaid = $ndfpPayment->datep;
 
-							// Create a line of payments
-							$paymentExpenseReport = new PaymentExpenseReport($db);
-							$paymentExpenseReport->fk_expensereport = $expenseReportObj->id;
-							$paymentExpenseReport->datepaid = $ndfpPayment->datep;
-
-							$paymentExpenseReport->amounts = array(// Tableau de montant
-								$ndfpPayment->fk_user_author => $objNdfpPayDet->amount,
-							);
+						$paymentExpenseReport->amounts = array(// Tableau de montant
+							$ndfpPayment->fk_user_author => $objNdfpPayDet->amount,
+						);
 
 
-							$paymentExpenseReport->total = $objNdfpPayDet->amount;
-							$paymentExpenseReport->fk_typepayment = $ndfpPayment->fk_payment;
-							$paymentExpenseReport->num_payment = $ndfpPayment->num_payment;
-							$paymentExpenseReport->note_public = $ndfpPayment->note_public;
+						$paymentExpenseReport->total = $objNdfpPayDet->amount;
+						$paymentExpenseReport->fk_typepayment = $ndfpPayment->fk_payment;
+						$paymentExpenseReport->num_payment = $ndfpPayment->num_payment;
+						$paymentExpenseReport->note_public = $ndfpPayment->note_public;
 
-							$paymentExpenseReport->fk_bank = $ndfpPayment->fk_bank;
+						$paymentExpenseReport->fk_bank = $ndfpPayment->fk_bank;
 
-							if (!$error) {
-								$paymentExpenseReportid = $paymentExpenseReport->create($user);
-								if ($paymentExpenseReportid < 0) {
-									_logMsg('#' . __LINE__ . ' create : ' . $paymentExpenseReport->errorsToString(), 'error');
-								}
-								else{
-									_logMsg('created '.$paymentExpenseReport->getNomUrl(1));
-									$result = $paymentExpenseReport->update_fk_bank($ndfpPayment->fk_bank);// oui c'est con dans Dolibarr le create le met à 0...
-									if ($result<=0) {
-										_logMsg('#'.__LINE__ . $db->error(), 'error');
-									}
-								}
+						if (!$error) {
+							$paymentExpenseReportid = $paymentExpenseReport->create($user);
+							if ($paymentExpenseReportid < 0) {
+								_logMsg('#' . __LINE__ . ' create : ' . $paymentExpenseReport->errorsToString(), 'error');
 							}
-
-							if (!$error) {
-
-								// Liaison avec le paiement effectué
-								$bank_line = new AccountLine($db);
-								$resFetch = $bank_line->fetch($ndfpPayment->fk_bank);
-								if($resFetch<=0){
-									_logMsg('#' . __LINE__ . ' fetch AccountLine '.$ndfpPayment->fk_bank.' : ' . $bank_line->errorsToString().' code error '.$resFetch, 'error');
-								}
-
-								$acc = new Account($db);
-								$resFetch = $acc->fetch($bank_line->fk_account);
-								if($resFetch<=0){
-									_logMsg('#' . __LINE__ . ' fetch Account '.$bank_line->fk_account.' : ' . $bank_line->errorsToString().' code error '.$resFetch, 'error');
-								}
-
-								// Add link 'payment', 'payment_supplier', 'payment_expensereport' in bank_url between payment and bank transaction
-								$url = DOL_URL_ROOT . '/expensereport/payment/card.php?rowid=';
-								$result = $acc->add_url_line($ndfpPayment->fk_bank, $expenseReportObj->id, $url, '(paiement)', 'payment_expensereport');
-								if ($result <= 0) {
-									_logMsg('#' . __LINE__ . ' create : ' . $acc->errorsToString().' code error '.$result, 'error');
+							else{
+								$result = $paymentExpenseReport->update_fk_bank($ndfpPayment->fk_bank);// oui c'est con dans Dolibarr le create le met à 0...
+								if ($result<=0) {
+									_logMsg('#'.__LINE__ . $db->error(), 'error');
 								}
 							}
 						}
-						else{
-							_logMsg('#' . __LINE__ . ' get ExpenseReport  : ' . $db->error(), 'error');
+
+						if (!$error) {
+
+							// Liaison avec le paiement effectué
+							$bank_line = new AccountLine($db);
+							$resFetch = $bank_line->fetch($ndfpPayment->fk_bank);
+							if($resFetch<=0){
+								_logMsg('#' . __LINE__ . ' fetch AccountLine '.$ndfpPayment->fk_bank.' : ' . $bank_line->errorsToString().' code error '.$resFetch, 'error');
+							}
+
+							$acc = new Account($db);
+							$resFetch = $acc->fetch($bank_line->fk_account);
+							if($resFetch<=0){
+								_logMsg('#' . __LINE__ . ' fetch Account '.$bank_line->fk_account.' : ' . $bank_line->errorsToString().' code error '.$resFetch, 'error');
+							}
+
+							// Add link 'payment', 'payment_supplier', 'payment_expensereport' in bank_url between payment and bank transaction
+							$url = DOL_URL_ROOT . '/expensereport/payment/card.php?rowid=';
+							$result = $acc->add_url_line($ndfpPayment->fk_bank, $expenseReportObj->id, $url, '(paiement)', 'payment_expensereport');
+							if ($result <= 0) {
+								_logMsg('#' . __LINE__ . ' create : ' . $acc->errorsToString().' code error '.$result, 'error');
+							}
 						}
 					}
 					else{
-						_logMsg('#'.__LINE__ .' fk_bank missing', 'error');
+						_logMsg('#' . __LINE__ . ' get ExpenseReport  : ' . $db->error(), 'error');
 					}
-				} else {
-					_logMsg('#' . __LINE__ . ' Fectching NdfpPayment #' . $objNdfpPayDet->rowid . ' fail', 'error');
 				}
-
+				else{
+					_logMsg('#'.__LINE__ .' fk_bank missing', 'error');
+				}
+			} else {
+				_logMsg('#' . __LINE__ . ' Fectching NdfpPayment #' . $objNdfpPayDet->rowid . ' fail', 'error');
 			}
 		}
-
 	} else {
 		_logMsg('#'.__LINE__ . $db->error(), 'error');
 	}
@@ -350,7 +344,7 @@ if(!$error) {
 
 //$error++;
 
-// le rollback ne fonctionne pas donc autan ne pas ci fier
+// le rollback ne fonctionne pas du coup il ne sert plus a rien
 $db->commit();
 
 // FIN
