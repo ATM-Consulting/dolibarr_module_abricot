@@ -6,6 +6,10 @@ ___
 
 
 
+## RELEASE 3.4 - 11/03/2022
+
+- NEW : Ajout du script de migration des notes de frais du module NDFP+ vers standard Dolibarr  *10/03/2022* - 3.4
+
 ## RELEASE 3.3 - 14/01/2022
 
 - NEW : Script for set to 1 encrypting of the password in multicompany admin/security conf  *14/01/2022* - 3.3
