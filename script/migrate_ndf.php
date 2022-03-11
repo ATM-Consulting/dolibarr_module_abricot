@@ -75,7 +75,7 @@ if(empty($conf->expensereport->enabled)) {
 	print '<input type="hidden" name="token" value="'.newToken().'" />';
 	print '<label><input type="checkbox" name="deleteOldBankUrl" value="1" /> Supprimer les liens bank url des anciennes Notes de frais du module </label>';
 
-print '<div style="font-weight:bold;color: #940000;">ATTENTION, VOUS DEVEZ IMPÉRATIVEMENT FAIRE UNE SAUVEGARDE DE LA BASE AVANT DE LANCER LE SCRIPT ICI PRÉSENT</div>';
+	print '<p style="font-weight:bold;color:#940000;">ATTENTION, VOUS DEVEZ IMPÉRATIVEMENT FAIRE UNE SAUVEGARDE DE LA BASE AVANT DE LANCER LE SCRIPT ICI PRÉSENT</p>';
 	print '<hr/>';
 	print '<button type="submit" name="action" value="goImport">Démarrer l\'import</button>';
 
