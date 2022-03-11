@@ -243,23 +243,34 @@ if($action == 'goImport')
 
 					if (!$error) {
 						// Déplacement des fichiers du répertoire documents
-						$ndfpDocumentPath = DOL_DATA_ROOT . '/ndfp/' . $ndfp->id;
-						$expenseReportDocumentPath = DOL_DATA_ROOT . '/expensereport/' . $expensereport->id;
-						if (is_dir($ndfpDocumentPath)) {
 
-							$logAction = 'Déplacement dossier : '
-								.str_replace(DOL_DATA_ROOT, "", $ndfpDocumentPath)
-								.' => '
-								.str_replace(DOL_DATA_ROOT, "", $expenseReportDocumentPath);
+						$refSanitized = dol_sanitizeFileName($ndfp->ref);
+						if (!empty($conf->expensereport->multidir_output[$ndfp->entity]) && !empty($conf->ndfp->multidir_output[$ndfp->entity])) {
+							$expenseReportDocumentPath = $conf->expensereport->multidir_output[$this->entity] . "/" . $refSanitized;
+							$ndfpDocumentPath = $conf->ndfp->multidir_output[$this->entity] . "/" . $refSanitized;
 
-							if(!is_dir($expenseReportDocumentPath) && !file_exists($expenseReportDocumentPath)){
-								_logMsg('#'.__LINE__  . $logAction);
-								rename($ndfpDocumentPath, $expenseReportDocumentPath);
-							}
-							else{
+							if (is_dir($ndfpDocumentPath)) {
+								$logAction = 'Déplacement dossier : '
+									.$ndfpDocumentPath
+									.' => '
+									.$expenseReportDocumentPath;
+
+								if(!is_dir($expenseReportDocumentPath) && !file_exists($expenseReportDocumentPath)){
+									_logMsg('#'.__LINE__  . $logAction);
+									rename($ndfpDocumentPath, $expenseReportDocumentPath);
+								}
+								else{
+									_logMsg('#'.__LINE__ . $logAction . ' destination already exists', 'error');
+								}
+							}else{
 								_logMsg('#'.__LINE__ . $logAction . ' destination already exists', 'error');
 							}
 						}
+						else{
+							_logMsg('#'.__LINE__ . ' no dir '.$ndfpDocumentPath);
+						}
+
+
 					}
 				}
 			} else {
