@@ -306,7 +306,13 @@ if($action == 'goImport')
 								}
 							}
 							else{
-								_logMsg('#'.__LINE__ . ' no dir '.$ndfpDocumentPath);
+								if (empty($conf->expensereport->multidir_output[$ndfp->entity])) {
+									_logMsg('#' . __LINE__ . ' no dir expensereport multidir_output #' . $ndfp->entity);
+								}
+
+								if (empty($conf->expensereport->multidir_output[$ndfp->entity])) {
+									_logMsg('#' . __LINE__ . ' no dir ndfp multidir_output #' . $ndfp->entity);
+								}
 							}
 						}
 					}
