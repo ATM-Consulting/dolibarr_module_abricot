@@ -285,8 +285,8 @@ if($action == 'goImport')
 
 							$refSanitized = dol_sanitizeFileName($ndfp->ref);
 							if (!empty($conf->expensereport->multidir_output[$ndfp->entity]) && !empty($conf->ndfp->multidir_output[$ndfp->entity])) {
-								$expenseReportDocumentPath = $conf->expensereport->multidir_output[$this->entity] . "/" . $refSanitized;
-								$ndfpDocumentPath = $conf->ndfp->multidir_output[$this->entity] . "/" . $refSanitized;
+								$expenseReportDocumentPath = $conf->expensereport->multidir_output[$ndfp->entity] . "/" . $refSanitized;
+								$ndfpDocumentPath = $conf->ndfp->multidir_output[$ndfp->entity] . "/" . $refSanitized;
 
 								if (is_dir($ndfpDocumentPath)) {
 									$logAction = 'Déplacement dossier : '
