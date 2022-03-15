@@ -8,6 +8,7 @@ ___
 
 ## RELEASE 3.4 - 11/03/2022
 
+- FIX : Ajout d'une compatibilité pour le dépôt git ndfp et pas seuelment ndfp_rh  *15/03/2022* - 3.4.1
 - NEW : Ajout du script de migration des notes de frais du module NDFP+ vers standard Dolibarr  *10/03/2022* - 3.4
 
 ## RELEASE 3.3 - 14/01/2022

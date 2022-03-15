@@ -49,15 +49,49 @@ if(empty($user->admin)){
 
 $action = GETPOST('action');
 
+$table_c_exp = 'c_exp';
+if(checkSqlTableExist($table_c_exp) <= 0){
+	$table_c_exp = 'c_ndfp_exp';
+	if(checkSqlTableExist($table_c_exp) <= 0){
+		$error++;
+		echo ' > Oula ! y a pas les tables c_ndfp_exp c_exp<br>';
+	}
+}
+
+$table_c_type_fees = 'c_type_fees';
+if(checkSqlTableExist($table_c_type_fees) <= 0){
+	$table_c_type_fees = 'c_ndfp_type_fees';
+	if(checkSqlTableExist($table_c_type_fees) <= 0){
+		$error++;
+		echo ' > Oula ! y a pas les tables c_type_fees ou c_ndfp_type_fees<br>';
+	}
+}
+
+
+
 $limit = 0;
 $forceRollback = false;
+if(defined('Ndfp::STATUS_DRAFT')){
+	$Ndfp_STATUS_DRAFT = Ndfp::STATUS_DRAFT;
+	$Ndfp_STATUS_WAITING_VALIDATE = Ndfp::STATUS_WAITING_VALIDATE;
+	$Ndfp_STATUS_VALIDATE = Ndfp::STATUS_VALIDATE;
+	$Ndfp_STATUS_PAID = Ndfp::STATUS_PAID;
+	$Ndfp_STATUS_ABANDONED = Ndfp::STATUS_ABANDONED;
+}else{
+	// il y a plusieur class de ndfp et certaine n'ont pas les constantes donc il faut faire sans
+	$Ndfp_STATUS_DRAFT = 0;
+	$Ndfp_STATUS_WAITING_VALIDATE = 4;
+	$Ndfp_STATUS_VALIDATE = 1;
+	$Ndfp_STATUS_PAID = 2;
+	$Ndfp_STATUS_ABANDONED = 3;
+}
 
 $aStatusTrans = array(
-	Ndfp::STATUS_DRAFT => ExpenseReport::STATUS_DRAFT,
-	Ndfp::STATUS_WAITING_VALIDATE => ExpenseReport::STATUS_VALIDATED,
-	Ndfp::STATUS_VALIDATE => ExpenseReport::STATUS_APPROVED,
-	Ndfp::STATUS_PAID => ExpenseReport::STATUS_CLOSED,
-	Ndfp::STATUS_ABANDONED => ExpenseReport::STATUS_REFUSED
+	$Ndfp_STATUS_DRAFT => ExpenseReport::STATUS_DRAFT,
+	$Ndfp_STATUS_WAITING_VALIDATE => ExpenseReport::STATUS_VALIDATED,
+	$Ndfp_STATUS_VALIDATE => ExpenseReport::STATUS_APPROVED,
+	$Ndfp_STATUS_PAID => ExpenseReport::STATUS_CLOSED,
+	$Ndfp_STATUS_ABANDONED => ExpenseReport::STATUS_REFUSED
 );
 
 // 0. Activation du module note de frais
@@ -90,15 +124,15 @@ if($action == 'goImport')
 	// 2. Gestion des types de dépenses
 	if(!$error) {
 		_logMsg('2. Gestion des types de dépenses', 'title');
-		$sql = 'INSERT IGNORE INTO ' . MAIN_DB_PREFIX . 'c_type_fees (code, label, accountancy_code, active)';
-		$sql .= ' SELECT code, label, accountancy_code, active FROM ' . MAIN_DB_PREFIX . 'c_exp';
+		$sql = 'INSERT IGNORE INTO ' . MAIN_DB_PREFIX . $table_c_type_fees.' (code, label, accountancy_code, active)';
+		$sql .= ' SELECT code, label, accountancy_code, active FROM ' . MAIN_DB_PREFIX . $table_c_exp;
 		$res = $db->query($sql);
 		_logMsg($sql, 'code');
 		if (!$res) {
 			_logMsg('#'.__LINE__ . $db->error(), 'error');
 		}
-		$sql = 'UPDATE ' . MAIN_DB_PREFIX . 'c_type_fees tf';
-		$sql.= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'c_exp e ON e.code = tf.code';
+		$sql = 'UPDATE ' . MAIN_DB_PREFIX . $table_c_type_fees.' tf';
+		$sql.= ' LEFT JOIN ' . MAIN_DB_PREFIX . $table_c_exp .' e ON e.code = tf.code';
 		$sql .= ' SET tf.active = 1 WHERE e.active = 1';
 		$res = $db->query($sql);
 		_logMsg($sql, 'code');
@@ -131,7 +165,7 @@ if($action == 'goImport')
 
 		// 3.1 Récupération des types de dépenses
 		_logMsg('3.1. Récupération des types de dépenses', 'title');
-		$sql = 'SELECT id, code FROM ' . MAIN_DB_PREFIX . 'c_type_fees';
+		$sql = 'SELECT id, code FROM ' . MAIN_DB_PREFIX . $table_c_type_fees;
 		$res = $db->query($sql);
 		_logMsg('#'.__LINE__ . ' '.$sql, 'code');
 		if (!$res) {
@@ -144,7 +178,7 @@ if($action == 'goImport')
 		}
 
 		if(!$error) {
-			$sql = 'SELECT n.rowid FROM ' . MAIN_DB_PREFIX . 'ndfp n LEFT JOIN ' . MAIN_DB_PREFIX . 'expensereport e ON CONCAT(\'ndf\', n.rowid) = e.import_key WHERE e.rowid IS NULL ORDER BY n.rowid';
+			$sql = 'SELECT n.rowid,  n.entity FROM ' . MAIN_DB_PREFIX . 'ndfp n LEFT JOIN ' . MAIN_DB_PREFIX . 'expensereport e ON CONCAT(\'ndf\', n.rowid) = e.import_key WHERE e.rowid IS NULL ORDER BY n.rowid';
 
 			if(!empty($limit)){
 				$sql.= ' LIMIT '.$limit;
@@ -156,121 +190,128 @@ if($action == 'goImport')
 
 				_logMsg('#'.__LINE__ . ' NDFP found '.$db->num_rows($resList));
 				while ($obj = $db->fetch_object($resList)) {
+
+					$conf->entity = $obj->entity;
+
+
 					$error = 0;
 					$ndfp = new Ndfp($db);
-					$ndfp->fetch($obj->rowid);
+					$resFetch = $ndfp->fetch($obj->rowid);
+					if($resFetch>0){
 
-					_logMsg('#'.__LINE__ . ' Traitement  '.$ndfp->getNomUrl());
+						_logMsg('#'.__LINE__ . ' Traitement  '.$ndfp->getNomUrl());
 
-					//var_dump($ndfp);
-					// Gestion du valideur dans certains cas
-					if(empty($ndfp->fk_user_valid) && ($ndfp->statut == Ndfp::STATUS_PAID || $ndfp->statut == Ndfp::STATUS_VALIDATE)) {
-						$ndfp->fk_user_valid = $ndfp->fk_user_author;
-					} else if(empty($ndfp->fk_user_valid)) {
-						$ndfp->fk_user_valid = 'NULL';
-					}
-
-					if(empty($ndfp->date_valid) && ($ndfp->statut == Ndfp::STATUS_PAID || $ndfp->statut == Ndfp::STATUS_VALIDATE)) $ndfp->date_valid = $ndfp->datec;
-
-					$expensereport = new ExpenseReport($db);
-
-					if($ndfp->fk_soc > 0){
-						$societe = new Societe($db);
-						if($societe->fetch($ndfp->fk_soc) > 0){
-							$expensereport->array_options['options_fk_societe'] = $ndfp->fk_soc;
-						}else{
-							_logMsg('#'.__LINE__ . ' Societe #'.$ndfp->fk_soc.' not found', 'warning');
+						//var_dump($ndfp);
+						// Gestion du valideur dans certains cas
+						if(empty($ndfp->fk_user_valid) && ($ndfp->statut == $Ndfp_STATUS_PAID || $ndfp->statut == $Ndfp_STATUS_VALIDATE)) {
+							$ndfp->fk_user_valid = $ndfp->fk_user_author;
+						} else if(empty($ndfp->fk_user_valid)) {
+							$ndfp->fk_user_valid = 'NULL';
 						}
-					}
 
-					$expensereport->date_debut = $ndfp->dates;
-					$expensereport->date_fin = $ndfp->datee;
+						if(empty($ndfp->date_valid) && ($ndfp->statut == $Ndfp_STATUS_PAID || $ndfp->statut == $Ndfp_STATUS_VALIDATE)) $ndfp->date_valid = $ndfp->datec;
 
-					$expensereport->fk_user_author = $ndfp->fk_user;
+						$expensereport = new ExpenseReport($db);
 
-					//$expensereport->status = 1;
-					$expensereport->fk_user_validator = $ndfp->fk_user_valid;
-					$desc = strtr($ndfp->description, array($ndfp->comment_admin => ''));
-					$desc = dol_concatdesc($desc, $ndfp->comment_user);
-					$desc = dol_concatdesc($desc, $ndfp->comment_admin);
-					$expensereport->note_public = $desc;
-					$expensereport->note_private = 'Note de frais importée depuis NDFP+ le '.date('m/d/Y').' '.$ndfp->getNomUrl();
+						if($ndfp->fk_soc > 0){
+							$societe = new Societe($db);
+							if($societe->fetch($ndfp->fk_soc) > 0){
+								$expensereport->array_options['options_fk_societe'] = $ndfp->fk_soc;
+							}else{
+								_logMsg('#'.__LINE__ . ' Societe #'.$ndfp->fk_soc.' not found', 'warning');
+							}
+						}
 
-					$id = $expensereport->create($user, 1);
-					if ($id <= 0) {
-						_logMsg('#'.__LINE__ . ' '.$expensereport->errorsToString(), 'error');
-					}
+						$expensereport->date_debut = $ndfp->dates;
+						$expensereport->date_fin = $ndfp->datee;
 
-					if (!$error) {
-						/** @var NdfpLine $line */
-						foreach ($ndfp->lines as $line) {
-							$fk_type_exp = isset($aTypeExp[$line->code]) ? $aTypeExp[$line->code] : 0;
-							if(empty($line->qty)) $line->qty = 1;
-							$up = $line->total_ttc / $line->qty;
-							$newlineId = $expensereport->addline($line->qty, $up, $fk_type_exp, $line->taux, $line->dated, $line->comment, $ndfp->fk_project);
-							if($newlineId>0){
-								$sql = 'UPDATE '.MAIN_DB_PREFIX.'expensereport_det SET';
-								$sql.= ' import_key = \'ndfdet'.$line->id.'\'';
-								$sql.= ' WHERE rowid = '.$newlineId;
-								$res2 = $db->query($sql);
-								if (!$res2) {
-									_logMsg('#'.__LINE__ . $db->error(), 'error');
+						$expensereport->fk_user_author = $ndfp->fk_user;
+
+						//$expensereport->status = 1;
+						$expensereport->fk_user_validator = $ndfp->fk_user_valid;
+						$desc = strtr($ndfp->description, array($ndfp->comment_admin => ''));
+						$desc = dol_concatdesc($desc, $ndfp->comment_user);
+						$desc = dol_concatdesc($desc, $ndfp->comment_admin);
+						$expensereport->note_public = $desc;
+						$expensereport->note_private = 'Note de frais importée depuis NDFP+ le '.date('m/d/Y').' '.$ndfp->getNomUrl();
+
+						$id = $expensereport->create($user, 1);
+						if ($id <= 0) {
+							_logMsg('#'.__LINE__ . ' '.$expensereport->errorsToString(), 'error');
+						}
+
+						if (!$error) {
+							/** @var NdfpLine $line */
+							foreach ($ndfp->lines as $line) {
+								$fk_type_exp = isset($aTypeExp[$line->code]) ? $aTypeExp[$line->code] : 0;
+								if(empty($line->qty)) $line->qty = 1;
+								$up = $line->total_ttc / $line->qty;
+								$newlineId = $expensereport->addline($line->qty, $up, $fk_type_exp, $line->taux, $line->dated, $line->comment, $ndfp->fk_project);
+								if($newlineId>0){
+									$sql = 'UPDATE '.MAIN_DB_PREFIX.'expensereport_det SET';
+									$sql.= ' import_key = \'ndfdet'.$line->id.'\'';
+									$sql.= ' WHERE rowid = '.$newlineId;
+									$res2 = $db->query($sql);
+									if (!$res2) {
+										_logMsg('#'.__LINE__ . $db->error(), 'error');
+									}
 								}
 							}
 						}
-					}
 
-					$sql = 'UPDATE '.MAIN_DB_PREFIX.'expensereport SET';
-					$sql.= ' tms = \''.$db->idate($ndfp->tms).'\'';
-					$sql.= ', date_create = \''.$db->idate($ndfp->datec).'\'';
-					if(!empty($ndfp->date_valid)) $sql.= ', date_valid = \''.$db->idate($ndfp->date_valid).'\'';
-					if($ndfp->statut != Ndfp::STATUS_DRAFT) $sql.= ', ref = \''.$ndfp->ref.'\'';
-					$sql.= ', entity = '.$ndfp->entity;
-					$sql.= ', fk_user_creat = '.$ndfp->fk_user;
-					$sql.= ', fk_user_modif = '.$ndfp->fk_user;
-					$sql.= ', fk_user_valid = '.$ndfp->fk_user;
-					$sql.= ', fk_user_validator = '.$ndfp->fk_user_valid;
-					$sql.= ', fk_user_approve = '.$ndfp->fk_user_valid;
-					$sql.= ', fk_statut = '.$aStatusTrans[$ndfp->statut];
-					$sql.= ', import_key = \'ndf'.$ndfp->id.'\'';
-					$sql.= ' WHERE rowid = '.$expensereport->id;
+						$sql = 'UPDATE '.MAIN_DB_PREFIX.'expensereport SET';
+						$sql.= ' tms = \''.$db->idate($ndfp->tms).'\'';
+						$sql.= ', date_create = \''.$db->idate($ndfp->datec).'\'';
+						if(!empty($ndfp->date_valid)) $sql.= ', date_valid = \''.$db->idate($ndfp->date_valid).'\'';
+						if($ndfp->statut != $Ndfp_STATUS_DRAFT) $sql.= ', ref = \''.$ndfp->ref.'\'';
+						$sql.= ', entity = '.$ndfp->entity;
+						$sql.= ', fk_user_creat = '.$ndfp->fk_user;
+						$sql.= ', fk_user_modif = '.$ndfp->fk_user;
+						$sql.= ', fk_user_valid = '.$ndfp->fk_user;
+						$sql.= ', fk_user_validator = '.$ndfp->fk_user_valid;
+						$sql.= ', fk_user_approve = '.$ndfp->fk_user_valid;
+						$sql.= ', fk_statut = '.$aStatusTrans[$ndfp->statut];
+						$sql.= ', import_key = \'ndf'.$ndfp->id.'\'';
+						$sql.= ' WHERE rowid = '.$expensereport->id;
 
-					$res2 = $db->query($sql);
-					_logMsg('#' . __LINE__ . ' ' . $sql, 'code');
-					if (!$res2) {
-						_logMsg('#'.__LINE__ . $db->error(), 'error');
-					}
+						$res2 = $db->query($sql);
+						_logMsg('#' . __LINE__ . ' ' . $sql, 'code');
+						if (!$res2) {
+							_logMsg('#'.__LINE__ . $db->error(), 'error');
+						}
 
-					if (!$error) {
-						// Déplacement des fichiers du répertoire documents
+						if (!$error) {
+							// Déplacement des fichiers du répertoire documents
 
-						$refSanitized = dol_sanitizeFileName($ndfp->ref);
-						if (!empty($conf->expensereport->multidir_output[$ndfp->entity]) && !empty($conf->ndfp->multidir_output[$ndfp->entity])) {
-							$expenseReportDocumentPath = $conf->expensereport->multidir_output[$this->entity] . "/" . $refSanitized;
-							$ndfpDocumentPath = $conf->ndfp->multidir_output[$this->entity] . "/" . $refSanitized;
+							$refSanitized = dol_sanitizeFileName($ndfp->ref);
+							if (!empty($conf->expensereport->multidir_output[$ndfp->entity]) && !empty($conf->ndfp->multidir_output[$ndfp->entity])) {
+								$expenseReportDocumentPath = $conf->expensereport->multidir_output[$this->entity] . "/" . $refSanitized;
+								$ndfpDocumentPath = $conf->ndfp->multidir_output[$this->entity] . "/" . $refSanitized;
 
-							if (is_dir($ndfpDocumentPath)) {
-								$logAction = 'Déplacement dossier : '
-									.$ndfpDocumentPath
-									.' => '
-									.$expenseReportDocumentPath;
+								if (is_dir($ndfpDocumentPath)) {
+									$logAction = 'Déplacement dossier : '
+										.$ndfpDocumentPath
+										.' => '
+										.$expenseReportDocumentPath;
 
-								if(!is_dir($expenseReportDocumentPath) && !file_exists($expenseReportDocumentPath)){
-									_logMsg('#'.__LINE__  . $logAction);
-									rename($ndfpDocumentPath, $expenseReportDocumentPath);
-								}
-								else{
+									if(!is_dir($expenseReportDocumentPath) && !file_exists($expenseReportDocumentPath)){
+										_logMsg('#'.__LINE__  . $logAction);
+										rename($ndfpDocumentPath, $expenseReportDocumentPath);
+									}
+									else{
+										_logMsg('#'.__LINE__ . $logAction . ' destination already exists', 'error');
+									}
+								}else{
 									_logMsg('#'.__LINE__ . $logAction . ' destination already exists', 'error');
 								}
-							}else{
-								_logMsg('#'.__LINE__ . $logAction . ' destination already exists', 'error');
+							}
+							else{
+								_logMsg('#'.__LINE__ . ' no dir '.$ndfpDocumentPath);
 							}
 						}
-						else{
-							_logMsg('#'.__LINE__ . ' no dir '.$ndfpDocumentPath);
-						}
-
-
+					}
+					else{
+						_logMsg('#'.__LINE__ . $ndfp->errorsToString().' not found '.$obj->rowid.' code err : '.$resFetch. ' '.$ndfp->db->error(), 'error');
 					}
 				}
 			} else {
@@ -433,4 +474,18 @@ function _logMsg($msg, $type = 'msg'){
  */
 function _logSep(){
 	print '<hr/>';
+}
+
+function checkSqlTableExist($table){
+	global $db, $dolibarr_main_db_name;
+	$sql = /** @lang  MySQL */
+		"SELECT COUNT(TABLE_NAME) nb FROM INFORMATION_SCHEMA.TABLES
+           WHERE
+			TABLE_SCHEMA LIKE '".$dolibarr_main_db_name."'
+			AND TABLE_TYPE='BASE TABLE'
+			AND TABLE_NAME='".$db->escape(MAIN_DB_PREFIX.$table)."' ";
+
+	$res =  $db->getRow($sql);
+	if(!$res){ return -1; }
+	return intval($res->nb);
 }
