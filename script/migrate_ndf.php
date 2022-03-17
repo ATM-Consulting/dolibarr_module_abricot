@@ -49,6 +49,7 @@ if(empty($user->admin)){
 
 $action = GETPOST('action');
 
+// compatibilité pour le dépôt git ndfp et pas seulement ndfp_rh (les noms de tables ne sont pas les mêmes)
 $table_c_exp = 'c_exp';
 if(checkSqlTableExist($table_c_exp) <= 0){
 	$table_c_exp = 'c_ndfp_exp';
