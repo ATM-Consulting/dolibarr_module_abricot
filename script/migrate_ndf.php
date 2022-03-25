@@ -303,7 +303,7 @@ if($action == 'goImport')
 										_logMsg('#'.__LINE__ . $logAction . ' destination already exists', 'error');
 									}
 								}else{
-									_logMsg('#'.__LINE__ . $logAction . ' destination already exists', 'error');
+									_logMsg('#'.__LINE__ . $ndfpDocumentPath . ' doesnt exists', 'error');
 								}
 							}
 							else{
