@@ -8,6 +8,7 @@ ___
 
 ## RELEASE 3.4 - 11/03/2022
 
+- FIX : Avoid emptying token value when clear filters in list *01/04/2022* - 3.4.3
 - FIX : Database integrity script update  *17/03/2022* - 3.4.2
 - FIX : Ajout d'une compatibilité pour le dépôt git ndfp et pas seulement ndfp_rh  *15/03/2022* - 3.4.1
 - NEW : Ajout du script de migration des notes de frais du module NDFP+ vers standard Dolibarr  *10/03/2022* - 3.4

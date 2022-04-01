@@ -85,7 +85,7 @@ function TListTBS_GoToPage(idListe,pageNumber){
 }
 function TListTBS_submitSearch(obj, clear) {
 	if (clear === true) {
-		$(obj).closest('form').find('*[name]').val('').prop('checked', false);
+		$(obj).closest('form').find('*[name]:not([name="token"])').val('').prop('checked', false);
 	}
 	$(obj).closest('form').submit();
 	//console.log($(obj).closest('form'));
