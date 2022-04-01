@@ -1939,7 +1939,7 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus="", $enLigne=true){
 		print $this->end_form();
 	}
 	function end_form(){
-	    return "</FORM>\n";
+	    return "</form>\n";
 	}
 
 	/*
