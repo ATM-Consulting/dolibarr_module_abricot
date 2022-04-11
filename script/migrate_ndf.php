@@ -48,6 +48,7 @@ if(empty($user->admin)){
 }
 
 $action = GETPOST('action');
+$forceLineImport = GETPOST('forceLineImport', 'int');
 
 // compatibilité pour le dépôt git ndfp et pas seulement ndfp_rh (les noms de tables ne sont pas les mêmes)
 $table_c_exp = 'c_exp';
@@ -103,19 +104,53 @@ if(empty($conf->expensereport->enabled)) {
 	echo ' > Désactivation des types de frais à faire dans le dictionnaire<hr>';
 	$error++;
 }else{
-	print '<fieldset>';
+	print '<fieldset >';
 	print '<legend>Paramètres d\'import</legend>';
 	print '<form action="'.$_SERVER['PHP_SELF'].'" enctype="multipart/form-data" method="post" >';
 
 	print '<input type="hidden" name="token" value="'.newToken().'" />';
-	print '<label><input type="checkbox" name="deleteOldBankUrl" value="1" /> Supprimer les liens bank url des anciennes Notes de frais du module </label>';
+	print '<input type="checkbox" name="deleteOldBankUrl" id="deleteOldBankUrl" value="1" /> <label for="deleteOldBankUrl">Supprimer les liens bank url des anciennes Notes de frais du module </label>';
 
 	print '<p style="font-weight:bold;color:#940000;">ATTENTION, VOUS DEVEZ IMPÉRATIVEMENT FAIRE UNE SAUVEGARDE DE LA BASE AVANT DE LANCER LE SCRIPT ICI PRÉSENT</p>';
+
+	print '<details class="advance-conf-box">';
+	print '<summary>Configuration avancée</summary>';
+
+	print '<input type="checkbox" name="forceLineImport"  id="forceLineImport" value="1" /> <label for="forceLineImport">Forcer la suppression/recréation des lignes et mise à jour pour les notes de frais déjà créés</label>';
+	print '</details>';
+
 	print '<hr/>';
 	print '<button type="submit" name="action" value="goImport">Démarrer l\'import</button>';
 
 	print '</form>';
 	print '</fieldset>';
+
+	print '<style>
+		:root{
+			--box-border-color: #bfbfbf;
+		}
+		.advance-conf-box, fieldset{
+			border: 1px solid var(--box-border-color);
+			padding: 1em;
+		}
+		.advance-conf-box summary, label[for]{
+			cursor: pointer;
+		}
+		hr{
+			border-top: 1px solid var(--box-border-color);
+			border-bottom: none;
+		}
+
+		/*details.advance-conf-box[open] {
+
+		}*/
+
+		details.advance-conf-box[open] summary {
+			border-bottom: 1px solid var(--box-border-color);
+			padding-bottom: 1em; ;
+			margin-bottom: 1em;
+		}
+		</style>';
 }
 
 
@@ -179,8 +214,20 @@ if($action == 'goImport')
 		}
 
 		if(!$error) {
-			$sql = 'SELECT n.rowid,  n.entity FROM ' . MAIN_DB_PREFIX . 'ndfp n LEFT JOIN ' . MAIN_DB_PREFIX . 'expensereport e ON CONCAT(\'ndf\', n.rowid) = e.import_key WHERE e.rowid IS NULL ORDER BY n.rowid';
+			$sql = 'SELECT n.rowid,  n.entity, e.import_key ';
+			$sql.= ' FROM ' . MAIN_DB_PREFIX . 'ndfp n ';
+			$sql.= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'expensereport e ON ( CONCAT(\'ndf\', n.rowid) = e.import_key ) ';
 
+
+			if(empty($forceLineImport)){
+				// ne pas importer les notes de frais déjà importées
+				$sql.= 'WHERE e.rowid IS NULL ';
+			}
+			else{
+				// dans le cas ou l'on force la recréation des lignes on selectionne tout
+			}
+
+			$sql.= ' ORDER BY n.rowid';
 			if(!empty($limit)){
 				$sql.= ' LIMIT '.$limit;
 			}
@@ -191,6 +238,24 @@ if($action == 'goImport')
 
 				_logMsg('#'.__LINE__ . ' NDFP found '.$db->num_rows($resList));
 				while ($obj = $db->fetch_object($resList)) {
+
+					// vérification de la note de frais déjà importée
+					$alreadyImportedExpenseId = 0;
+					$importKeyMatching = preg_match('/^(ndf)[0-9]+$/', $obj->import_key);
+					if($importKeyMatching === false){
+						_logMsg('NDFP id '.$obj->rowid.' regex '.$obj->import_key, 'error');
+						continue;
+					}
+					elseif(is_array($importKeyMatching) && !empty($importKeyMatching[1])){
+						$alreadyImportedExpenseId = $importKeyMatching[1];
+					}
+
+
+					if(!$forceLineImport && $alreadyImportedExpenseId > 0){
+						_logMsg('NDFP id '.$obj->rowid.' marqué comme déja importée '.$obj->import_key, 'error');
+						continue;
+					}
+
 
 					$conf->entity = $obj->entity;
 
@@ -213,6 +278,14 @@ if($action == 'goImport')
 						if(empty($ndfp->date_valid) && ($ndfp->statut == $Ndfp_STATUS_PAID || $ndfp->statut == $Ndfp_STATUS_VALIDATE)) $ndfp->date_valid = $ndfp->datec;
 
 						$expensereport = new ExpenseReport($db);
+						if($alreadyImportedExpenseId>0){
+							$res = $expensereport->fetch($alreadyImportedExpenseId);
+							if($res<=0){
+								_logMsg('Fetch expensereport report '.$alreadyImportedExpenseId, 'error');
+								continue;
+							}
+						}
+
 
 						if($ndfp->fk_soc > 0){
 							$societe = new Societe($db);
@@ -236,14 +309,45 @@ if($action == 'goImport')
 						$expensereport->note_public = $desc;
 						$expensereport->note_private = 'Note de frais importée depuis NDFP+ le '.date('m/d/Y').' '.$ndfp->getNomUrl();
 
-						$id = $expensereport->create($user, 1);
+						if(!empty($expensereport->id)){
+							$id = 0;
+							if($expensereport->update($user, 1)>0){
+								// Suppression des lignes en vue du nouvel import ($forceLineImport)
+								foreach ($expensereport->lines as $expLine){
+									/** @var ExpenseReportLine $expLines */
+									if($expensereport->deleteline($expLine->id)<1){
+										_logMsg('deleteline '.$expLine->id.' From '.$expensereport->ref, 'error');
+									}
+								}
+								$id = $expensereport->id;
+							}
+						}
+						else{
+							$id = $expensereport->create($user, 1);
+						}
+
 						if ($id <= 0) {
 							_logMsg('#'.__LINE__ . ' '.$expensereport->errorsToString(), 'error');
 						}
 
-						if (!$error) {
+						if ($id>0) {
 							/** @var NdfpLine $line */
 							foreach ($ndfp->lines as $line) {
+
+								// Quelques ajustements sont nécessaires entre les versions de note de frais +
+								// Fix : missing id
+								if(empty($line->id) && !empty($line->rowid)){
+									$line->id = $line->rowid; // car oui NDFP peut en fonction des versions ne pas garnir la parie ID de la ligne
+								}
+
+								// Fix : TVA : ATTENTION en fonction des version de NDFP+, dans un cas on a fk_tva qui est une clé et de l'autre ont à une valuer (fk_tva)
+								// Normalement si le taux n'est pas renseigné alors c'est que le fk_tva et le taux...
+								if(empty($line->taux) && !empty($line->fk_tva)){
+									$line->taux = $line->fk_tva;
+								}
+
+								// Fin ajustements
+
 								$fk_type_exp = isset($aTypeExp[$line->code]) ? $aTypeExp[$line->code] : 0;
 								if(empty($line->qty)) $line->qty = 1;
 								$up = $line->total_ttc / $line->qty;
@@ -318,11 +422,11 @@ if($action == 'goImport')
 						}
 					}
 					else{
-						_logMsg('#'.__LINE__ . $ndfp->errorsToString().' not found '.$obj->rowid.' code err : '.$resFetch. ' '.$ndfp->db->error(), 'error');
+						_logMsg('#'.__LINE__ . ' ' . $ndfp->errorsToString().' : not found '.$obj->rowid.' code err : '.$resFetch. ' '.$ndfp->db->error(), 'error');
 					}
 				}
 			} else {
-				_logMsg('#'.__LINE__ . $db->error(), 'error');
+				_logMsg('#'.__LINE__ . ' ' . $db->error(), 'error');
 			}
 
 
