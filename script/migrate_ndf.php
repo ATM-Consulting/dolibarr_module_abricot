@@ -22,6 +22,9 @@
  */
 
 ini_set('display_errors', true);
+@ini_set('implicit_flush',1);
+@ob_end_clean();
+set_time_limit(0);
 
 // Change this following line to use the correct relative path (../, ../../, etc)
 $res=0;
@@ -49,6 +52,7 @@ if(empty($user->admin)){
 
 $action = GETPOST('action');
 $forceLineImport = GETPOST('forceLineImport', 'int');
+$limit = GETPOST('limit', 'int');
 
 // compatibilité pour le dépôt git ndfp et pas seulement ndfp_rh (les noms de tables ne sont pas les mêmes)
 $table_c_exp = 'c_exp';
@@ -71,7 +75,6 @@ if(checkSqlTableExist($table_c_type_fees) <= 0){
 
 
 
-$limit = 0;
 $forceRollback = false;
 if(defined('Ndfp::STATUS_DRAFT')){
 	$Ndfp_STATUS_DRAFT = Ndfp::STATUS_DRAFT;
@@ -116,7 +119,14 @@ if(empty($conf->expensereport->enabled)) {
 	print '<details class="advance-conf-box">';
 	print '<summary>Configuration avancée</summary>';
 
+	print '<p>';
 	print '<input type="checkbox" name="forceLineImport"  id="forceLineImport" value="1" /> <label for="forceLineImport">Forcer la suppression/recréation des lignes et mise à jour pour les notes de frais déjà créés</label>';
+	print '</p>';
+
+	print '<p>';
+	print 'Limite <input name="limit" type="number" min="0" step="1" value="'.$limit.'" />';
+	print '</p>';
+
 	print '</details>';
 
 	print '<hr/>';
@@ -214,7 +224,7 @@ if($action == 'goImport')
 		}
 
 		if(!$error) {
-			$sql = 'SELECT n.rowid,  n.entity, e.import_key ';
+			$sql = 'SELECT n.rowid,  n.entity, e.import_key, e.rowid fk_expensereport ';
 			$sql.= ' FROM ' . MAIN_DB_PREFIX . 'ndfp n ';
 			$sql.= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'expensereport e ON ( CONCAT(\'ndf\', n.rowid) = e.import_key ) ';
 
@@ -239,19 +249,7 @@ if($action == 'goImport')
 				_logMsg('#'.__LINE__ . ' NDFP found '.$db->num_rows($resList));
 				while ($obj = $db->fetch_object($resList)) {
 
-					// vérification de la note de frais déjà importée
-					$alreadyImportedExpenseId = 0;
-					$importKeyMatching = preg_match('/^(ndf)[0-9]+$/', $obj->import_key);
-					if($importKeyMatching === false){
-						_logMsg('NDFP id '.$obj->rowid.' regex '.$obj->import_key, 'error');
-						continue;
-					}
-					elseif(is_array($importKeyMatching) && !empty($importKeyMatching[1])){
-						$alreadyImportedExpenseId = $importKeyMatching[1];
-					}
-
-
-					if(!$forceLineImport && $alreadyImportedExpenseId > 0){
+					if(!$forceLineImport && $obj->fk_expensereport > 0){
 						_logMsg('NDFP id '.$obj->rowid.' marqué comme déja importée '.$obj->import_key, 'error');
 						continue;
 					}
@@ -278,14 +276,13 @@ if($action == 'goImport')
 						if(empty($ndfp->date_valid) && ($ndfp->statut == $Ndfp_STATUS_PAID || $ndfp->statut == $Ndfp_STATUS_VALIDATE)) $ndfp->date_valid = $ndfp->datec;
 
 						$expensereport = new ExpenseReport($db);
-						if($alreadyImportedExpenseId>0){
-							$res = $expensereport->fetch($alreadyImportedExpenseId);
+						if($obj->fk_expensereport>0){
+							$res = $expensereport->fetch($obj->fk_expensereport);
 							if($res<=0){
-								_logMsg('Fetch expensereport report '.$alreadyImportedExpenseId, 'error');
+								_logMsg('Fetch expensereport report '.$obj->fk_expensereport, 'error');
 								continue;
 							}
 						}
-
 
 						if($ndfp->fk_soc > 0){
 							$societe = new Societe($db);
@@ -308,6 +305,7 @@ if($action == 'goImport')
 						$desc = dol_concatdesc($desc, $ndfp->comment_admin);
 						$expensereport->note_public = $desc;
 						$expensereport->note_private = 'Note de frais importée depuis NDFP+ le '.date('m/d/Y').' '.$ndfp->getNomUrl();
+
 
 						if(!empty($expensereport->id)){
 							$id = 0;
