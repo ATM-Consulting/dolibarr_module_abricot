@@ -389,10 +389,25 @@ if($action == 'goImport')
 						if (!$error) {
 							// Déplacement des fichiers du répertoire documents
 
+							// DANS le cas des entité désactivées ils faut recréé les chemins car ils ne sont pas chargés
+							if(empty($conf->ndfp->multidir_output[$ndfp->entity])){
+								$conf->ndfp->multidir_output[$ndfp->entity] = DOL_DATA_ROOT . '/'.$ndfp->entity.'/ndfp';
+							}
+							if(empty($conf->expensereport->multidir_output[$ndfp->entity])){
+								$conf->expensereport->multidir_output[$ndfp->entity] = DOL_DATA_ROOT . '/'.$ndfp->entity.'/expensereport';
+							}
+
+
 							$refSanitized = dol_sanitizeFileName($ndfp->ref);
 							if (!empty($conf->expensereport->multidir_output[$ndfp->entity]) && !empty($conf->ndfp->multidir_output[$ndfp->entity])) {
 								$expenseReportDocumentPath = $conf->expensereport->multidir_output[$ndfp->entity] . "/" . $refSanitized;
 								$ndfpDocumentPath = $conf->ndfp->multidir_output[$ndfp->entity] . "/" . $refSanitized;
+
+								// Avec multi societe les dossiers ne sont pas tjrs créés donc il faut le faire manuellement
+								if(!file_exists($conf->expensereport->multidir_output[$ndfp->entity])){
+									dol_mkdir($conf->expensereport->multidir_output[$ndfp->entity], DOL_DATA_ROOT);
+								}
+
 
 								if (is_dir($ndfpDocumentPath)) {
 									$logAction = 'Déplacement dossier : '
@@ -416,7 +431,7 @@ if($action == 'goImport')
 									_logMsg('#' . __LINE__ . ' no dir expensereport multidir_output #' . $ndfp->entity);
 								}
 
-								if (empty($conf->expensereport->multidir_output[$ndfp->entity])) {
+								if (empty($conf->ndfp->multidir_output[$ndfp->entity])) {
 									_logMsg('#' . __LINE__ . ' no dir ndfp multidir_output #' . $ndfp->entity);
 								}
 							}
