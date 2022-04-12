@@ -282,6 +282,9 @@ if($action == 'goImport')
 								_logMsg('Fetch expensereport report '.$obj->fk_expensereport, 'error');
 								continue;
 							}
+
+							// force le retour en brouillion pour permettre la recréation des lignes
+							$expensereport->setStatut(ExpenseReport::STATUS_DRAFT);
 						}
 
 						if($ndfp->fk_soc > 0){
