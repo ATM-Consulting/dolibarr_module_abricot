@@ -22,6 +22,9 @@
  */
 
 ini_set('display_errors', true);
+@ini_set('implicit_flush',1);
+@ob_end_clean();
+set_time_limit(0);
 
 // Change this following line to use the correct relative path (../, ../../, etc)
 $res=0;
@@ -48,6 +51,8 @@ if(empty($user->admin)){
 }
 
 $action = GETPOST('action');
+$forceLineImport = GETPOST('forceLineImport', 'int');
+$limit = GETPOST('limit', 'int');
 
 // compatibilité pour le dépôt git ndfp et pas seulement ndfp_rh (les noms de tables ne sont pas les mêmes)
 $table_c_exp = 'c_exp';
@@ -70,7 +75,6 @@ if(checkSqlTableExist($table_c_type_fees) <= 0){
 
 
 
-$limit = 0;
 $forceRollback = false;
 if(defined('Ndfp::STATUS_DRAFT')){
 	$Ndfp_STATUS_DRAFT = Ndfp::STATUS_DRAFT;
@@ -103,19 +107,60 @@ if(empty($conf->expensereport->enabled)) {
 	echo ' > Désactivation des types de frais à faire dans le dictionnaire<hr>';
 	$error++;
 }else{
-	print '<fieldset>';
+	print '<fieldset >';
 	print '<legend>Paramètres d\'import</legend>';
 	print '<form action="'.$_SERVER['PHP_SELF'].'" enctype="multipart/form-data" method="post" >';
 
 	print '<input type="hidden" name="token" value="'.newToken().'" />';
-	print '<label><input type="checkbox" name="deleteOldBankUrl" value="1" /> Supprimer les liens bank url des anciennes Notes de frais du module </label>';
+	print '<input type="checkbox" name="deleteOldBankUrl" id="deleteOldBankUrl" value="1" /> <label for="deleteOldBankUrl">Supprimer les liens bank url des anciennes Notes de frais du module </label>';
 
 	print '<p style="font-weight:bold;color:#940000;">ATTENTION, VOUS DEVEZ IMPÉRATIVEMENT FAIRE UNE SAUVEGARDE DE LA BASE AVANT DE LANCER LE SCRIPT ICI PRÉSENT</p>';
+
+	print '<details class="advance-conf-box">';
+	print '<summary>Configuration avancée</summary>';
+
+	print '<p>';
+	print '<input type="checkbox" name="forceLineImport"  id="forceLineImport" value="1" /> <label for="forceLineImport">Forcer la suppression/recréation des lignes et mise à jour pour les notes de frais déjà créés</label>';
+	print '</p>';
+
+	print '<p>';
+	print 'Limite <input name="limit" type="number" min="0" step="1" value="'.$limit.'" />';
+	print '</p>';
+
+	print '</details>';
+
 	print '<hr/>';
 	print '<button type="submit" name="action" value="goImport">Démarrer l\'import</button>';
 
 	print '</form>';
 	print '</fieldset>';
+
+	print '<style>
+		:root{
+			--box-border-color: #bfbfbf;
+		}
+		.advance-conf-box, fieldset{
+			border: 1px solid var(--box-border-color);
+			padding: 1em;
+		}
+		.advance-conf-box summary, label[for]{
+			cursor: pointer;
+		}
+		hr{
+			border-top: 1px solid var(--box-border-color);
+			border-bottom: none;
+		}
+
+		/*details.advance-conf-box[open] {
+
+		}*/
+
+		details.advance-conf-box[open] summary {
+			border-bottom: 1px solid var(--box-border-color);
+			padding-bottom: 1em; ;
+			margin-bottom: 1em;
+		}
+		</style>';
 }
 
 
@@ -179,8 +224,20 @@ if($action == 'goImport')
 		}
 
 		if(!$error) {
-			$sql = 'SELECT n.rowid,  n.entity FROM ' . MAIN_DB_PREFIX . 'ndfp n LEFT JOIN ' . MAIN_DB_PREFIX . 'expensereport e ON CONCAT(\'ndf\', n.rowid) = e.import_key WHERE e.rowid IS NULL ORDER BY n.rowid';
+			$sql = 'SELECT n.rowid,  n.entity, e.import_key, e.rowid fk_expensereport ';
+			$sql.= ' FROM ' . MAIN_DB_PREFIX . 'ndfp n ';
+			$sql.= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'expensereport e ON ( CONCAT(\'ndf\', n.rowid) = e.import_key ) ';
 
+
+			if(empty($forceLineImport)){
+				// ne pas importer les notes de frais déjà importées
+				$sql.= 'WHERE e.rowid IS NULL ';
+			}
+			else{
+				// dans le cas ou l'on force la recréation des lignes on selectionne tout
+			}
+
+			$sql.= ' ORDER BY n.rowid';
 			if(!empty($limit)){
 				$sql.= ' LIMIT '.$limit;
 			}
@@ -191,6 +248,12 @@ if($action == 'goImport')
 
 				_logMsg('#'.__LINE__ . ' NDFP found '.$db->num_rows($resList));
 				while ($obj = $db->fetch_object($resList)) {
+
+					if(!$forceLineImport && $obj->fk_expensereport > 0){
+						_logMsg('NDFP id '.$obj->rowid.' marqué comme déja importée '.$obj->import_key, 'error');
+						continue;
+					}
+
 
 					$conf->entity = $obj->entity;
 
@@ -213,6 +276,16 @@ if($action == 'goImport')
 						if(empty($ndfp->date_valid) && ($ndfp->statut == $Ndfp_STATUS_PAID || $ndfp->statut == $Ndfp_STATUS_VALIDATE)) $ndfp->date_valid = $ndfp->datec;
 
 						$expensereport = new ExpenseReport($db);
+						if($obj->fk_expensereport>0){
+							$res = $expensereport->fetch($obj->fk_expensereport);
+							if($res<=0){
+								_logMsg('Fetch expensereport report '.$obj->fk_expensereport, 'error');
+								continue;
+							}
+
+							// force le retour en brouillion pour permettre la recréation des lignes
+							$expensereport->setStatut(ExpenseReport::STATUS_DRAFT);
+						}
 
 						if($ndfp->fk_soc > 0){
 							$societe = new Societe($db);
@@ -236,14 +309,46 @@ if($action == 'goImport')
 						$expensereport->note_public = $desc;
 						$expensereport->note_private = 'Note de frais importée depuis NDFP+ le '.date('m/d/Y').' '.$ndfp->getNomUrl();
 
-						$id = $expensereport->create($user, 1);
+
+						if(!empty($expensereport->id)){
+							$id = 0;
+							if($expensereport->update($user, 1)>0){
+								// Suppression des lignes en vue du nouvel import ($forceLineImport)
+								foreach ($expensereport->lines as $expLine){
+									/** @var ExpenseReportLine $expLines */
+									if($expensereport->deleteline($expLine->id)<1){
+										_logMsg('deleteline '.$expLine->id.' From '.$expensereport->ref, 'error');
+									}
+								}
+								$id = $expensereport->id;
+							}
+						}
+						else{
+							$id = $expensereport->create($user, 1);
+						}
+
 						if ($id <= 0) {
 							_logMsg('#'.__LINE__ . ' '.$expensereport->errorsToString(), 'error');
 						}
 
-						if (!$error) {
+						if ($id>0) {
 							/** @var NdfpLine $line */
 							foreach ($ndfp->lines as $line) {
+
+								// Quelques ajustements sont nécessaires entre les versions de note de frais +
+								// Fix : missing id
+								if(empty($line->id) && !empty($line->rowid)){
+									$line->id = $line->rowid; // car oui NDFP peut en fonction des versions ne pas garnir la parie ID de la ligne
+								}
+
+								// Fix : TVA : ATTENTION en fonction des version de NDFP+, dans un cas on a fk_tva qui est une clé et de l'autre ont à une valuer (fk_tva)
+								// Normalement si le taux n'est pas renseigné alors c'est que le fk_tva et le taux...
+								if(empty($line->taux) && !empty($line->fk_tva)){
+									$line->taux = $line->fk_tva;
+								}
+
+								// Fin ajustements
+
 								$fk_type_exp = isset($aTypeExp[$line->code]) ? $aTypeExp[$line->code] : 0;
 								if(empty($line->qty)) $line->qty = 1;
 								$up = $line->total_ttc / $line->qty;
@@ -284,10 +389,25 @@ if($action == 'goImport')
 						if (!$error) {
 							// Déplacement des fichiers du répertoire documents
 
+							// DANS le cas des entité désactivées ils faut recréé les chemins car ils ne sont pas chargés
+							if(empty($conf->ndfp->multidir_output[$ndfp->entity])){
+								$conf->ndfp->multidir_output[$ndfp->entity] = DOL_DATA_ROOT . '/'.$ndfp->entity.'/ndfp';
+							}
+							if(empty($conf->expensereport->multidir_output[$ndfp->entity])){
+								$conf->expensereport->multidir_output[$ndfp->entity] = DOL_DATA_ROOT . '/'.$ndfp->entity.'/expensereport';
+							}
+
+
 							$refSanitized = dol_sanitizeFileName($ndfp->ref);
 							if (!empty($conf->expensereport->multidir_output[$ndfp->entity]) && !empty($conf->ndfp->multidir_output[$ndfp->entity])) {
 								$expenseReportDocumentPath = $conf->expensereport->multidir_output[$ndfp->entity] . "/" . $refSanitized;
 								$ndfpDocumentPath = $conf->ndfp->multidir_output[$ndfp->entity] . "/" . $refSanitized;
+
+								// Avec multi societe les dossiers ne sont pas tjrs créés donc il faut le faire manuellement
+								if(!file_exists($conf->expensereport->multidir_output[$ndfp->entity])){
+									dol_mkdir($conf->expensereport->multidir_output[$ndfp->entity], DOL_DATA_ROOT);
+								}
+
 
 								if (is_dir($ndfpDocumentPath)) {
 									$logAction = 'Déplacement dossier : '
@@ -311,18 +431,18 @@ if($action == 'goImport')
 									_logMsg('#' . __LINE__ . ' no dir expensereport multidir_output #' . $ndfp->entity);
 								}
 
-								if (empty($conf->expensereport->multidir_output[$ndfp->entity])) {
+								if (empty($conf->ndfp->multidir_output[$ndfp->entity])) {
 									_logMsg('#' . __LINE__ . ' no dir ndfp multidir_output #' . $ndfp->entity);
 								}
 							}
 						}
 					}
 					else{
-						_logMsg('#'.__LINE__ . $ndfp->errorsToString().' not found '.$obj->rowid.' code err : '.$resFetch. ' '.$ndfp->db->error(), 'error');
+						_logMsg('#'.__LINE__ . ' ' . $ndfp->errorsToString().' : not found '.$obj->rowid.' code err : '.$resFetch. ' '.$ndfp->db->error(), 'error');
 					}
 				}
 			} else {
-				_logMsg('#'.__LINE__ . $db->error(), 'error');
+				_logMsg('#'.__LINE__ . ' ' . $db->error(), 'error');
 			}
 
 
