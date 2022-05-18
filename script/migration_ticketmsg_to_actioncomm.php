@@ -19,7 +19,7 @@ if ($resql) {
 	$num_rows = $db->num_rows($resql);
 
 	require_once DOL_DOCUMENT_ROOT."/ticket/class/ticket.class.php";
-	dol_include_once('/custom/multicompany/class/actions_multicompany.class.php');
+	dol_include_once('/multicompany/class/actions_multicompany.class.php');
 
 	$ticketStatic = new Ticket($db);
 	$daoStatic = new ActionsMulticompany($db);
