@@ -7,7 +7,7 @@ ___
 
 
 ## RELEASE 3.2 - 29/06/2021
-
+- FIX : fatal php8.1 remove &$GLOBAL to $GLOBAL - *31/05/2022)* - 3.2.9  
 - FIX : Script for MVD add missing substitutions  *08/07/2021* - 3.2.8
 - FIX : Script for MVD add missing substitutions  *07/07/2021* - 3.2.7
 - FIX : Bad fix for pgsql ... *29/06/2021* - 3.2.6
