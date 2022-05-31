@@ -238,8 +238,9 @@ class Tools{
 	 * @return 	array 	Le tableau des variables globales d�finies
 	 */
 	static function getConstant(){
+		global $GLOBALS;
 		/* table des bglobales */
-		$temp = &$GLOBALS;
+		$temp = $GLOBALS;
 		$Tout = array();
 		foreach($temp as $key => $val){
 			if(substr($key,0,4)=="GBL_"){
