@@ -28,13 +28,14 @@ if(! defined('NOREQUIREAJAX')) define('NOREQUIREAJAX', '1');
 if(! defined('NOLOGIN')) define('NOLOGIN', '1');
 //if (! defined('NOREQUIRETRAN'))  define('NOREQUIRETRAN','1');
 
-if(is_file('../main.inc.php')) $dir = '../';
-else if(is_file('../../../main.inc.php')) $dir = '../../../';
-else if(is_file('../../../../main.inc.php')) $dir = '../../../../';
-else $dir = '../../';
+if(is_file('../master.inc.php')) include '../master.inc.php';
+elseif(is_file('../../../master.inc.php')) include '../../../master.inc.php';
+elseif(is_file('../../../../master.inc.php')) include '../../../../master.inc.php';
+elseif(is_file('../../../../../master.inc.php')) include '../../../../../master.inc.php';
+else include '../../master.inc.php';
 
-include($dir."master.inc.php");
-include_once $dir.'/core/lib/functions.lib.php';
+
+include_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
 
 $sapi_type = php_sapi_name();
 $script_file = basename(__FILE__);
