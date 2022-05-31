@@ -238,7 +238,7 @@ class Tools{
 	 * @return 	array 	Le tableau des variables globales d�finies
 	 */
 	static function getConstant(){
-		global $GLOBALS;
+
 		/* table des bglobales */
 		$temp = $GLOBALS;
 		$Tout = array();
