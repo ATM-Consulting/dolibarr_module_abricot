@@ -52,7 +52,7 @@ function __construct($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE
 
 function begin_form($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE,$plus="", $addToken = true) {
 
-	require_once '../backport/v12/core/lib/fonctions.lib.php';
+	$newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
 
 	$r='';
 	if (!empty($pName)) {
@@ -67,7 +67,7 @@ function begin_form($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE,
 	    $r.=  ' id="'.$pName.'"';
 	    $r.=  ' name="'.$pName.'">';
 
-	    if($addToken) $r.=  '<input type="hidden" name="token" value="' . newToken() . '">';
+	    if($addToken) $r.=  '<input type="hidden" name="token" value="' . $newToken . '">';
 	}
 
 	return $r;

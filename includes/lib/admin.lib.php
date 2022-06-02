@@ -20,7 +20,7 @@
  This is a library for module setup page
 
  */
-require_once '../../backport/v12/core/lib/fonctions.lib.php';
+
 /**
  * Check abricot module version
  * @param string $minVersion minnimum version compatibility to test against current abricot version
@@ -132,7 +132,10 @@ function setup_print_title($title="", $width = 300)
  */
 function setup_print_on_off($confkey, $title = false, $desc ='', $help = false, $width = 300, $forcereload = false, $ajaxConstantOnOffInput = array())
 {
-    global $var, $bc, $langs, $conf, $form;
+
+
+	global $var, $bc, $langs, $conf, $form;
+	$newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
     $var=!$var;
 
     print '<tr '.$bc[$var].'>';
@@ -159,7 +162,7 @@ function setup_print_on_off($confkey, $title = false, $desc ='', $help = false, 
     print '<td align="center" width="'.$width.'">';
 
     if($forcereload){
-        $link = $_SERVER['PHP_SELF'].'?action=set_'.$confkey.'&token='. newToken() .'&'.$confkey.'='.intval((empty($conf->global->{$confkey})));
+        $link = $_SERVER['PHP_SELF'].'?action=set_'.$confkey.'&token='. $newToken .'&'.$confkey.'='.intval((empty($conf->global->{$confkey})));
         $toggleClass = empty($conf->global->{$confkey})?'fa-toggle-off':'fa-toggle-on font-status4';
         print '<a href="'.$link.'" ><span class="fas '.$toggleClass.' marginleftonly" style=" color: #999;"></span></a>';
     }
@@ -184,7 +187,7 @@ function setup_print_input_form_part($confkey, $title = false, $desc ='', $metas
 {
     global $var, $bc, $langs, $conf, $db;
     $var=!$var;
-
+	$newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
     $form=new Form($db);
 
     $defaultMetas = array(
@@ -223,7 +226,7 @@ function setup_print_input_form_part($confkey, $title = false, $desc ='', $metas
     print '<td align="center" width="20">&nbsp;</td>';
     print '<td align="right" width="'.$width.'">';
     print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'" '.($metas['type'] === 'file' ? 'enctype="multipart/form-data"' : '').'>';
-    print '<input type="hidden" name="token" value="'. newToken() .'">';
+    print '<input type="hidden" name="token" value="'. $newToken .'">';
     print '<input type="hidden" name="action" value="set_'.$confkey.'">';
 
 		if($type=='textarea'){
