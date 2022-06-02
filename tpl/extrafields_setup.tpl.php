@@ -53,7 +53,7 @@ if (!$user->admin) accessforbidden();
 */
 
 require DOL_DOCUMENT_ROOT.'/core/actions_extrafields.inc.php';
-
+require_once '../backport/v12/core/lib/fonctions.lib.php';
 
 
 /*
@@ -63,7 +63,7 @@ require DOL_DOCUMENT_ROOT.'/core/actions_extrafields.inc.php';
 llxHeader('', $pageTitle, $help_url);
 
 
-$linkback='<a href="'.DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1">'.$langs->trans("BackToModuleList").'</a>';
+$linkback='<a href="'.DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1&token="'. newToken() .'">'.$langs->trans("BackToModuleList").'</a>';
 print load_fiche_titre($langs->trans($pageTitle),$linkback,'title_setup');
 
 
@@ -82,7 +82,7 @@ dol_fiche_end();
 if ($action != 'create' && $action != 'edit')
 {
 print '<div class="tabsAction">';
-    print "<a class=\"butAction\" href=\"".$_SERVER["PHP_SELF"]."?action=create#newattrib\">".$langs->trans("NewAttribute")."</a>";
+    print "<a class=\"butAction\" href=\"".$_SERVER["PHP_SELF"]."?action=create&token=".newToken()."#newattrib\">".$langs->trans("NewAttribute")."</a>";
     print "</div>";
 }
 
