@@ -13,19 +13,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 /**
- * 	\file		admin/grapefruit.php
- * 	\ingroup	grapefruit
+ * 	\file		admin/abricot_setup.php
+ * 	\ingroup	abricot
  * 	\brief		This file is an example module setup page
- * 				Put some comments here
+ * 			Put some comments here
  */
+
 // Dolibarr environment
-$res = @include("../../main.inc.php"); // From htdocs directory
+$res = @include("../../main.inc.php"); 		// From htdocs directory
 if (! $res) {
-    $res = @include("../../../main.inc.php"); // From "custom" directory
+    $res = @include("../../../main.inc.php"); 	// From "custom" directory
 }
 
 // Libraries
@@ -45,6 +46,7 @@ $action = GETPOST('action', 'alpha');
 /*
  * Actions
  */
+
 if (preg_match('/set_(.*)/',$action,$reg))
 {
 	$code=$reg[1];
@@ -64,7 +66,7 @@ if (preg_match('/del_(.*)/',$action,$reg))
 	$code=$reg[1];
 	if (dolibarr_del_const($db, $code, 0) > 0)
 	{
-		Header("Location: ".$_SERVER["PHP_SELF"]);
+		header("Location: ".$_SERVER["PHP_SELF"]);
 		exit;
 	}
 	else
@@ -73,9 +75,11 @@ if (preg_match('/del_(.*)/',$action,$reg))
 	}
 }
 
+
 /*
  * View
  */
+
 $page_name = "Setup";
 llxHeader('', $langs->trans($page_name));
 
@@ -127,7 +131,6 @@ echo ajax_constantonoff('ABRICOT_USE_OLD_EMPTY_DATE_FORMAT');
 print '</form>';
 print '</td></tr>';
 
-
 $var=!$var;
 print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("set_ABRICOT_WKHTMLTOPDF_CMD").'</td>';
@@ -150,7 +153,6 @@ print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 print '<input type="hidden" name="action" value="set_ABRICOT_CONVERTPDF_CMD">';
 print '<input type="text" name="ABRICOT_CONVERTPDF_CMD" value="'.(empty($conf->global->ABRICOT_CONVERTPDF_CMD) ? '' : $conf->global->ABRICOT_CONVERTPDF_CMD).'" size="80" placeholder="libreoffice --invisible --norestore --headless --convert-to pdf --outdir " />';
-
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
