@@ -6,6 +6,12 @@ ___
 
 
 
+
+## RELEASE 3.5
+
+- NEW : Ajout d'un filtre sur listview permettant au multiselect de trier avec plusieurs tags *27/07/2022* - 3.5.0
+
+
 ## RELEASE 3.4 - 11/03/2022
 
 - FIX : Old Icon *21/05/2022* - 3.4.6

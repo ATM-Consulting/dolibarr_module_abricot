@@ -233,6 +233,33 @@ class Listview
 
                 $TSQL[] = $sKey . ' ' . $TParam['operator'][$key] . ' (' . $value . ')';
 			}
+			elseif ($TParam['operator'][$key]=='FIND_IN_SET')
+			{
+				if (is_array($value)) {
+					if (!empty($value)) {
+						$TSQLFIND = array();
+						foreach ($value as $k => $v){
+							if($this->db->type == 'mysqli'){
+								$TSQLFIND[] = ' FIND_IN_SET("'.$this->db->escape($v).'", '.$sKey.') > 0 ';
+							}
+							else{
+								$TSQLFIND[] =  ' "' . $this->db->escape($v) . '" = ANY (string_to_array(' . $sKey . ', ",")) ';
+							}
+						}
+						$TSQL[] = implode(' OR ', $TSQLFIND);
+					}
+				}
+				else
+				{
+					$value = $this->db->escape($value);
+					if($this->db->type == 'mysqli') {
+						$TSQL[] = ' FIND_IN_SET("' . $value . '", ' . $sKey . ') > 0 ';
+					}
+					else{
+						$TSQL[] =  ' "' . $value . '" = ANY (string_to_array(' . $sKey . ',","))';
+					}
+				}
+			}
 			else
 			{
 				if(strpos($value,'%')===false) $value = '%'.$value.'%';
@@ -290,6 +317,9 @@ class Listview
 				foreach ($TsKey as $i => &$sKey)
 				{
 				    if(!empty($TParam['search'][$field]['no-auto-sql-search'])){
+						if(!empty($TParam['search'][$field]['searchQueryOverride'])){
+							$sql.=' AND ( '.$TParam['search'][$field]['searchQueryOverride'].' ) ';
+						}
 				        continue;
                     }
 
