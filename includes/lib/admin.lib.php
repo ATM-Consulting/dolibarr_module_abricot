@@ -137,7 +137,7 @@ function setup_print_on_off($confkey, $title = false, $desc ='', $help = false, 
     global $var, $bc, $langs, $conf, $form;
     $var=!$var;
 
-    print '<tr>'; 
+    print '<tr>';
     print '<td>';
 
 
