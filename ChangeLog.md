@@ -7,7 +7,9 @@ ___
 
 
 ## RELEASE 3.4 - 11/03/2022
-- FIX : V16 NewToken() - *02/06/2022* - 3.4.6  
+- FIX : V16 NewToken() - *02/06/2022* - 3.4.8
+- FIX : correction récupération TVA dans script migration des ndfp vers notes de frais std *17/05/2022* - 3.4.7
+- FIX : Old Icon *21/05/2022* - 3.4.6
 - FIX : script de migration des messages llx_ticket_msg vers llx_actioncomm *17/05/2022* - 3.4.5
 - FIX : script de migration des notes de frais et compatibilité ndfp / ndfp_rh  *11/04/2022* - 3.4.4
 - FIX : Avoid emptying token value when clear filters in list *01/04/2022* - 3.4.3
