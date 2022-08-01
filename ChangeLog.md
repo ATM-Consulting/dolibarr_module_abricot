@@ -8,7 +8,9 @@ ___
 
 ## RELEASE 3.4 - 11/03/2022
 
-- FIX : correction récupération TVA dans script migration des ndfp vers notes de frais std *17/05/2022* - 3.4.5
+- FIX : correction récupération TVA dans script migration des ndfp vers notes de frais std *17/05/2022* - 3.4.7
+- FIX : Old Icon *21/05/2022* - 3.4.6
+- FIX : script de migration des messages llx_ticket_msg vers llx_actioncomm *17/05/2022* - 3.4.5
 - FIX : script de migration des notes de frais et compatibilité ndfp / ndfp_rh  *11/04/2022* - 3.4.4
 - FIX : Avoid emptying token value when clear filters in list *01/04/2022* - 3.4.3
 - FIX : Database integrity script update  *17/03/2022* - 3.4.2
@@ -20,7 +22,7 @@ ___
 - NEW : Script for set to 1 encrypting of the password in multicompany admin/security conf  *14/01/2022* - 3.3
 
 ## RELEASE 3.2 - 29/06/2021
-
+- FIX : fatal php8.1 remove &$GLOBAL to $GLOBAL - *31/05/2022)* - 3.2.9  
 - FIX : Script for MVD add missing substitutions  *08/07/2021* - 3.2.8
 - FIX : Script for MVD add missing substitutions  *07/07/2021* - 3.2.7
 - FIX : Bad fix for pgsql ... *29/06/2021* - 3.2.6
