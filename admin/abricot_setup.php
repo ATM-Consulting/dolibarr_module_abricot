@@ -31,7 +31,7 @@ if (! $res) {
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
-
+require_once '../backport/v12/core/lib/fonctions.lib.php';
 // Translations
 $langs->load("abricot@abricot");
 
@@ -60,7 +60,7 @@ if (preg_match('/set_(.*)/',$action,$reg))
 		dol_print_error($db);
 	}
 }
-	
+
 if (preg_match('/del_(.*)/',$action,$reg))
 {
 	$code=$reg[1];
@@ -113,7 +113,7 @@ print '<td>'.$langs->trans("set_ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING").'</t
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="center" width="100">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="token" value="'. newToken() .'">';
 print '<input type="hidden" name="action" value="set_ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING">';
 echo ajax_constantonoff('ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING');
 print '</form>';
@@ -125,7 +125,7 @@ print '<td>'.$langs->trans("set_ABRICOT_USE_OLD_EMPTY_DATE_FORMAT").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="center" width="100">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="token" value="'. newToken() .'">';
 print '<input type="hidden" name="action" value="set_ABRICOT_USE_OLD_EMPTY_DATE_FORMAT">';
 echo ajax_constantonoff('ABRICOT_USE_OLD_EMPTY_DATE_FORMAT');
 print '</form>';
@@ -137,7 +137,7 @@ print '<td>'.$langs->trans("set_ABRICOT_WKHTMLTOPDF_CMD").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300" style="white-space:nowrap;">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="token" value="'. newToken() .'">';
 print '<input type="hidden" name="action" value="set_ABRICOT_WKHTMLTOPDF_CMD">';
 print '<input type="text" name="ABRICOT_WKHTMLTOPDF_CMD" value="'.(empty($conf->global->ABRICOT_WKHTMLTOPDF_CMD) ? '' : $conf->global->ABRICOT_WKHTMLTOPDF_CMD).'" size="80" placeholder="wkhtmltopdf" />';
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
@@ -150,7 +150,7 @@ print '<td>'.$langs->trans("set_ABRICOT_CONVERTPDF_CMD").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300" style="white-space:nowrap;">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="token" value="'. newToken() .'">';
 print '<input type="hidden" name="action" value="set_ABRICOT_CONVERTPDF_CMD">';
 print '<input type="text" name="ABRICOT_CONVERTPDF_CMD" value="'.(empty($conf->global->ABRICOT_CONVERTPDF_CMD) ? '' : $conf->global->ABRICOT_CONVERTPDF_CMD).'" size="80" placeholder="libreoffice --invisible --norestore --headless --convert-to pdf --outdir " />';
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
