@@ -343,7 +343,8 @@ if($action == 'goImport')
 
 								// Fix : TVA : ATTENTION en fonction des version de NDFP+, dans un cas on a fk_tva qui est une clé et de l'autre ont à une valuer (fk_tva)
 								// Normalement si le taux n'est pas renseigné alors c'est que le fk_tva et le taux...
-								if(empty($line->taux) && !empty($line->fk_tva)){
+
+								if(!defined('Ndfp::STATUS_DRAFT')){
 									$line->taux = $line->fk_tva;
 								}
 
