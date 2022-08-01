@@ -53,7 +53,7 @@ if (!$user->admin) accessforbidden();
 */
 
 require DOL_DOCUMENT_ROOT.'/core/actions_extrafields.inc.php';
-require_once '../backport/v12/core/lib/fonctions.lib.php';
+require_once __DIR__ . '/../backport/v12/core/lib/fonctions.lib.php';
 
 
 /*

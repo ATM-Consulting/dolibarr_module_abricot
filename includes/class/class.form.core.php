@@ -52,7 +52,7 @@ function __construct($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE
 
 function begin_form($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE,$plus="", $addToken = true) {
 
-	require_once '../backport/v12/core/lib/fonctions.lib.php';
+	require_once __DIR__ . '/../../backport/v12/core/lib/fonctions.lib.php';
 
 	$r='';
 	if (!empty($pName)) {

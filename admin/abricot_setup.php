@@ -31,7 +31,7 @@ if (! $res) {
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
-require_once '../backport/v12/core/lib/fonctions.lib.php';
+require_once __DIR__ . '/../backport/v12/core/lib/fonctions.lib.php';
 // Translations
 $langs->load("abricot@abricot");
 
