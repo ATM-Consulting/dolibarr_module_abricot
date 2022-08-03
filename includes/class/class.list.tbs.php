@@ -607,11 +607,11 @@ class TListviewTBS {
 
 		$Tab=array();
 		if(!empty($TParam['export'])) {
-			$token = GETPOST('token');
-			if(empty($token)) $token = md5($this->id.time().rand(1,9999));
+
+			$token = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
 
 			$_SESSION['token_list_'.$token] = gzdeflate( serialize( array(
-				'title'=>$this->title
+				'title'=>!empty($this->title)?$this->title:''
 				,'sql'=>$this->sql
 				,'TBind'=>$this->TBind
 				,'TChamps'=>$TChamps
