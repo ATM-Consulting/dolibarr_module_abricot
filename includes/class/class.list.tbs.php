@@ -459,9 +459,14 @@ class TListviewTBS {
 		$search_button.= '</div>';
 
 		if($nb_search_in_bar>0) {
-			end($TSearch);
-			list($key,$v) = each($TSearch);
-			$TSearch[$key].=$search_button;
+			if (version_compare(PHP_VERSION, '7.3.0') >= 0) {
+				$TSearch[array_key_last($TSearch)] .= $search_button;
+			}
+			else {
+				end($TSearch);
+				list($key, $v) = each($TSearch);
+				$TSearch[$key] .= $search_button;
+			}
 		}
 		else{
 			$TSearch=array();
