@@ -530,10 +530,15 @@ class Listview
 
 		if($nb_search_in_bar>0 || !empty($TParam['list']['head_search']))
 		{
-			end($TSearch);
-			list($key,$v) = each($TSearch);
+			if (version_compare(PHP_VERSION, '7.3.0') >= 0) {
+				$TSearch[array_key_last($TSearch)] .= $search_button;
+			}
+			else {
+				end($TSearch);
+				list($key, $v) = each($TSearch);
 
-			$TSearch[$key].=$search_button;
+				$TSearch[$key] .= $search_button;
+			}
 		}
 		else
         {
