@@ -113,7 +113,9 @@ function setup_print_title($title="", $width = 300)
 {
     global $langs;
     print '<tr class="liste_titre">';
-    print '<th colspan="3">'.$langs->trans($title).'</th>'."\n";
+    print '<td td class="titlefield">'.$langs->trans("Parameter").'</td>';
+    print '<td td class="titlefield" align="center" width="20">&nbsp;</td>';
+    print '<td td class="titlefield" align="center">'.$langs->trans('Value').'</td>';
     print '</tr>';
 }
 
@@ -135,7 +137,7 @@ function setup_print_on_off($confkey, $title = false, $desc ='', $help = false, 
     global $var, $bc, $langs, $conf, $form;
     $var=!$var;
 
-    print '<tr '.$bc[$var].'>';
+    print '<tr>';
     print '<td>';
 
 
@@ -208,7 +210,7 @@ function setup_print_input_form_part($confkey, $title = false, $desc ='', $metas
         $metascompil .= ' '.$key.'="'.$values.'" ';
     }
 
-    print '<tr '.$bc[$var].'>';
+    print '<tr>';
     print '<td>';
 
     if(!empty($help)){

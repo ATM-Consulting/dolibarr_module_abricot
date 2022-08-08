@@ -1681,18 +1681,15 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus="", $enLigne=true){
   $lib   = "<b> $pLib </b>";
   $field ="<TABLE class='form' BORDER=0>\n";
   if($enLigne) $field.="<TR>\n";
-  while (list ($val, $libelle) = each ($pListe))
-  {
-  	if(!$enLigne) $field.="<TR>\n";
-    $field .= "<TD>$libelle</TD>";
-    if ($val == $pDefault)
-       $checked = "CHECKED";
-    else
-       $checked = " ";
-    $field .= "<TD><INPUT TYPE='CHECKBOX' NAME='$pName' VALUE=\"$val\" "
-                  . " $checked $plus> </TD>\n";
-  	if(!$enLigne) $field.="\n</TR>\n";
-  }
+	foreach($pListe as $val => $libelle) {
+		if(! $enLigne) $field .= "<TR>\n";
+		$field .= "<TD>$libelle</TD>";
+		if($val == $pDefault) $checked = "CHECKED";
+		else
+			$checked = " ";
+		$field .= "<TD><INPUT TYPE='CHECKBOX' NAME='$pName' VALUE=\"$val\" "." $checked $plus> </TD>\n";
+		if(! $enLigne) $field .= "\n</TR>\n";
+	}
   if($enLigne) $field.="\n</TR>";
   $field .= "</TABLE>";
   return $lib." ".$field;
