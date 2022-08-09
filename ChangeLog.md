@@ -13,6 +13,7 @@ ___
 
 
 ## RELEASE 3.4 - 11/03/2022
+- FIX : Fatal inclusion lib fail - *09/08/2022* - 3.4.10
 - FIX : V16 FAMILY  - *02/06/2022* - 3.4.9
 - FIX : V16 NewToken() - *02/06/2022* - 3.4.8
 - FIX : correction récupération TVA dans script migration des ndfp vers notes de frais std *17/05/2022* - 3.4.7
