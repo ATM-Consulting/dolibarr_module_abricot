@@ -72,6 +72,8 @@ class Listview
 		if(!isset($TParam['orderby']['noOrder'])) $TParam['orderby']['noOrder']=array();
 		if(!isset($TParam['allow-fields-select'])) $TParam['allow-fields-select'] = 0;
 		if(!isset($TParam['search'])) $TParam['search'] = array();
+		if(!isset($TParam['sortfield'])) $TParam['sortfield'] = 'rowid';
+		if(!isset($TParam['sortorder'])) $TParam['sortorder'] = 'asc';
 
 		if(!isset($TParam['list']))$TParam['list']=array();
 		$TParam['list'] = array_merge(array(
@@ -87,6 +89,7 @@ class Listview
 			,'export'=>array()
 			,'view_type'=>''
 			,'massactions'=>array()
+			,'morehtmlrighttitle'=>''
 		),$TParam['list']);
 
 		if (empty($TParam['limit'])) $TParam['limit'] = array();
@@ -152,10 +155,11 @@ class Listview
 				$TKey[] = $prefixe. $field ;
 			}
 		}
-		else
+		else if (!empty($TPrefixe))
 		{
 			$TKey[] = $TPrefixe[0].$key;
 		}
+		else $TKey[] = $key;
 
 		return $TKey;
 	}
