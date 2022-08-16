@@ -836,7 +836,9 @@ class Listview
 			}
 
             $out .= getTitleFieldOfList($label, 0, $_SERVER["PHP_SELF"], $search, '', '&'.$TParam['list']['param_url'].'&limit='.$TParam['limit']['nbLine'].$moreparams, $moreattrib, $TParam['sortfield'], $TParam['sortorder'], $prefix, $disablesortlink, $tooltip);
-			$out .= $head['more'];
+			if (array_key_exists('more', $head)) {
+				$out .= $head['more'];
+			}
 		}
 
 		//$out .= '<th aligne="right" class="maxwidthsearch liste_titre">--</th>';
@@ -876,7 +878,10 @@ class Listview
 							}
 						}
 
-						$moreattrib = 'style="width:'.$head['width'].';text-align:'.$head['text-align'].'"';
+						$moreattrib = 'style="';
+						if (array_key_exists('width', $head)) $moreattrib.= 'width:'.$head['width'].';';
+						if (array_key_exists('text-align', $head)) $moreattrib.= 'text-align:'.$head['text-align'];
+						$moreattrib.= '"';
 						$out.='<td class="'.$field.'" '.$moreattrib.'>'.$value_aff.'</td>';
 					}
 
