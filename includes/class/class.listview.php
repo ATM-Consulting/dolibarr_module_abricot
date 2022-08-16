@@ -90,6 +90,7 @@ class Listview
 			,'view_type'=>''
 			,'massactions'=>array()
 			,'morehtmlrighttitle'=>''
+			,'param_url'=>''
 		),$TParam['list']);
 
 		if (empty($TParam['limit'])) $TParam['limit'] = array();
