@@ -9,12 +9,14 @@ ___
 
 ## RELEASE 3.5
 
+- FIX : Retro compat *18/11/2022* - 3.5.3
 - FIX : Fix divers warnings PHP8 *16/08/2022* - 3.5.2
 - FIX : Change editor name : ATM-Consulting -> ATM Consulting *3.5.1* - **09/08/2022**
 - NEW : Ajout d'un filtre sur listview permettant au multiselect de trier avec plusieurs tags *27/07/2022* - 3.5.0
 
 
 ## RELEASE 3.4 - 11/03/2022
+- FIX : Fatal inclusion lib fail - *09/08/2022* - 3.4.10
 - FIX : V16 FAMILY  - *02/06/2022* - 3.4.9
 - FIX : V16 NewToken() - *02/06/2022* - 3.4.8
 - FIX : correction récupération TVA dans script migration des ndfp vers notes de frais std *17/05/2022* - 3.4.7
