@@ -5,6 +5,9 @@ ___
 # NOT RELEASED
 
 
+- FIX : TObjetStd fix missing error management *21/11/2022* - 4.0.0  
+  Ce fix peut avoir un impacte non négligeable sur les modules utilisant le TObjetStd
+  Création d'une V4.
 
 
 ## RELEASE 3.5

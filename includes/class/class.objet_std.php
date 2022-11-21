@@ -542,6 +542,12 @@ function _no_save_vars($lst_chp) {
 			dol_include_once('/core/class/interfaces.class.php');
 			$interface=new Interfaces($db);
 			$result=$interface->run_triggers($trigger_name,$this,$user,$langs,$conf);
+			if($result<0){
+				if(!empty($interface->errors) && is_array($interface->errors)){
+					$this->errors = array_merge($this->errors, $interface->errors);
+				}
+				return $result;
+			}
 		}
 
 		/* Execute les trigger */
@@ -551,6 +557,8 @@ function _no_save_vars($lst_chp) {
 	  		$trigger->run($ATMdb,$this, get_class($this), $state);
 
 		}
+
+		return 0;
 	}
 
 	/**
@@ -887,31 +895,56 @@ function _no_save_vars($lst_chp) {
 	 * @param   TPDOdb  $db     Connecteur de base de données
 	 */
 	function delete(&$db){
+
+		$db->beginTransaction();
+
 		if($this->{OBJETSTD_MASTERKEY}!=0){
-			$this->run_trigger($db, 'delete');
-			$db->dbdelete($this->get_table(),array(OBJETSTD_MASTERKEY=>$this->{OBJETSTD_MASTERKEY}),array(0=>OBJETSTD_MASTERKEY));
-		}
+			$resTrigger = $this->run_trigger($db, 'delete');
+			if($resTrigger<0){
+				$this->errors[] = 'Error trigger';
+				$db->rollBack();
+				return -1;
+			}
 
-		if($this->withChild) {
+			$resDBDelete = $db->dbdelete($this->get_table(),array(OBJETSTD_MASTERKEY=>$this->{OBJETSTD_MASTERKEY}),array(0=>OBJETSTD_MASTERKEY));
+			if($resDBDelete === false){
+				$this->errors[] = 'Error dbdelete from '.$this->get_table();
+				$db->rollBack();
+				return -1;
+			}
 
-			foreach($this->TChildObjetStd as $child) {
-					$className = $child['class'];
-					$foreignKey	= $child['foreignKey'];
-
-					$tabName = $className;
-					if(is_array($foreignKey)) {
-						$tabName .= '_'.$foreignKey[1];
-					}
-
-					foreach($this->{$tabName} as &$object) {
-
-						$object->delete($db);
-
-					}
-
+			if(empty($resDBDelete)){
+				// cas particulier ou il n'y à rien à supprimer du coup logiquement il ne devrait pas y avoir à supprimer les enfants
 			}
 		}
 
+
+		if($this->withChild) {
+			foreach($this->TChildObjetStd as $child) {
+				$className = $child['class'];
+				$foreignKey	= $child['foreignKey'];
+
+				$tabName = $className;
+				if(is_array($foreignKey)) {
+					$tabName .= '_'.$foreignKey[1];
+				}
+
+				foreach($this->{$tabName} as &$object) {
+					$resChildDel = $object->delete($db);
+					if($resChildDel < 0){
+						// TODO: Malheureusement il n'est pas vraiment possible de savoir si le delete est Ok car
+						//   les objects sont disparates et n'utilisent pas un format "vraiment" standardisé pour la méthode delete
+						//   Je limite donc la détection sur < 0 mais ce choix pourrait avoir des effets de bords
+						$this->errors[] = 'Error delete children';
+						$db->rollBack();
+						return -1;
+					}
+				}
+			}
+		}
+
+		$db->commit();
+		return 1;
 	}
 
 	/**
