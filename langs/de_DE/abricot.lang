@@ -12,5 +12,6 @@ set_ABRICOT_WKHTMLTOPDF_CMD = Befehl zur PDF-Erzeugung von Labels (WkHTMLtoPDF m
 
 MIGRATE_DATETIME_DEFAULT_TO_NULL = Ändern Sie den Standardwert für Datum auf Null
 Migrate = Migrieren
+ABRICOT_MAILS_FORMAT=Zeichenkodierung, die für E-Mails verwendet wird, die mit dem Abricot Modul gesendet werden (außer dem Versand über die SMTP-Methode, da diese vollständig von Dolibarr verwaltet wird).
 
 NothingToDisplay = kein Element gefunden
