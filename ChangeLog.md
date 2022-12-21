@@ -8,7 +8,7 @@ ___
 
 
 ## RELEASE 3.5
-
+- FIX : script de migration des ticketsup prend en compte la ref dans actioncomm  + traitement erreur extrafields - *21/12/2022* - 3.5.4  
 - FIX : Retro compat *18/11/2022* - 3.5.3
 - FIX : Fix divers warnings PHP8 *16/08/2022* - 3.5.2
 - FIX : Change editor name : ATM-Consulting -> ATM Consulting *3.5.1* - **09/08/2022**
