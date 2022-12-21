@@ -191,8 +191,13 @@
      				elseif($extrafieldName == 'heure_est'){
 						$sql.= ", ".doubleval($object->$extrafieldName);
 					}
-                    else{
-                    	$sql.= ",'".$db->escape($object->$extrafieldName)."'";
+					else{
+						if ($column['type'] == 'int(4)'){
+							$sql.= (!is_null($object->$extrafieldName)) ? ",'".$db->escape($object->$extrafieldName) . "'" : ",0" ;
+						}else{
+							$sql.= ",'".$db->escape($object->$extrafieldName)."'";
+						}
+
 					}
                 }
             }
