@@ -1,5 +1,10 @@
 <?php
-
+/**
+ * Attention ce script n'est à utiliser qu'avec le client vici pour sa montée de version 7.0 vers 16.0
+ *
+ *
+ *
+ */
 	if(is_file('../master.inc.php')) include '../master.inc.php';
 elseif(is_file('../../../master.inc.php')) include '../../../master.inc.php';
 elseif(is_file('../../../../master.inc.php')) include '../../../../master.inc.php';
