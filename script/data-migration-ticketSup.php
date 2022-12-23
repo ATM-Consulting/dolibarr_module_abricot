@@ -492,7 +492,7 @@
             if(!empty($fk_element)){
 
 				$field = (float) DOL_VERSION >= 14  ? ' ref, ' : '';
-                $sql = "INSERT INTO ".MAIN_DB_PREFIX."actioncomm ( ' . $field . ' entity, fk_user_action, datec, note, fk_element, elementtype, label)";
+                $sql = "INSERT INTO ".MAIN_DB_PREFIX."actioncomm ( " . $field . " entity, fk_user_action, datec, note, fk_element, elementtype, label)";
 
                 $sql.= " VALUES (";
 				$sql .= ((float) DOL_VERSION >= 14 ) ? " '(PROV)'," : "";
