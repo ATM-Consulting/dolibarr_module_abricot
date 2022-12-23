@@ -133,10 +133,12 @@
             $column = $object->Field;
             $type = $object->Type;
 
+
             //si extrafield, on rajoute la colonne dans le tableau
             if($column != 'rowid' && $column != 'tms' && $column != 'fk_object' && $column != 'import_key'){
                 $TColumnsExtrafields[$i]['name'] = $column;
                 $TColumnsExtrafields[$i]['type'] = $type;
+
             }
             $i++;
         }
@@ -192,7 +194,7 @@
 						$sql.= ", ".doubleval($object->$extrafieldName);
 					}
 					else{
-						if ($column['type'] == 'int(4)'){
+						if (preg_match('/int/i',$column['type'])){
 							$sql.= (!is_null($object->$extrafieldName)) ? ",'".$db->escape($object->$extrafieldName) . "'" : ",0" ;
 						}else{
 							$sql.= ",'".$db->escape($object->$extrafieldName)."'";
@@ -515,8 +517,8 @@
 							$error++;
 							dol_syslog('Error to process ref: ' . $this->db->lasterror(), LOG_ERR);
 							$this->errors[] = $db->lasterror();
-							dol_print_error($db);
-							$error_actioncomm = 1;
+							//dol_print_error($db);
+							//$error_actioncomm = 1;
 						}
 					}
             	}else{
