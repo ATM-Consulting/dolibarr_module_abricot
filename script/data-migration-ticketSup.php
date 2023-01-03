@@ -48,9 +48,9 @@
 		}
 	}
 
-    /*
-     * CATEGORY
-     */
+    ///
+    // * CATEGORY
+    // */
 
     //on vide la table standard si on a la table de ticketsup
     $resql = $db->query("SHOW TABLES LIKE '".MAIN_DB_PREFIX."c_ticketsup_category'");
@@ -102,9 +102,9 @@
         }
     }
 
-    /*
-     * EXTRAFIELDS
-     */
+    //*
+    // * EXTRAFIELDS
+    // */
 
     //on vide la table standard si on a la table de ticketsup
     $resql = $db->query("SHOW TABLES LIKE '".MAIN_DB_PREFIX."ticketsup_extrafields'");
@@ -133,10 +133,12 @@
             $column = $object->Field;
             $type = $object->Type;
 
+
             //si extrafield, on rajoute la colonne dans le tableau
             if($column != 'rowid' && $column != 'tms' && $column != 'fk_object' && $column != 'import_key'){
                 $TColumnsExtrafields[$i]['name'] = $column;
                 $TColumnsExtrafields[$i]['type'] = $type;
+
             }
             $i++;
         }
@@ -191,8 +193,13 @@
      				elseif($extrafieldName == 'heure_est'){
 						$sql.= ", ".doubleval($object->$extrafieldName);
 					}
-                    else{
-                    	$sql.= ",'".$db->escape($object->$extrafieldName)."'";
+					else{
+						if (preg_match('/int/i',$column['type'])){
+							$sql.= (!is_null($object->$extrafieldName)) ? ",'".$db->escape($object->$extrafieldName) . "'" : ",0" ;
+						}else{
+							$sql.= ",'".$db->escape($object->$extrafieldName)."'";
+						}
+
 					}
                 }
             }
@@ -244,9 +251,9 @@
         }
     }
 
-    /*
-     * SEVERITY
-     */
+    //*//
+    // * SEVERITY
+    // */
 
     //on vide la table standard si on a la table de ticketsup
     $resql = $db->query("SHOW TABLES LIKE '".MAIN_DB_PREFIX."c_ticketsup_severity'");
@@ -290,9 +297,9 @@
     }
 
 
-    /*
-     * TYPE
-     */
+    //*
+    // * TYPE
+    // */
 
     //on vide la table standard si on a la table de ticketsup
     $resql = $db->query("SHOW TABLES LIKE '".MAIN_DB_PREFIX."c_ticketsup_type'");
@@ -337,9 +344,9 @@
     }
 
 
-    /*
-     * TICKET
-     */
+    //*
+    // * TICKET
+    // */
 
     //on vide la table standard si on a la table de ticketsup
     $resql = $db->query("SHOW TABLES LIKE '".MAIN_DB_PREFIX."ticketsup'");
@@ -356,7 +363,7 @@
     if ($resql)
     {
     	$TStatusChange = array(
-			0 => 0
+			 0 => 0
 			,1 => 1
 			,2 => 2
 			,3 => 3
@@ -443,9 +450,9 @@
 
     }
 
-    /*
-     * MESSAGES
-     */
+    //*
+    // * MESSAGES
+    // */
 
     //on vide la table standard si on a la table de ticketsup
     $resql = $db->query("SHOW TABLES LIKE '".MAIN_DB_PREFIX."ticketsup_msg'");
@@ -486,10 +493,12 @@
             //on insère les données de ticketsup dans la table de ticket standard si la note est associée à un ticket
             if(!empty($fk_element)){
 
-                $sql = "INSERT INTO ".MAIN_DB_PREFIX."actioncomm (entity, fk_user_action, datec, note, fk_element, elementtype, label)";
+				$field = (float) DOL_VERSION >= 14  ? ' ref, ' : '';
+                $sql = "INSERT INTO ".MAIN_DB_PREFIX."actioncomm ( " . $field . " entity, fk_user_action, datec, note, fk_element, elementtype, label)";
 
                 $sql.= " VALUES (";
-                $sql.= "'".$entity."',";
+				$sql .= ((float) DOL_VERSION >= 14 ) ? " '(PROV)'," : "";
+				$sql.= "'".$entity."',";
                 $sql.= "'".$fk_user_action."',";
                 $sql.= "'".$datec."',";
                 $sql.= "'".$db->escape($note)."',";
@@ -498,13 +507,25 @@
                 $sql.= "''";
                 $sql.= ")";
 
-                $result = $db->query($sql);
-
-                if(!$result){
-                    dol_print_error($db);
-                    $error_actioncomm = 1;
-                }
-            }
+				$resql2 = $db->query($sql);
+				if ($resql2) {
+					if ((float) DOL_VERSION >= 14 ) {
+						$ref = $id = $db->last_insert_id(MAIN_DB_PREFIX . "actioncomm", "id");
+						$sql = "UPDATE " . MAIN_DB_PREFIX . "actioncomm SET ref='" . $db->escape($ref) . "' WHERE id=" . $id;
+						$resql2 = $db->query($sql);
+						if (!$resql2) {
+							$error++;
+							dol_syslog('Error to process ref: ' . $this->db->lasterror(), LOG_ERR);
+							$this->errors[] = $db->lasterror();
+							//dol_print_error($db);
+							//$error_actioncomm = 1;
+						}
+					}
+            	}else{
+					dol_print_error($db);
+					$error_actioncomm = 1;
+				}
+			}
             $i++;
         }
 
@@ -513,9 +534,9 @@
         }
     }
 
-    /*
-     * PIECES JOINTES
-     */
+    //*
+    //* PIECES JOINTES
+    // */
 
     $dir_ticket = $dolibarr_main_data_root . '/ticket';
     $dir_ticketsup = $dolibarr_main_data_root . '/ticketsup';
@@ -572,9 +593,9 @@
         }
     }
 
-    /*
-     * RESULTAT SCRIPT
-     */
+    //*
+    // * RESULTAT SCRIPT
+    // */
 
     if(!empty($error_dir) || !empty($error_actioncomm) || !empty($error_category) || !empty($error_extrafields) || !empty($error_severity) || !empty($error_severity) || !empty($error_type) || !empty($error_ticket) || !empty($error_conf)){
         $db->rollback();
