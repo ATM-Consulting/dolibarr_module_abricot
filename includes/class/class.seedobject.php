@@ -1432,7 +1432,7 @@ class SeedObject extends SeedObjectDolibarr
 
 		if(!empty($this->isextrafieldmanaged))
         {
-            $resql = $this->db->query("SHOW TABLES FROM " . $dolibarr_main_db_name . " LIKE '" . MAIN_DB_PREFIX . $this->table_element . "_extrafields'");
+            $resql = $this->db->query("SHOW TABLES FROM `" . $dolibarr_main_db_name . "` LIKE '" . MAIN_DB_PREFIX . $this->table_element . "_extrafields'");
             if($resql === false) {
                 var_dump($this->db);exit;
             }
