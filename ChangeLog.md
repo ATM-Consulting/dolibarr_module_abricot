@@ -9,7 +9,7 @@ ___
 
 ## RELEASE 3.5
 
-- FIX : Substitution script include ticket ref *3.5.4* - **27/02/2023**
+- FIX : Substitution script include ticket ref *3.5.5* - **27/02/2023**
 - FIX : script de migration des ticketsup prend en compte la ref dans actioncomm  + traitement erreur extrafields - *21/12/2022* - 3.5.4  
 - FIX : Retro compat *18/11/2022* - 3.5.3
 - FIX : Fix divers warnings PHP8 *16/08/2022* - 3.5.2
