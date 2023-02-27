@@ -66,6 +66,18 @@ $tables = array(
 	'mailing' => array( 'sujet', 'body')
 );
 
+
+if(intval(DOL_VERSION) >= 16) {
+	$sql = "UPDATE " . MAIN_DB_PREFIX . "c_email_templates SET topic = REPLACE(topic, '__TICKET_REF__', '__REF__'), content = REPLACE(content, '__TICKET_REF__', '__REF__') WHERE type_template LIKE '%ticket%' ";
+	$resCol = $db->query($sql);
+	if (!$resCol) {
+		print "c_email_templates remplacement of __TICKET_REF__ UPDATE ERROR " . $db->error() . " \n";
+	} else {
+		$num = $db->affected_rows($resCol);
+		print "c_email_templates remplacement of __TICKET_REF__ " . $num . " lines affected \n";
+	}
+}
+
 foreach ($tables as $tableName => $cols){
 	$tableName = MAIN_DB_PREFIX.$tableName;
 	$sqlShowTable = "SHOW TABLES LIKE '".$db->escape($tableName)."' ";
@@ -77,7 +89,7 @@ foreach ($tables as $tableName => $cols){
 			foreach ($cols as $col) {
 				$sql = "UPDATE " . $db->escape($tableName) . " SET " . $db->escape($col) . " = REPLACE(" .$col . ",'".$db->escape($substitutionKey)."' ,'".$db->escape($substitutionReplacement)."');";
 				$resCol = $db->query($sql);
-				if (!$sql) {
+				if (!$resCol) {
 					print $tableName .' ' . $substitutionKey . '=>' . $substitutionReplacement . " :  " . $col . " UPDATE ERROR " . $db->error() . " \n";
 				} else {
 					$num = $db->affected_rows($resCol);
