@@ -7,10 +7,11 @@ Settings = Parameter
 
 set_ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING = Verwenden Sie den alten Datenbankcodierungsparameter
 set_ABRICOT_USE_OLD_EMPTY_DATE_FORMAT = Verwenden Sie das alte, leere Datumsformat
-set_ABRICOT_CONVERTPDF_CMD = set_ABRICOT_CONVERTPDF_CMD
+set_ABRICOT_CONVERTPDF_CMD = Befehl zur Konvertierung von ODF to PDF
 set_ABRICOT_WKHTMLTOPDF_CMD = Befehl zur PDF-Erzeugung von Labels (WkHTMLtoPDF muss auf dem Server http://wkhtmltopdf.org/ installiert sein)
 
 MIGRATE_DATETIME_DEFAULT_TO_NULL = Ändern Sie den Standardwert für Datum auf Null
 Migrate = Migrieren
+ABRICOT_MAILS_FORMAT=Zeichenkodierung, die für E-Mails verwendet wird, die mit dem Abricot Modul gesendet werden (außer dem Versand über die SMTP-Methode, da diese vollständig von Dolibarr verwaltet wird).
 
 NothingToDisplay = kein Element gefunden
