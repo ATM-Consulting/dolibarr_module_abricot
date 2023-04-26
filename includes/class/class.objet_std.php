@@ -1170,7 +1170,7 @@ class TSSRenderControler {
  * @subpackage objet standart
  **/
 class TSSObjet extends TObjetStd {
-	function TSSObjet(&$db, $table) {
+	function __construct(&$db, $table) {
 		parent::set_table($table);
 
 		parent::init_vars_by_db($db);
@@ -1214,16 +1214,9 @@ class TSSObjet extends TObjetStd {
 		print '		parent::_init_vars();'.$cr;
 		print '	}';
 
-
-
-
 		print '}'.$cr;
-
-
 
 		print '<pre>'._htmlentities(ob_get_clean()).'</pre>';
 
 	}
-
 }
-
