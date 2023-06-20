@@ -1315,7 +1315,11 @@ class SeedObject extends SeedObjectDolibarr
 
 	function addFieldsInDb()
 	{
-		$resql = $this->db->query('SHOW FIELDS FROM ' . MAIN_DB_PREFIX . $this->table_element);
+		if($this->db->type == 'pgsql'){
+			$resql = $this->db->query("SELECT column_name FROM information_schema.columns WHERE table_schema != 'pg_catalog' AND table_schema != 'information_schema' AND table_name = '". MAIN_DB_PREFIX . $this->table_element . "';");
+		} else {
+			$resql = $this->db->query('SHOW FIELDS FROM ' . MAIN_DB_PREFIX . $this->table_element);
+		}
 
 		if($resql===false ) {
 			var_dump($this->db);exit;
@@ -1325,7 +1329,11 @@ class SeedObject extends SeedObjectDolibarr
 		$Tab = array();
 		while ($obj = $this->db->fetch_object($resql))
 		{
-			$Tab[] = $obj->Field;
+			if($this->db->type == 'pgsql'){
+				$Tab[] = $obj->column_name;
+			} else {
+				$Tab[] = $obj->Field;
+			}
 		}
 
 		$TChamps = array_merge(array('date_creation' => array('type' => 'date'), 'tms' => array('type' => 'date'),'rowid'=>array('type'=>'integer','index'=>true)), $this->fields);
@@ -1375,9 +1383,8 @@ class SeedObject extends SeedObjectDolibarr
 		if(empty($this->table_element))exit('NoDataTableDefined');
 
 		if($this->db->type == 'pgsql'){
-			$resql = $this->db->query("SHOW TABLES FROM \"" . $dolibarr_main_db_name . "\" LIKE '" . MAIN_DB_PREFIX . $this->table_element . "'");
-		}
-		else{
+			$resql = $this->db->query("SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema' AND tablename ILIKE '" . MAIN_DB_PREFIX . $this->table_element . "';");
+		} else {
 			$resql = $this->db->query("SHOW TABLES FROM `" . $dolibarr_main_db_name . "` LIKE '" . MAIN_DB_PREFIX . $this->table_element . "'");
 		}
 
@@ -1397,21 +1404,21 @@ class SeedObject extends SeedObjectDolibarr
  				rowid integer AUTO_INCREMENT PRIMARY KEY
  				,date_creation datetime DEFAULT NULL
  				,tms timestamp
- 				,KEY date_creation (date_creation)
- 				,KEY tms (tms)
  				) ENGINE=InnoDB DEFAULT CHARSET=" . $charset;
 
-            if (!empty($conf->db->dolibarr_main_db_collation)) $sql .= ' COLLATE='.$conf->db->dolibarr_main_db_collation;
+            if (empty($conf->db->dolibarr_main_db_collation)) {
+				$sql .= ';';
+			} else {
+				$sql .= ' COLLATE='.$conf->db->dolibarr_main_db_collation.';';
+			}
 
+			$sql .= 'ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD INDEX date_creation (date_creation);';
+			$sql .= 'ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD INDEX tms (tms);';
 
             $res = $this->db->query($sql);
 			if($res===false) {
 				var_dump($this->db);exit;
-
-
 			}
-
-
 		}
 		else
 		{
@@ -1440,7 +1447,7 @@ class SeedObject extends SeedObjectDolibarr
         {
 
 			if($this->db->type == 'pgsql'){
-				$resql = $this->db->query("SHOW TABLES FROM \"" . $dolibarr_main_db_name . "\" LIKE '" . MAIN_DB_PREFIX . $this->table_element . "_extrafields'");
+				$resql = $this->db->query("SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema' AND tablename ILIKE '" . MAIN_DB_PREFIX . $this->table_element . "_extrafields';");
 			} else {
 				$resql = $this->db->query("SHOW TABLES FROM " . $dolibarr_main_db_name . " LIKE '" . MAIN_DB_PREFIX . $this->table_element . "_extrafields'");
 			}
@@ -1461,11 +1468,16 @@ class SeedObject extends SeedObjectDolibarr
  				,tms timestamp
  				,fk_object integer
  				,import_key varchar(14)
- 				,KEY tms (tms)
  				, UNIQUE fk_object (fk_object)
  				) ENGINE=InnoDB DEFAULT CHARSET=" . $charset;
 
-                if (!empty($conf->db->dolibarr_main_db_collation)) $sql .= ' COLLATE='.$conf->db->dolibarr_main_db_collation;
+				 if (empty($conf->db->dolibarr_main_db_collation)) {
+					$sql .= ';';
+				} else {
+					$sql .= ' COLLATE='.$conf->db->dolibarr_main_db_collation.';';
+				}
+
+				$sql .= 'ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD INDEX tms (tms);';
 
                 $res = $this->db->query($sql);
                 if($res===false) {
