@@ -1315,7 +1315,7 @@ class SeedObject extends SeedObjectDolibarr
 
 	function addFieldsInDb()
 	{
-		if($this->db->type == 'pgsql'){
+		if ($this->db->type == 'pgsql') {
 			$resql = $this->db->query("SELECT column_name FROM information_schema.columns WHERE table_schema != 'pg_catalog' AND table_schema != 'information_schema' AND table_name = '". MAIN_DB_PREFIX . $this->table_element . "';");
 		} else {
 			$resql = $this->db->query('SHOW FIELDS FROM ' . MAIN_DB_PREFIX . $this->table_element);
@@ -1329,7 +1329,7 @@ class SeedObject extends SeedObjectDolibarr
 		$Tab = array();
 		while ($obj = $this->db->fetch_object($resql))
 		{
-			if($this->db->type == 'pgsql'){
+			if ($this->db->type == 'pgsql') {
 				$Tab[] = $obj->column_name;
 			} else {
 				$Tab[] = $obj->Field;
@@ -1382,7 +1382,7 @@ class SeedObject extends SeedObjectDolibarr
 
 		if(empty($this->table_element))exit('NoDataTableDefined');
 
-		if($this->db->type == 'pgsql'){
+		if ($this->db->type == 'pgsql') {
 			$resql = $this->db->query("SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema' AND tablename ILIKE '" . MAIN_DB_PREFIX . $this->table_element . "';");
 		} else {
 			$resql = $this->db->query("SHOW TABLES FROM `" . $dolibarr_main_db_name . "` LIKE '" . MAIN_DB_PREFIX . $this->table_element . "'");
@@ -1422,20 +1422,22 @@ class SeedObject extends SeedObjectDolibarr
 		}
 		else
 		{
-			// Conversion de l'ancienne table sans auto_increment
-			$resql = $this->db->query('DESC '.MAIN_DB_PREFIX . $this->table_element);
-			if ($resql)
-			{
-				while ($desc = $this->db->fetch_object($resql))
+			if ($this->db->type != 'pgsql') {
+				// Conversion de l'ancienne table sans auto_increment
+				$resql = $this->db->query('DESC '.MAIN_DB_PREFIX . $this->table_element);
+				if ($resql)
 				{
-					if ($desc->Field == 'rowid')
+					while ($desc = $this->db->fetch_object($resql))
 					{
-						if (strpos($desc->Extra, 'auto_increment') === false)
+						if ($desc->Field == 'rowid')
 						{
-							$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX . $this->table_element.' MODIFY COLUMN rowid INT auto_increment');
-						}
+							if (strpos($desc->Extra, 'auto_increment') === false)
+							{
+								$this->db->query('ALTER TABLE '.MAIN_DB_PREFIX . $this->table_element.' MODIFY COLUMN rowid INT auto_increment');
+							}
 
-						break;
+							break;
+						}
 					}
 				}
 			}
