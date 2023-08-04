@@ -8,7 +8,7 @@ ___
 
 
 ## RELEASE 3.5
-
+- FIX : setup_print_title function correction *03/08/2023* - 3.5.7
 - FIX : Query escape column names and Mysql/Pgsql compatibility *24/03/2023* - 3.5.6
 - FIX : Substitution script include ticket ref *3.5.5* - **27/02/2023**
 - FIX : script de migration des ticketsup prend en compte la ref dans actioncomm  + traitement erreur extrafields - *21/12/2022* - 3.5.4  
