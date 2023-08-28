@@ -958,7 +958,8 @@ function _no_save_vars($lst_chp) {
 				else $Tab[$key] = $value;
 			}
 			else if(substr($key,0, strlen(OBJETSTD_DATEMASK) )===OBJETSTD_DATEMASK){
-				if($value===FALSE)$Tab[$key] = '0000-00-00 00:00:00';
+				if($value===FALSE) $Tab[$key] = '0000-00-00 00:00:00';
+				elseif (is_string($value) && preg_match('/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/', $value)) $Tab[$key] = $value;
 				else $Tab[$key] = date('Y-m-d H:i:s',$value);
 			}
 			else{
