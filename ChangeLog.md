@@ -8,6 +8,7 @@ ___
 
 
 ## RELEASE 3.5
+- FIX : Prise en compte du paramètre titre dans la fonction setup_print_title - *29/08/2023* - 3.5.8
 - FIX : setup_print_title function correction *03/08/2023* - 3.5.7
 - FIX : Query escape column names and Mysql/Pgsql compatibility *24/03/2023* - 3.5.6
 - FIX : Substitution script include ticket ref *3.5.5* - **27/02/2023**
