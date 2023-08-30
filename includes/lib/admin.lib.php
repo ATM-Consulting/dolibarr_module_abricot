@@ -199,7 +199,7 @@ function setup_print_input_form_part($confkey, $title = false, $desc ='', $metas
 
     if($type!='textarea'){
         $defaultMetas['type']   = 'text';
-        $defaultMetas['value']  = $conf->global->{$confkey};
+        $defaultMetas['value']  = isset($conf->global->{$confkey}) ? $conf->global->{$confkey} : '';
     }
 
 
