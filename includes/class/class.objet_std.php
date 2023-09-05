@@ -474,7 +474,11 @@ function _no_save_vars($lst_chp) {
 			else $query[$nom_champ] = NULL;
 		}
 		else{
-			$date = date('Y-m-d H:i:s',$this->{$nom_champ});
+			if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $this->{$nom_champ})) {
+				$date = $this->{$nom_champ};
+			} else {
+				$date = date('Y-m-d H:i:s', $this->{$nom_champ});
+			}
 			$query[$nom_champ] = $date;
 		}
       }

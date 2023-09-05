@@ -8,6 +8,8 @@ ___
 
 
 ## RELEASE 3.5
+- FIX : PHP8: date string versus timestamp mixup - *05/09/2023* - 3.5.10
+- FIX : PHP8: warnings - *30/08/2023* - 3.5.9
 - FIX : Prise en compte du paramètre titre dans la fonction setup_print_title - *29/08/2023* - 3.5.8
 - FIX : setup_print_title function correction *03/08/2023* - 3.5.7
 - FIX : Query escape column names and Mysql/Pgsql compatibility *24/03/2023* - 3.5.6
