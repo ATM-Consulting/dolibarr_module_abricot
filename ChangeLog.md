@@ -3,8 +3,7 @@ All notable changes to this project will be documented in this file.
 ___
 
 # NOT RELEASED
-
-
+- NEW : script de pré-configuration (initialisation / remplacement de certaines const) lors des installs / montées de version - *19/10/2023* - 3.6.0
 
 
 ## RELEASE 3.5
