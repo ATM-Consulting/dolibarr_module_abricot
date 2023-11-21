@@ -3,8 +3,8 @@ All notable changes to this project will be documented in this file.
 ___
 
 # NOT RELEASED
+- NEW : TObjetStd add nullable property to integer fields - *21/11/2023* - 3.6.0
 - NEW : script de pré-configuration (initialisation / remplacement de certaines const) lors des installs / montées de version - *19/10/2023* - 3.6.0
-
 
 ## RELEASE 3.5
 - FIX : PHP8: date string versus timestamp mixup - *05/09/2023* - 3.5.10

@@ -212,7 +212,15 @@ function _no_save_vars($lst_chp) {
 
 	  		if(!in_array($champs, $Tab)) {
 				if($this->_is_int($info)) {
-					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` integer NOT NULL DEFAULT \''.(!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0').'\'');
+                    $sqlAlterInt = 'ALTER TABLE`'.$this->get_table().'` ADD `'.$champs.'` integer';
+                    if(! isset($info['nullable']) || $info['nullable'] === false) $sqlAlterInt .= ' NOT';
+                    $sqlAlterInt .= ' NULL';
+
+                    if(empty($info['default']) || ! is_int($info['default']) && strtoupper($info['default']) !== 'NULL') $sqlAlterInt .= ' DEFAULT 0';
+                    else $sqlAlterInt .= ' DEFAULT '.$info['default'];
+
+					$db->Execute($sqlAlterInt);
+//					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` integer NOT NULL DEFAULT \''.(!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0').'\'');
 				}else if($this->_is_date($info)) {
 
 	  				$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` datetime NULL');
