@@ -1142,63 +1142,6 @@ class SeedObject extends SeedObjectDolibarr
 		}
 	}
 
-	/**
-	 * Load object in memory from the database
-	 *
-	 * @param int    $id   		Id object
-	 * @param string $ref  		Ref
-	 * @param string $morewhere	Ref
-	 * @return int         <0 if KO, 0 if not found, >0 if OK
-	 */
-	public function fetchCommon($id, $ref = null, $morewhere='')
-	{
-		// method_exists() with key word 'parent' doesn't work
-		if (is_callable('parent::fetchCommon')) return parent::fetchCommon($id, $ref, $morewhere);
-
-
-		if (empty($id) && empty($ref)) return false;
-
-		$sql = 'SELECT '.$this->get_field_list().', date_creation, tms';
-		$sql.= ' FROM '.MAIN_DB_PREFIX.$this->table_element;
-
-		if(!empty($id)) $sql.= ' WHERE rowid = '.$id;
-		else $sql.= " WHERE ref = ".$this->quote($ref, $this->fields['ref']);
-		if ($morewhere) $sql.=$morewhere;
-
-		$res = $this->db->query($sql);
-		if ($res)
-		{
-			$num = $this->db->num_rows($res);
-
-			if(empty($num))
-			{
-				return 0;
-			}
-
-    		if ($obj = $this->db->fetch_object($res))
-    		{
-                $this->id = $id;
-                $this->set_vars_by_db($obj);
-
-                $this->date_creation = $this->db->idate($obj->date_creation);
-                $this->tms = $this->db->idate($obj->tms);
-
-                return $this->id;
-    		}
-    		else
-    		{
-    			$this->error = $this->db->lasterror();
-    			$this->errors[] = $this->error;
-    			return -1;
-    		}
-		}
-		else
-		{
-		    $this->error = $this->db->lasterror();
-		    $this->errors[] = $this->error;
-		    return -1;
-		}
-	}
 
 	/**
 	 * Update object into database

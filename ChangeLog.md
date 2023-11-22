@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 ___
 
 # NOT RELEASED
+
+- NEW : Compatibilité Dolibarr 19 - *22/11/2023* - 3.6.0
+  Attention : perte compatibilité Dolibarr inférieur à 6
 - NEW : script de pré-configuration (initialisation / remplacement de certaines const) lors des installs / montées de version - *19/10/2023* - 3.6.0
 
 
