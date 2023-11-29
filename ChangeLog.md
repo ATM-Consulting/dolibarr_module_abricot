@@ -4,12 +4,16 @@ ___
 
 # NOT RELEASED
 
+
+
+## RELEASE 3.6
+
 - NEW : Compatibilité Dolibarr 19 - *22/11/2023* - 3.6.0
   Attention : perte compatibilité Dolibarr inférieur à 6
 - NEW : script de pré-configuration (initialisation / remplacement de certaines const) lors des installs / montées de version - *19/10/2023* - 3.6.0
 
-
 ## RELEASE 3.5
+
 - FIX : PHP8: date string versus timestamp mixup - *05/09/2023* - 3.5.10
 - FIX : PHP8: warnings - *30/08/2023* - 3.5.9
 - FIX : Prise en compte du paramètre titre dans la fonction setup_print_title - *29/08/2023* - 3.5.8
@@ -24,6 +28,7 @@ ___
 
 
 ## RELEASE 3.4 - 11/03/2022
+
 - FIX : Fatal inclusion lib fail - *09/08/2022* - 3.4.10
 - FIX : V16 FAMILY  - *02/06/2022* - 3.4.9
 - FIX : V16 NewToken() - *02/06/2022* - 3.4.8
@@ -41,6 +46,7 @@ ___
 - NEW : Script for set to 1 encrypting of the password in multicompany admin/security conf  *14/01/2022* - 3.3
 
 ## RELEASE 3.2 - 29/06/2021
+
 - FIX : fatal php8.1 remove &$GLOBAL to $GLOBAL - *31/05/2022)* - 3.2.9  
 - FIX : Script for MVD add missing substitutions  *08/07/2021* - 3.2.8
 - FIX : Script for MVD add missing substitutions  *07/07/2021* - 3.2.7

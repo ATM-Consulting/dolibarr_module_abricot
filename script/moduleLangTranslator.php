@@ -34,6 +34,10 @@ elseif(is_file('../../../../master.inc.php')) include '../../../../master.inc.ph
 elseif(is_file('../../../../../master.inc.php')) include '../../../../../master.inc.php';
 else include '../../master.inc.php';
 
+/**
+ * TODO : DEPRECATED Use Module Dev Community tool instead
+ *  https://github.com/Dolibarr/dolibarr-dev-community-tools
+ */
 
 $sapi_type = php_sapi_name();
 $script_file = basename(__FILE__);
@@ -248,7 +252,7 @@ function _loadTranslation($filename){
 	if ($fp = @fopen($filename,"rt")) {
 		while ($line = fscanf($fp, "%[^= ]%*[ =]%[^\n]")) {
 			if (isset($line[1])) {
-				list($key, $value) = $line;
+				[$key, $value] = $line;
 				//if ($domain == 'orders') print "Domain=$domain, found a string for $tab[0] with value $tab[1]. Currently in cache ".$this->tab_translate[$key]."<br>";
 				//if ($key == 'Order') print "Domain=$domain, found a string for key=$key=$tab[0] with value $tab[1]. Currently in cache ".$this->tab_translate[$key]."<br>";
 				if (empty($tab_translate[$key])) { // If translation was already found, we must not continue, even if MAIN_FORCELANGDIR is set (MAIN_FORCELANGDIR is to replace lang dir, not to overwrite entries)
@@ -278,8 +282,12 @@ function _helpUsage($path,$script_file)
 {
 	global $conf;
 
-	print "Usage: ".$script_file." cronSecuritykey moduleFolderName langKeyTarget langKeyFrom(optional default fr_FR)  \n";
+	print "DEPRECATED : Use Module Dev Community tool instead\n";
+	print "https://github.com/Dolibarr/dolibarr-dev-community-tools\n\n";
+
+	print "Usage: ".$script_file." cronSecuritykey moduleFolderName langKeyTarget langKeyFrom(optional default fr_FR)\n";
 	print "Exemple: ./".$script_file." khce86zgj84fzefef8f48 moduleFolderName en_EN fr_FR\n";
+
 	print "\n";
 
 }
