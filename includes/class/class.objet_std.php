@@ -212,7 +212,7 @@ function _no_save_vars($lst_chp) {
 
 	  		if(!in_array($champs, $Tab)) {
 				if($this->_is_int($info)) {
-                    $sqlAlterInt = 'ALTER TABLE`'.$this->get_table().'` ADD `'.$champs.'` integer';
+                    $sqlAlterInt = 'ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` integer';
                     if(! isset($info['nullable']) || $info['nullable'] === false) $sqlAlterInt .= ' NOT';
                     $sqlAlterInt .= ' NULL';
 
