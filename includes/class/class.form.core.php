@@ -306,7 +306,7 @@ function select_projects($socid=-1, $selected='', $htmlname='projectid', $maxlen
 	}
 
 	$hideunselectables = false;
-	if (! empty($conf->global->PROJECT_HIDE_UNSELECTABLES)) $hideunselectables = true;
+	if (! empty(getDolGlobalString( 'PROJECT_HIDE_UNSELECTABLES'))) $hideunselectables = true;
 
 	$projectsListId = false;
 	if (empty($user->rights->projet->all->lire))
@@ -1503,7 +1503,7 @@ function combo_sexy($pLib,$pName,$pListe,$pDefault,$pTaille=1,$onChange='',$plus
     if($id=='')$id=$pName;
 
 	$minLengthToAutocomplete=0;
-	$tmpplugin=empty($conf->global->MAIN_USE_JQUERY_MULTISELECT)?constant('REQUIRE_JQUERY_MULTISELECT')?constant('REQUIRE_JQUERY_MULTISELECT'):'select2':$conf->global->MAIN_USE_JQUERY_MULTISELECT;
+	$tmpplugin=empty(getDolGlobalString('MAIN_USE_JQUERY_MULTISELECT'))?constant('REQUIRE_JQUERY_MULTISELECT')?constant('REQUIRE_JQUERY_MULTISELECT'):'select2':getDolGlobalString('MAIN_USE_JQUERY_MULTISELECT') ;
 	$field.='<!-- JS CODE TO ENABLE '.$tmpplugin.' for id '.$id.' -->
 			<script type="text/javascript">
 				$(document).ready(function () {
