@@ -212,7 +212,15 @@ function _no_save_vars($lst_chp) {
 
 	  		if(!in_array($champs, $Tab)) {
 				if($this->_is_int($info)) {
-					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` integer NOT NULL DEFAULT \''.(!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0').'\'');
+                    $sqlAlterInt = 'ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` integer';
+                    if(! isset($info['nullable']) || $info['nullable'] === false) $sqlAlterInt .= ' NOT';
+                    $sqlAlterInt .= ' NULL';
+
+                    if(empty($info['default']) || ! is_int($info['default']) && strtoupper($info['default']) !== 'NULL') $sqlAlterInt .= ' DEFAULT 0';
+                    else $sqlAlterInt .= ' DEFAULT '.$info['default'];
+
+					$db->Execute($sqlAlterInt);
+//					$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` integer NOT NULL DEFAULT \''.(!empty($info['default']) && is_int($info['default']) ? $info['default'] : '0').'\'');
 				}else if($this->_is_date($info)) {
 
 	  				$db->Execute('ALTER TABLE `'.$this->get_table().'` ADD `'.$champs.'` datetime NULL');
@@ -489,8 +497,16 @@ function _no_save_vars($lst_chp) {
         $query[$nom_champ] = serialize($this->{$nom_champ});
       }
 
-      else if($this->_is_int($info)){
-        $query[$nom_champ] = (int)Tools::string2num($this->{$nom_champ});
+      else if($this->_is_int($info)) {
+          $res = (int) Tools::string2num($this->{$nom_champ});
+
+          // Handle nullable properties
+          if(isset($info['default']) && $res === 0 && $res !== $info['default']) {
+              $res = $info['default'];
+              if(isset($info['nullable']) && strtoupper($info['default']) === 'NULL') $res = null;
+          }
+
+          $query[$nom_champ] = $res;
       }
 
       else if($this->_is_float($info)){
