@@ -10,6 +10,7 @@ ___
 
 - NEW : Compatibilité Dolibarr 19 - *22/11/2023* - 3.6.0
   Attention : perte compatibilité Dolibarr inférieur à 6
+- NEW : TObjetStd add nullable property to integer fields - *21/11/2023* - 3.6.0
 - NEW : script de pré-configuration (initialisation / remplacement de certaines const) lors des installs / montées de version - *19/10/2023* - 3.6.0
 
 ## RELEASE 3.5
