@@ -103,7 +103,7 @@ class TListviewTBS {
 				$TKey[] = $prefixe.'`'. $field .'`';
 			}
 		} else {
-			$TKey[] =$TPrefixe[0].'`'. strtr($key,';','*').'`';
+			$TKey[] = (isset($TPrefixe[0])?$TPrefixe[0]:'').'`'. strtr($key,';','*').'`';
 		}
 
 		return $TKey;
