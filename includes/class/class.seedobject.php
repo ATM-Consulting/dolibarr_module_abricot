@@ -1050,7 +1050,7 @@ class SeedObject extends SeedObjectDolibarr
 
 		foreach ($Tab as $key => $value)
 		{
-            if($this->fields[$key]['type'] == 'datetime'){
+            if(!empty($this->fields[$key]) && $this->fields[$key]['type'] == 'datetime'){
                 if(!empty($value)) $value .= ' '. $Tab[$key.'hour'] .':'.$Tab[$key.'min'].':'.$Tab[$key.'sec'];
                 $this->setDate($key, $value);
             }
