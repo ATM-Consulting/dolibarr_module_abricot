@@ -1355,10 +1355,17 @@ class SeedObject extends SeedObjectDolibarr
 				$sql .= ' COLLATE='.$conf->db->dolibarr_main_db_collation.';';
 			}
 
-			$sql .= 'ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD INDEX date_creation (date_creation);';
-			$sql .= 'ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD INDEX tms (tms);';
-
-            $res = $this->db->query($sql);
+			$res = $this->db->query($sql);
+			if($res===false) {
+				var_dump($this->db);exit;
+			}
+			$sql = 'ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD INDEX date_creation (date_creation);';
+			$res = $this->db->query($sql);
+			if($res===false) {
+				var_dump($this->db);exit;
+			}
+			$sql = 'ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD INDEX tms (tms);';
+			$res = $this->db->query($sql);
 			if($res===false) {
 				var_dump($this->db);exit;
 			}
