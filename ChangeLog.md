@@ -13,6 +13,7 @@ ___
   Attention : perte compatibilité Dolibarr inférieur à 6
 - NEW : TObjetStd add nullable property to integer fields - *21/11/2023* - 3.6.0
 - NEW : script de pré-configuration (initialisation / remplacement de certaines const) lors des installs / montées de version - *19/10/2023* - 3.6.0
+- FIX : traitement séparation des requêtes SQL, erreur sql lors de l'activation module productbycompany *7/12/2023* - 3.6.1
 
 ## RELEASE 3.5
 
