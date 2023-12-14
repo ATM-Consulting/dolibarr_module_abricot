@@ -550,9 +550,9 @@ class SeedObject extends SeedObjectDolibarr
 		$this->date_creation = 0;
 		$this->tms = 0;
 
-		if(!isset($this->fields['rowid'])) $this->fields['rowid']=array('type'=>'integer','index'=>true);
-		if(!isset($this->fields['date_creation'])) $this->fields['date_creation']=array('type'=>'date');
-		if(!isset($this->fields['tms'])) $this->fields['tms']=array('type'=>'date');
+		if(!isset($this->fields['rowid'])) $this->fields['rowid']=array('type'=>'integer','index'=>true, 'enabled'=>1, 'visible'=>0);
+		if(!isset($this->fields['date_creation'])) $this->fields['date_creation']=array('type'=>'date', 'enabled'=>1, 'visible'=>0);
+		if(!isset($this->fields['tms'])) $this->fields['tms']=array('type'=>'date', 'enabled'=>1, 'visible'=>0);
 
 		if (!empty($this->fields))
 		{
