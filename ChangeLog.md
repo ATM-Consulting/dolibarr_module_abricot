@@ -7,7 +7,7 @@ ___
 
 
 ## RELEASE 3.6
-
+- FIX : Warning php 8.2  warning undefined array key visible - *14/12/2023* - 3.6.2
 - FIX : Warning php 8.2 - *11/12/2023* - 3.6.1
 - NEW : Compatibilité Dolibarr 19 - *22/11/2023* - 3.6.0
   Attention : perte compatibilité Dolibarr inférieur à 6
