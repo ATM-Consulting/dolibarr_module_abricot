@@ -7,11 +7,11 @@ ___
 
 
 ## RELEASE 3.6
-- FIX : Warning php 8.2  warning undefined array key visible - *14/12/2023* - 3.6.2
-- FIX : Warning php 8.2 - *11/12/2023* - 3.6.1
-- NEW : Compatibilité Dolibarr 19 - *22/11/2023* - 3.6.0
+- FIX : Warning php 8.2  warning undefined array key visible - *14/12/2023* - 3.8.2
+- FIX : Warning php 8.2 - *11/12/2023* - 3.8.1
+- NEW : Compatibilité Dolibarr 19 - *22/11/2023* - 3.8.0
   Attention : perte compatibilité Dolibarr inférieur à 6
-- NEW : TObjetStd add nullable property to integer fields - *21/11/2023* - 3.6.0
+- NEW : TObjetStd add nullable property to integer fields - *21/11/2023* - 3.7.0
 - NEW : script de pré-configuration (initialisation / remplacement de certaines const) lors des installs / montées de version - *19/10/2023* - 3.6.0
 - FIX : traitement séparation des requêtes SQL, erreur sql lors de l'activation module productbycompany *7/12/2023* - 3.6.1
 
