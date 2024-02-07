@@ -1420,7 +1420,6 @@ class SeedObject extends SeedObjectDolibarr
  				,tms timestamp
  				,fk_object integer
  				,import_key varchar(14)
- 				, UNIQUE fk_object (fk_object)
  				) ENGINE=InnoDB DEFAULT CHARSET=" . $charset;
 
 				 if (empty($conf->db->dolibarr_main_db_collation)) {
@@ -1433,6 +1432,12 @@ class SeedObject extends SeedObjectDolibarr
 				if($res===false) {
 					var_dump($this->db);exit;
 				}
+
+				$sql = 'ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD UNIQUE INDEX udx_'.$this->table_element .'_fk_object (fk_object);';
+                $res = $this->db->query($sql);
+                if($res===false) {
+                    var_dump($this->db);exit;
+                }
 
 				$sql = 'ALTER TABLE ' . MAIN_DB_PREFIX . $this->table_element . ' ADD INDEX idx_'.$this->table_element .'_tms (tms);';
                 $res = $this->db->query($sql);
