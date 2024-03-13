@@ -2017,7 +2017,7 @@ function checkbox($pLib,$pName,$pListe,$pDefault, $plus="", $enLigne=true){
 						if($pVal=='')$pVal='Supprimer';
 						if($url!=''){
 							//la page se rafraichi sur elle meme, meme en popin car c'est l'action suivant qui fera le rafraichissement.
-							if((substr($url,0,4)=='http')||($url[0] == '?')){
+							if((substr($url,0,4)=='http')||(mb_substr($url, 0, 1) == '?')){
 								$url = "document.location.href='".$url."&mode=popin'";
 							}
 							else{
