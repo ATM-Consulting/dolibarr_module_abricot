@@ -1,4 +1,9 @@
 <?php
+/**
+* SPDX-License-Identifier: GPL-3.0-or-later
+* This file is part of Dolibarr module Abricot
+*/
+
 
 
 if ((float) DOL_VERSION < 12) {

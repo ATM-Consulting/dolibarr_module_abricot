@@ -1,4 +1,9 @@
 <?php
+/**
+* SPDX-License-Identifier: GPL-3.0-or-later
+* This file is part of Dolibarr module Abricot
+*/
+
 
 /**
  * NOTE IMPORTANTE : Ce script ne rappatrie pas, dans llx_actioncomm, les messages présents dans la table llx_ticket_msg
