@@ -1,4 +1,9 @@
 <?php
+/**
+* SPDX-License-Identifier: GPL-3.0-or-later
+* This file is part of Dolibarr module Abricot
+*/
+
 
 	$s_name = $_POST['session_name'] or die('Pas de session trouvée');
 	session_name($s_name);

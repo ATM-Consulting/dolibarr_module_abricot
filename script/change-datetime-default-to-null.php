@@ -1,4 +1,9 @@
 <?php
+/**
+* SPDX-License-Identifier: GPL-3.0-or-later
+* This file is part of Dolibarr module Abricot
+*/
+
 if(is_file('../master.inc.php')) include '../master.inc.php';
 elseif(is_file('../../../master.inc.php')) include '../../../master.inc.php';
 elseif(is_file('../../../../master.inc.php')) include '../../../../master.inc.php';
