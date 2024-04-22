@@ -239,10 +239,19 @@ class Tools{
 	 */
 	static function getConstant(){
 
-		/* table des bglobales */
-		$temp = $GLOBALS;
+		/**
+		 * PHP 8.1
+		 * Fatal error: Cannot acquire reference to $GLOBALS in ...
+		 * Referencing $GLOBALS is no longer allowed
+		 * Prior to PHP 8.1, it was possible to create a reference to $GLOBALS array, and modify that reference. All changes would then be reflected in the global variables as well.
+		 */
+
 		$Tout = array();
-		foreach($temp as $key => $val){
+		foreach($GLOBALS as $key => $val){
+			if ($key == 'GLOBALS') {
+				continue;
+			}
+
 			if(substr($key,0,4)=="GBL_"){
 				$Tout[] = $key;
 			}
