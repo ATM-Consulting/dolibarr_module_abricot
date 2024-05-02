@@ -7,6 +7,7 @@ ___
 
 
 ## RELEASE 3.6
+- FIX : TBS render: remove trailing semicolon before concatenating more SQL to the query - *02/05/2024* - 3.8.4
 - FIX : Warning php 8.2  warning undefined array key visible - *13/03/2024* - 3.8.3
 - FIX : Warning php 8.2  warning undefined array key visible - *14/12/2023* - 3.8.2
 - FIX : Warning php 8.2 - *11/12/2023* - 3.8.1

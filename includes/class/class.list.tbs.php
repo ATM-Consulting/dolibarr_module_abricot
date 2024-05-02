@@ -1,4 +1,4 @@
-<?php
+    <?php
 /*
 
  Copyright (C) 2013-2015 ATM Consulting <support@atm-consulting.fr>
@@ -338,6 +338,9 @@ class TListviewTBS {
 
 		if(!empty($TBind)) $this->TBind = $TBind;
 
+		// remove any trailing semicolon before appending anything to the query
+		$sql = preg_replace('/;\s*$/', '', $sql);
+
 		$sql = $this->search($sql,$TParam);
 		$sql = $this->order_by($sql, $TParam);
 
@@ -368,6 +371,9 @@ class TListviewTBS {
 		$TChamps=array();
 
 		$this->init($TParam);
+
+		// remove any trailing semicolon before appending anything to the query
+		$sql = preg_replace('/;\s*$/', '', $sql);
 
 		$sql = $this->search($sql,$TParam);
 		$sql = $this->order_by($sql, $TParam);
