@@ -168,7 +168,7 @@ class modAbricot extends DolibarrModules
         // 'categories_x'		to add a tab in category view
         // (replace 'x' by type of category (0=product, 1=supplier, 2=customer, 3=member)
         // Dictionnaries
-        if (! isset($conf->mymodule->enabled)) {
+        if (!isModEnabled('mymodule')) {
             $conf->mymodule=new stdClass();
             $conf->mymodule->enabled = 0;
         }
