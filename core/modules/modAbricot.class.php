@@ -61,7 +61,7 @@ class modAbricot extends DolibarrModules
         // (where XXX is value of numeric property 'numero' of module)
         $this->description = "Collection of specific ATM functions and classes";
         // Possible values for version are: 'development', 'experimental' or version
-        $this->version = '3.8.3';
+        $this->version = '3.9.0';
         $this->editor_name = 'ATM Consulting';
         $this->editor_url = 'https://www.atm-consulting.fr';
         // Key used in llx_const table to save module status enabled/disabled
@@ -115,9 +115,9 @@ class modAbricot extends DolibarrModules
         // List of modules id to disable if this one is disabled
         $this->requiredby = array();
         // Minimum version of PHP required by module
-        $this->phpmin = array(5, 6);
+        $this->phpmin = array(7, 0);
         // Minimum version of Dolibarr required by module
-        $this->need_dolibarr_version = array(6, 0);
+        $this->need_dolibarr_version = array(16, 0);
         $this->langfiles = 'abricot@abricot'; // langfiles@mymodule
         // Constants
         // List of particular constants to add when module is enabled
@@ -168,7 +168,7 @@ class modAbricot extends DolibarrModules
         // 'categories_x'		to add a tab in category view
         // (replace 'x' by type of category (0=product, 1=supplier, 2=customer, 3=member)
         // Dictionnaries
-        if (! isset($conf->mymodule->enabled)) {
+        if (!isModEnabled('mymodule')) {
             $conf->mymodule=new stdClass();
             $conf->mymodule->enabled = 0;
         }
