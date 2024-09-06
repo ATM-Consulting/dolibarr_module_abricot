@@ -37,7 +37,7 @@ if ((float) DOL_VERSION < 7.0)
 		*/
 	   protected function isDate($info)
 	   {
-		   if (is_callable('parent::isDate')) return parent::isDate($info);
+		   if (is_callable(parent::class.'::isDate')) return parent::isDate($info);
 
 		   if(isset($info['type']) && ($info['type']=='date' || $info['type']=='datetime' || $info['type']=='timestamp')) return true;
 		   else return false;
@@ -51,7 +51,7 @@ if ((float) DOL_VERSION < 7.0)
 		*/
 	   protected function isArray($info)
 	   {
-		   if (is_callable('parent::isArray')) return parent::isArray($info);
+		   if (is_callable(parent::class.'::isArray')) return parent::isArray($info);
 
 		   if(is_array($info))
 		   {
@@ -69,7 +69,7 @@ if ((float) DOL_VERSION < 7.0)
 		*/
 	   protected function isNull($info)
 	   {
-		   if (is_callable('parent::isNull')) return parent::isNull($info);
+		   if (is_callable(parent::class.'::isNull')) return parent::isNull($info);
 
 		   if(is_array($info))
 		   {
@@ -87,7 +87,7 @@ if ((float) DOL_VERSION < 7.0)
 		*/
 	   protected function isInt($info)
 	   {
-		   if (is_callable('parent::isInt')) return parent::isInt($info);
+		   if (is_callable(parent::class.'::isInt')) return parent::isInt($info);
 
 		   if(is_array($info))
 		   {
@@ -105,7 +105,7 @@ if ((float) DOL_VERSION < 7.0)
 		*/
 	   protected function isFloat($info)
 	   {
-		   if (is_callable('parent::isFloat')) return parent::isFloat($info);
+		   if (is_callable(parent::class.'::isFloat')) return parent::isFloat($info);
 
 		   if(is_array($info))
 		   {
@@ -123,7 +123,7 @@ if ((float) DOL_VERSION < 7.0)
 		*/
 	   protected function isText($info)
 	   {
-		   if (is_callable('parent::isText')) return parent::isText($info);
+		   if (is_callable(parent::class.'::isText')) return parent::isText($info);
 
 		   if(is_array($info))
 		   {
@@ -141,7 +141,7 @@ if ((float) DOL_VERSION < 7.0)
 		*/
 	   protected function isIndex($info)
 	   {
-		   if (is_callable('parent::isIndex')) return parent::isIndex($info);
+		   if (is_callable(parent::class.'::isIndex')) return parent::isIndex($info);
 
 		   if(is_array($info))
 		   {
@@ -282,7 +282,7 @@ else
 		*/
 	   public function isDate($info)
 	   {
-		   if (is_callable('parent::isDate')) return parent::isDate($info);
+		   if (is_callable(parent::class.'::isDate')) return parent::isDate($info);
 
 		   if(isset($info['type']) && ($info['type']=='date' || $info['type']=='datetime' || $info['type']=='timestamp')) return true;
 		   else return false;
@@ -296,7 +296,7 @@ else
 		*/
 	   public function isArray($info)
 	   {
-		   if (is_callable('parent::isArray')) return parent::isArray($info);
+		   if (is_callable(parent::class.'::isArray')) return parent::isArray($info);
 
 		   if(is_array($info))
 		   {
@@ -314,7 +314,7 @@ else
 		*/
 	   public function isNull($info)
 	   {
-		   if (is_callable('parent::isNull')) return parent::isNull($info);
+		   if (is_callable(parent::class.'::isNull')) return parent::isNull($info);
 
 		   if(is_array($info))
 		   {
@@ -332,7 +332,7 @@ else
 		*/
 	   public function isInt($info)
 	   {
-		   if (is_callable('parent::isInt')) return parent::isInt($info);
+		   if (is_callable(parent::class.'::isInt')) return parent::isInt($info);
 
 		   if(is_array($info))
 		   {
@@ -350,7 +350,7 @@ else
 		*/
 	   public function isFloat($info)
 	   {
-		   if (is_callable('parent::isFloat')) return parent::isFloat($info);
+		   if (is_callable(parent::class.'::isFloat')) return parent::isFloat($info);
 
 		   if(is_array($info))
 		   {
@@ -368,7 +368,7 @@ else
 		*/
 	   public function isText($info)
 	   {
-		   if (is_callable('parent::isText')) return parent::isText($info);
+		   if (is_callable(parent::class.'::isText')) return parent::isText($info);
 
 		   if(is_array($info))
 		   {
@@ -386,7 +386,7 @@ else
 		*/
 	   public function isIndex($info)
 	   {
-		   if (is_callable('parent::isIndex')) return parent::isIndex($info);
+		   if (is_callable(parent::class.'::isIndex')) return parent::isIndex($info);
 
 		   if(is_array($info))
 		   {
@@ -1088,7 +1088,7 @@ class SeedObject extends SeedObjectDolibarr
 	public function createCommon(User $user, $notrigger = false)
 	{
 		// method_exists() with key word 'parent' doesn't work
-		if (is_callable('parent::createCommon')) return parent::createCommon($user, $notrigger);
+		if (is_callable(parent::class.'::createCommon')) return parent::createCommon($user, $notrigger);
 
 
         $error = 0;
@@ -1153,7 +1153,7 @@ class SeedObject extends SeedObjectDolibarr
 	public function updateCommon(User $user, $notrigger = false)
 	{
 		// method_exists() with key word 'parent' doesn't work
-		if (is_callable('parent::updateCommon')) return parent::updateCommon($user, $notrigger);
+		if (is_callable(parent::class.'::updateCommon')) return parent::updateCommon($user, $notrigger);
 
 
 	    $error = 0;
@@ -1218,7 +1218,7 @@ class SeedObject extends SeedObjectDolibarr
 	public function deleteCommon(User $user, $notrigger = false, $forcechilddeletion = 0)
 	{
 		// method_exists() with key word 'parent' doesn't work
-		if (is_callable('parent::deleteCommon')) return parent::deleteCommon($user, $notrigger, $forcechilddeletion);
+		if (is_callable(parent::class.'::deleteCommon')) return parent::deleteCommon($user, $notrigger, $forcechilddeletion);
 
 
 	    $error=0;
