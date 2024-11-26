@@ -5,6 +5,11 @@ ___
 # NOT RELEASED
 - FIX: constructor TResponseMail, class properties was not defined with old PHP constructor - *30/07/2024* - 3.8.4 
 
+## RELEASE 3.9
+
+- FIX : Compat v20
+  Changed Dolibarr compatibility range to 16 min - 20 max - *04/08/2024* - 3.9.0
+
 ## RELEASE 3.6
 - FIX : Warning php 8.2  warning undefined array key visible - *13/03/2024* - 3.8.3
 - FIX : Warning php 8.2  warning undefined array key visible - *14/12/2023* - 3.8.2
