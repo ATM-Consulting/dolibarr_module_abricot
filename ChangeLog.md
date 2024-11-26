@@ -3,8 +3,7 @@ All notable changes to this project will be documented in this file.
 ___
 
 # NOT RELEASED
-
-
+- FIX: constructor TResponseMail, class properties was not defined with old PHP constructor - *30/07/2024* - 3.8.4 
 
 ## RELEASE 3.9
 

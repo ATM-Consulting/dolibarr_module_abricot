@@ -24,7 +24,7 @@ class TReponseMail{
      * Constructor
      * @access protected
      */
-	function TReponseMail($emailfrom="",$emailto="",$titre="",$corps=""){
+	function __construct($emailfrom="",$emailto="",$titre="",$corps=""){
 		global $conf;
 		
 		$this->emailfrom=$emailfrom;
