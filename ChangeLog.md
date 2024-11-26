@@ -3,10 +3,10 @@ All notable changes to this project will be documented in this file.
 ___
 
 # NOT RELEASED
-- FIX: constructor TResponseMail, class properties was not defined with old PHP constructor - *30/07/2024* - 3.8.4 
 
 ## RELEASE 3.9
 
+- FIX: constructor TResponseMail, class properties was not defined with old PHP constructor - *30/07/2024* - 3.9.1
 - FIX : Compat v20
   Changed Dolibarr compatibility range to 16 min - 20 max - *04/08/2024* - 3.9.0
 
