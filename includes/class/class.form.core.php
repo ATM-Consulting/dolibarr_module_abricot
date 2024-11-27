@@ -309,7 +309,7 @@ function select_projects($socid=-1, $selected='', $htmlname='projectid', $maxlen
 	if (! empty($conf->global->PROJECT_HIDE_UNSELECTABLES)) $hideunselectables = true;
 
 	$projectsListId = false;
-	if (empty($user->rights->projet->all->lire))
+	if (empty($user->hasRight('projet', 'all', 'lire')))
 	{
 		$projectstatic=new Project($db);
 		$projectsListId = $projectstatic->getProjectsAuthorizedForUser($user,0,1);
@@ -342,7 +342,7 @@ function select_projects($socid=-1, $selected='', $htmlname='projectid', $maxlen
 			{
 				$obj = $db->fetch_object($resql);
 				// If we ask to filter on a company and user has no permission to see all companies and project is linked to another company, we hide project.
-				if ($socid > 0 && (empty($obj->fk_soc) || $obj->fk_soc == $socid) && ! $user->rights->societe->lire)
+				if ($socid > 0 && (empty($obj->fk_soc) || $obj->fk_soc == $socid) && ! $user->hasRight('societe', 'lire'))
 				{
 					// Do nothing
 				}
