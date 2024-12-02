@@ -4,6 +4,8 @@ ___
 
 # NOT RELEASED
 
+- NEW : script pour la conf `MULTICOMPANY_EXTERNAL_MODULES_SHARING` - *02/12/2024* - 3.10.0
+
 ## RELEASE 3.9
 
 - FIX: Replace `is_callable('parent::method')` with `is_callable(parent::class.'::method')` to avoid deprecation warning on php8.2 - *27/11/2024* - 3.9.2
