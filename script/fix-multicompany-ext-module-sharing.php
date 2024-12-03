@@ -107,7 +107,7 @@ while($obj = $db->fetch_object($resql)) {
 	# dolibarr_set_const ne fonctionne pas bien pour l'entité 0.
     # dolibarr_set_const($db, $confName, json_encode($full_conf_MEMS), $obj->type, $obj->note, $obj->entity);
 	$newValue = json_encode($full_conf_MEMS);
-	$sql = "UPDATE {$db->prefix()} SET value = '{$db->escape($newValue)}' WHERE rowid = {$obj->rowid}";
+	$sql = "UPDATE {$db->prefix()}const SET value = '{$db->escape($newValue)}' WHERE rowid = {$obj->rowid}";
 	$resql2 = $db->query($sql);
 	if (! $resql2) {
 		echo 'SQL ERROR: '.$db->lasterror() . PHP_EOL;
