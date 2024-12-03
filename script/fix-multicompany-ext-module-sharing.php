@@ -90,7 +90,8 @@ $confName = 'MULTICOMPANY_EXTERNAL_MODULES_SHARING';
 // json_decode(MULTICOMPANY_EXTERNAL_MODULES_SHARING)[*]['sharingelements'][*]
 // car le module multicompany utilise cette clé sans tester si elle existe et ça
 // crée des warnings sur chaque page.
-$resql = $db->query("SELECT rowid, entity, value, type, note FROM llx_const WHERE name = '{$confName}'");
+$n = 0;
+$resql = $db->query("SELECT rowid, entity, value, type, note FROM {$db->prefix()}const WHERE name = '{$confName}'");
 while($obj = $db->fetch_object($resql)) {
     $full_conf_MEMS = json_decode($obj->value, JSON_OBJECT_AS_ARRAY);
 
@@ -102,8 +103,18 @@ while($obj = $db->fetch_object($resql)) {
         }
         $ret[] = $conf_MEMS_of_module;
     }
-    dolibarr_set_const($db, $confName, json_encode($full_conf_MEMS), $obj->type, $obj->note, $obj->entity);
+
+	# dolibarr_set_const ne fonctionne pas bien pour l'entité 0.
+    # dolibarr_set_const($db, $confName, json_encode($full_conf_MEMS), $obj->type, $obj->note, $obj->entity);
+	$newValue = json_encode($full_conf_MEMS);
+	$sql = "UPDATE {$db->prefix()} SET value = '{$db->escape($newValue)}' WHERE rowid = {$obj->rowid}";
+	$resql2 = $db->query($sql);
+	if (! $resql2) {
+		echo 'SQL ERROR: '.$db->lasterror() . PHP_EOL;
+		echo 'Query: '.$db->lastquery() . PHP_EOL;
+		exit(1);
+	}
+	$n++;
 }
 
-echo '<pre>'. PHP_EOL;
-echo json_encode($ret);
+echo 'OK: ' . $n . PHP_EOL;
