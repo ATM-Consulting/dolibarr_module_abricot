@@ -78,7 +78,12 @@ if (! $res) {
 	die('Include of main fails');
 }
 
-require_once DOL_DOCUMENT_ROOT.'/core/lib/admin.lib.php';
+
+require_once __DIR__ . '/common_script.lib.php';
+if (!ast_isBash() && empty($user->admin)) {
+	ast_log('You must be an admin to run this script', 'error');
+	die();
+}
 
 /** @var DoliDB $db */
 
@@ -108,13 +113,8 @@ while($obj = $db->fetch_object($resql)) {
     # dolibarr_set_const($db, $confName, json_encode($full_conf_MEMS), $obj->type, $obj->note, $obj->entity);
 	$newValue = json_encode($full_conf_MEMS);
 	$sql = "UPDATE {$db->prefix()}const SET value = '{$db->escape($newValue)}' WHERE rowid = {$obj->rowid}";
-	$resql2 = $db->query($sql);
-	if (! $resql2) {
-		echo 'SQL ERROR: '.$db->lasterror() . PHP_EOL;
-		echo 'Query: '.$db->lastquery() . PHP_EOL;
-		exit(1);
-	}
+	ast_sqlQuerylog($db, $sql);
 	$n++;
 }
 
-echo 'OK: ' . $n . PHP_EOL;
+ast_log("OK: $n");

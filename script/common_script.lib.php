@@ -64,7 +64,6 @@ function ast_log($msg, $type = ''){
 /**
  * launch sql query and display log
  * @param string $sql
- * @param bool $res
  * @param DoliDB $db
  * @return void
  */
