@@ -31,7 +31,6 @@ if (! $res) {
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
-require_once __DIR__ . '/../backport/v12/core/lib/fonctions.lib.php';
 // Translations
 $langs->load("abricot@abricot");
 
@@ -139,7 +138,7 @@ print '<td align="right" width="300" style="white-space:nowrap;">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'. newToken() .'">';
 print '<input type="hidden" name="action" value="set_ABRICOT_WKHTMLTOPDF_CMD">';
-print '<input type="text" name="ABRICOT_WKHTMLTOPDF_CMD" value="'.(empty($conf->global->ABRICOT_WKHTMLTOPDF_CMD) ? '' : $conf->global->ABRICOT_WKHTMLTOPDF_CMD).'" size="80" placeholder="wkhtmltopdf" />';
+print '<input type="text" name="ABRICOT_WKHTMLTOPDF_CMD" value="'.(getDolGlobalString('ABRICOT_WKHTMLTOPDF_CMD') ? '' : getDolGlobalString('ABRICOT_WKHTMLTOPDF_CMD')).'" size="80" placeholder="wkhtmltopdf" />';
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
@@ -152,7 +151,7 @@ print '<td align="right" width="300" style="white-space:nowrap;">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'. newToken() .'">';
 print '<input type="hidden" name="action" value="set_ABRICOT_CONVERTPDF_CMD">';
-print '<input type="text" name="ABRICOT_CONVERTPDF_CMD" value="'.(empty($conf->global->ABRICOT_CONVERTPDF_CMD) ? '' : $conf->global->ABRICOT_CONVERTPDF_CMD).'" size="80" placeholder="libreoffice --invisible --norestore --headless --convert-to pdf --outdir " />';
+print '<input type="text" name="ABRICOT_CONVERTPDF_CMD" value="'.(!getDolGlobalString('ABRICOT_CONVERTPDF_CMD') ? '' : getDolGlobalString('ABRICOT_CONVERTPDF_CMD')).'" size="80" placeholder="libreoffice --invisible --norestore --headless --convert-to pdf --outdir " />';
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
@@ -186,7 +185,7 @@ print '<td align="center" width="200">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="action" value="set_ABRICOT_MAILS_FORMAT">';
 print '<input type="hidden" name="token" value="'. newToken() .'">';
-print $form->selectarray('ABRICOT_MAILS_FORMAT',array('iso-8859-1'=>'iso-8859-1', 'UTF-8'=>'UTF-8'),$conf->global->ABRICOT_MAILS_FORMAT);
+print $form->selectarray('ABRICOT_MAILS_FORMAT',array('iso-8859-1'=>'iso-8859-1', 'UTF-8'=>'UTF-8'), getDolGlobalString('ABRICOT_MAILS_FORMAT'));
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';

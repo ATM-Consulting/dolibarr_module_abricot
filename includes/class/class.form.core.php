@@ -52,7 +52,6 @@ function __construct($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE
 
 function begin_form($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE,$plus="", $addToken = true) {
 
-	require_once __DIR__ . '/../../backport/v12/core/lib/fonctions.lib.php';
 
 	$r='';
 	if (!empty($pName)) {
@@ -1503,7 +1502,7 @@ function combo_sexy($pLib,$pName,$pListe,$pDefault,$pTaille=1,$onChange='',$plus
     if($id=='')$id=$pName;
 
 	$minLengthToAutocomplete=0;
-	$tmpplugin=empty($conf->global->MAIN_USE_JQUERY_MULTISELECT)?constant('REQUIRE_JQUERY_MULTISELECT')?constant('REQUIRE_JQUERY_MULTISELECT'):'select2':$conf->global->MAIN_USE_JQUERY_MULTISELECT;
+	$tmpplugin=!getDolGlobalString('MAIN_USE_JQUERY_MULTISELECT')?constant('REQUIRE_JQUERY_MULTISELECT')?constant('REQUIRE_JQUERY_MULTISELECT'):'select2':$conf->global->MAIN_USE_JQUERY_MULTISELECT;
 	$field.='<!-- JS CODE TO ENABLE '.$tmpplugin.' for id '.$id.' -->
 			<script type="text/javascript">
 				$(document).ready(function () {

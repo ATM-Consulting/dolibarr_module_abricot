@@ -545,7 +545,7 @@ function _no_save_vars($lst_chp) {
 			$db->close();
 	 }
 
-	$this->date_0 = empty($conf->global->ABRICOT_USE_OLD_EMPTY_DATE_FORMAT) ? '1000-01-01 00:00:00' : '0000-00-00 00:00:00';
+	$this->date_0 = !getDolGlobalString('ABRICOT_USE_OLD_EMPTY_DATE_FORMAT') ? '1000-01-01 00:00:00' : '0000-00-00 00:00:00';
   }
 
 	/**

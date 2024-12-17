@@ -20,7 +20,6 @@
  This is a library for module setup page
 
  */
-require_once __DIR__ . '/../../backport/v12/core/lib/fonctions.lib.php';
 /**
  * Check abricot module version
  * @param string $minVersion minnimum version compatibility to test against current abricot version
