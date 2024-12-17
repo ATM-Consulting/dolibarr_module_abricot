@@ -83,7 +83,7 @@ foreach ($argsList as $argKey => $paramName  ){
 }
 
 // Check security key
-if ($param->securitykey !== $conf->global->CRON_KEY)
+if ($param->securitykey !== getDolGlobalString('CRON_KEY'))
 {
 	print "Error: securitykey is wrong\n";
 	exit(-1);
@@ -204,8 +204,8 @@ if(!empty($scanDirFrom) && is_array($scanDirFrom)){
 /**
  * Use GOOGLE translate API
  * 		$text = 'My name is john';
- *		if(!empty($conf->global->GOOGLE_TRAD_API)){
- *		_googleTranslate($conf->global->GOOGLE_TRAD_API, $text, $param->langFrom, $param->langTarget);
+ *		if(getDolGlobalString('GOOGLE_TRAD_API')){
+ *		_googleTranslate(getDolGlobalString('GOOGLE_TRAD_API'), $text, $param->langFrom, $param->langTarget);
  *		}
  * @param $api_key
  * @param $text

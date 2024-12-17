@@ -39,7 +39,7 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 
 	global $conf;
 
-	if(empty($conf->global->ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING)) {
+	if(!getDolGlobalString('ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING')) {
 		$charset = $conf->db->character_set;
 	}
 	else {
@@ -84,7 +84,7 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 
 		$this->connexionString = $db_type.':dbname='.$db.';host='.$host;
 		if(!empty($port))$this->connexionString .= ';port='.$port;
-		if($db_type != 'pgsql' && !empty($charset) && empty($conf->global->ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING) )$this->connexionString.=';charset='.$charset;
+		if($db_type != 'pgsql' && !empty($charset) && !getDolGlobalString('ABRICOT_USE_OLD_DATABASE_ENCODING_SETTING') )$this->connexionString.=';charset='.$charset;
 
 		if(defined('DB_SOCKET') && constant('DB_SOCKET')!='') $this->connexionString .= ';unix_socket='.DB_SOCKET;
 

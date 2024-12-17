@@ -6,6 +6,7 @@ ___
 
 ## RELEASE 3.9
 
+- FIX : Compat v21 - *17/12/2024* - 3.9.3
 - FIX: Replace `is_callable('parent::method')` with `is_callable(parent::class.'::method')` to avoid deprecation warning on php8.2 - *27/11/2024* - 3.9.2
 - FIX: constructor TResponseMail, class properties was not defined with old PHP constructor - *30/07/2024* - 3.9.1
 - FIX : Compat v20

@@ -74,7 +74,7 @@ foreach($argsList as $argKey => $paramName) {
 }
 
 // Check security key
-if($param->securitykey !== $conf->global->CRON_KEY) {
+if($param->securitykey !== getDolGlobalString('CRON_KEY')) {
     print "Error: securitykey is wrong\n";
     exit(-1);
 }
