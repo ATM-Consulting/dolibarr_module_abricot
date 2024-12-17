@@ -403,7 +403,7 @@ class Listview
 			$sql .= $this->db->order($TParam['sortfield'], $TParam['sortorder']);
 		}
 
-		if (empty($conf->global->MAIN_DISABLE_FULL_SCANLIST))
+		if (!getDolGlobalInt('MAIN_DISABLE_FULL_SCANLIST'))
 		{
 		    $result = $this->db->query($sql);
 		    $this->totalRow = $this->db->num_rows($result);
