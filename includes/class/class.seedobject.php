@@ -25,489 +25,243 @@
 
 require_once DOL_DOCUMENT_ROOT.'/core/class/commonobject.class.php';
 
-if ((float) DOL_VERSION < 7.0)
+
+class SeedObjectDolibarr extends CommonObject
 {
-	class SeedObjectDolibarr extends CommonObject
+	/**
+	* Function test if type is date
+	*
+	* @param   array   $info   content informations of field
+	* @return                  bool
+	*/
+   public function isDate($info)
+   {
+	   if (is_callable(parent::class.'::isDate')) return parent::isDate($info);
+
+	   if(isset($info['type']) && ($info['type']=='date' || $info['type']=='datetime' || $info['type']=='timestamp')) return true;
+	   else return false;
+   }
+
+   /**
+	* Function test if type is array
+	*
+	* @param   array   $info   content informations of field
+	* @return                  bool
+	*/
+   public function isArray($info)
+   {
+	   if (is_callable(parent::class.'::isArray')) return parent::isArray($info);
+
+	   if(is_array($info))
+	   {
+		   if(isset($info['type']) && $info['type']=='array') return true;
+		   else return false;
+	   }
+	   else return false;
+   }
+
+   /**
+	* Function test if type is null
+	*
+	* @param   array   $info   content informations of field
+	* @return                  bool
+	*/
+   public function isNull($info)
+   {
+	   if (is_callable(parent::class.'::isNull')) return parent::isNull($info);
+
+	   if(is_array($info))
+	   {
+		   if(isset($info['type']) && $info['type']=='null') return true;
+		   else return false;
+	   }
+	   else return false;
+   }
+
+   /**
+	* Function test if type is integer
+	*
+	* @param   array   $info   content informations of field
+	* @return                  bool
+	*/
+   public function isInt($info)
+   {
+	   if (is_callable(parent::class.'::isInt')) return parent::isInt($info);
+
+	   if(is_array($info))
+	   {
+		   if(isset($info['type']) && ($info['type']=='int' || $info['type']=='integer' )) return true;
+		   else return false;
+	   }
+	   else return false;
+   }
+
+   /**
+	* Function test if type is float
+	*
+	* @param   array   $info   content informations of field
+	* @return                  bool
+	*/
+   public function isFloat($info)
+   {
+	   if (is_callable(parent::class.'::isFloat')) return parent::isFloat($info);
+
+	   if(is_array($info))
+	   {
+		   if (isset($info['type']) && (preg_match('/^(double|real)/i', $info['type']))) return true;
+		   else return false;
+	   }
+	   else return false;
+   }
+
+   /**
+	* Function test if type is text
+	*
+	* @param   array   $info   content informations of field
+	* @return                  bool
+	*/
+   public function isText($info)
+   {
+	   if (is_callable(parent::class.'::isText')) return parent::isText($info);
+
+	   if(is_array($info))
+	   {
+		   if(isset($info['type']) && $info['type']=='text') return true;
+		   else return false;
+	   }
+	   else return false;
+   }
+
+   /**
+	* Function test if is indexed
+	*
+	* @param   array   $info   content informations of field
+	* @return                  bool
+	*/
+   public function isIndex($info)
+   {
+	   if (is_callable(parent::class.'::isIndex')) return parent::isIndex($info);
+
+	   if(is_array($info))
+	   {
+		   if(isset($info['index']) && $info['index']==true) return true;
+		   else return false;
+	   }
+	   else return false;
+   }
+
+	/**
+	 * Function to concat keys of fields
+	 *
+	 * @return string
+	 */
+	public function get_field_list()
 	{
-		/**
-		* Function test if type is date
-		*
-		* @param   array   $info   content informations of field
-		* @return                  bool
-		*/
-	   protected function isDate($info)
-	   {
-		   if (is_callable('parent::isDate')) return parent::isDate($info);
+		if (method_exists($this, 'getFieldList')) return parent::getFieldList();
 
-		   if(isset($info['type']) && ($info['type']=='date' || $info['type']=='datetime' || $info['type']=='timestamp')) return true;
-		   else return false;
-	   }
+		$keys = array_keys($this->fields);
+		return implode(',', $keys);
+	}
 
-	   /**
-		* Function test if type is array
-		*
-		* @param   array   $info   content informations of field
-		* @return                  bool
-		*/
-	   protected function isArray($info)
-	   {
-		   if (is_callable('parent::isArray')) return parent::isArray($info);
+	/**
+	 * Function to load data from a SQL pointer into properties of current object $this
+	 *
+	 * @param   stdClass    $obj    Contain data of object from database
+	 */
+	protected function set_vars_by_db(&$obj)
+	{
+		if (method_exists($this, 'setVarsFromFetchObj')) return parent::setVarsFromFetchObj($obj);
 
-		   if(is_array($info))
-		   {
-			   if(isset($info['type']) && $info['type']=='array') return true;
-			   else return false;
-		   }
-		   else return false;
-	   }
-
-	   /**
-		* Function test if type is null
-		*
-		* @param   array   $info   content informations of field
-		* @return                  bool
-		*/
-	   protected function isNull($info)
-	   {
-		   if (is_callable('parent::isNull')) return parent::isNull($info);
-
-		   if(is_array($info))
-		   {
-			   if(isset($info['type']) && $info['type']=='null') return true;
-			   else return false;
-		   }
-		   else return false;
-	   }
-
-	   /**
-		* Function test if type is integer
-		*
-		* @param   array   $info   content informations of field
-		* @return                  bool
-		*/
-	   protected function isInt($info)
-	   {
-		   if (is_callable('parent::isInt')) return parent::isInt($info);
-
-		   if(is_array($info))
-		   {
-			   if(isset($info['type']) && ($info['type']=='int' || $info['type']=='integer' )) return true;
-			   else return false;
-		   }
-		   else return false;
-	   }
-
-	   /**
-		* Function test if type is float
-		*
-		* @param   array   $info   content informations of field
-		* @return                  bool
-		*/
-	   protected function isFloat($info)
-	   {
-		   if (is_callable('parent::isFloat')) return parent::isFloat($info);
-
-		   if(is_array($info))
-		   {
-			   if (isset($info['type']) && (preg_match('/^(double|real)/i', $info['type']))) return true;
-			   else return false;
-		   }
-		   else return false;
-	   }
-
-	   /**
-		* Function test if type is text
-		*
-		* @param   array   $info   content informations of field
-		* @return                  bool
-		*/
-	   protected function isText($info)
-	   {
-		   if (is_callable('parent::isText')) return parent::isText($info);
-
-		   if(is_array($info))
-		   {
-			   if(isset($info['type']) && $info['type']=='text') return true;
-			   else return false;
-		   }
-		   else return false;
-	   }
-
-	   /**
-		* Function test if is indexed
-		*
-		* @param   array   $info   content informations of field
-		* @return                  bool
-		*/
-	   protected function isIndex($info)
-	   {
-		   if (is_callable('parent::isIndex')) return parent::isIndex($info);
-
-		   if(is_array($info))
-		   {
-			   if(isset($info['index']) && $info['index']==true) return true;
-			   else return false;
-		   }
-		   else return false;
-	   }
-
-		/**
-		 * Function to concat keys of fields
-		 *
-		 * @return string
-		 */
-		public function get_field_list()
+		foreach ($this->fields as $field => $info)
 		{
-			$keys = array_keys($this->fields);
-			return implode(',', $keys);
-		}
-
-		/**
-		 * Function to load data into current object this
-		 *
-		 * @param   stdClass    $obj    Contain data of object from database
-		 */
-		protected function set_vars_by_db(&$obj)
-		{
-			foreach ($this->fields as $field => $info)
+			if($this->isDate($info))
 			{
-				if($this->isDate($info))
-				{
-					if(empty($obj->{$field}) || $obj->{$field} === '0000-00-00 00:00:00' || $obj->{$field} === '1000-01-01 00:00:00') $this->{$field} = 0;
-					else $this->{$field} = strtotime($obj->{$field});
-				}
-				elseif($this->isArray($info))
-				{
-					$this->{$field} = @unserialize($obj->{$field});
-					// Hack for data not in UTF8
-					if($this->{$field } === FALSE) @unserialize(utf8_decode($obj->{$field}));
-				}
-				elseif($this->isInt($info))
-				{
-					$this->{$field} = (int) $obj->{$field};
-				}
-				elseif($this->isFloat($info))
-				{
-					$this->{$field} = (double) $obj->{$field};
-				}
-				elseif($this->isNull($info))
-				{
-					$val = $obj->{$field};
-					// zero is not null
-					$this->{$field} = (is_null($val) || (empty($val) && $val!==0 && $val!=='0') ? null : $val);
-				}
-				else
-				{
-					$this->{$field} = $obj->{$field};
-				}
+				if(empty($obj->{$field}) || $obj->{$field} === '0000-00-00 00:00:00' || $obj->{$field} === '1000-01-01 00:00:00') $this->{$field} = 0;
+				else $this->{$field} = strtotime($obj->{$field});
 			}
-		}
-
-		/**
-		 * Function to prepare the values to insert.
-		 * Note $this->${field} are set by the page that make the createCommon or the updateCommon.
-		 *
-		 * @return array
-		 */
-		protected function set_save_query()
-		{
-			global $conf;
-			$queryarray=array();
-			foreach ($this->fields as $field=>$info)	// Loop on definition of fields
+			elseif($this->isArray($info))
 			{
-				// Depending on field type ('datetime', ...)
-				if($this->isDate($info))
-				{
-					if(empty($this->{$field}))
-					{
-						$queryarray[$field] = NULL;
-					}
-					else
-					{
-						$queryarray[$field] = $this->db->idate($this->{$field});
-					}
-				}
-				else if($this->isArray($info))
-				{
-					$queryarray[$field] = serialize($this->{$field});
-				}
-				else if($this->isInt($info))
-				{
-					if ($field == 'entity' && is_null($this->{$field})) $queryarray[$field]=$conf->entity;
-					else
-					{
-						$queryarray[$field] = (int) price2num($this->{$field});
-						if (empty($queryarray[$field])) $queryarray[$field]=0;		// May be rest to null later if property 'nullifempty' is on for this field.
-					}
-				}
-				else if($this->isFloat($info))
-				{
-					$queryarray[$field] = (double) price2num($this->{$field});
-					if (empty($queryarray[$field])) $queryarray[$field]=0;
-				}
-				else
-				{
-					$queryarray[$field] = $this->{$field};
-				}
-				if ($info['type'] == 'timestamp' && empty($queryarray[$field])) unset($queryarray[$field]);
-				if (! empty($info['nullifempty']) && empty($queryarray[$field])) $queryarray[$field] = null;
+				$this->{$field} = @unserialize($obj->{$field});
+				// Hack for data not in UTF8
+				if($this->{$field } === FALSE) @unserialize(utf8_decode($obj->{$field}));
 			}
-			return $queryarray;
-		}
+			elseif($this->isInt($info))
+			{
+				$this->{$field} = (int) $obj->{$field};
+			}
+			elseif($this->isFloat($info))
+			{
+				$this->{$field} = (double) $obj->{$field};
+			}
+			elseif($this->isNull($info))
+			{
+				$val = $obj->{$field};
+				// zero is not null
+				$this->{$field} = (is_null($val) || (empty($val) && $val!==0 && $val!=='0') ? null : $val);
+			}
+			else
+			{
+				$this->{$field} = $obj->{$field};
+			}
 
-		/**
-		 * Add quote to field value if necessary
-		 *
-		 * @param 	string|int	$value			Value to protect
-		 * @param	array		$fieldsentry	Properties of field
-		 * @return 	string
-		 */
-		protected function quote($value, $fieldsentry) {
-			if (is_null($value)) return 'NULL';
-			else if (preg_match('/^(int|double|real)/i', $fieldsentry['type'])) return $this->db->escape("$value");
-			else return "'".$this->db->escape($value)."'";
 		}
 	}
 
-}
-else
-{
-	class SeedObjectDolibarr extends CommonObject
+	/**
+	 * Function to prepare the values to insert.
+	 * Note $this->${field} are set by the page that make the createCommon or the updateCommon.
+	 *
+	 * @return array
+	 */
+	protected function set_save_query()
 	{
-		/**
-		* Function test if type is date
-		*
-		* @param   array   $info   content informations of field
-		* @return                  bool
-		*/
-	   public function isDate($info)
-	   {
-		   if (is_callable('parent::isDate')) return parent::isDate($info);
+		if (method_exists($this, 'setSaveQuery')) return parent::setSaveQuery();
 
-		   if(isset($info['type']) && ($info['type']=='date' || $info['type']=='datetime' || $info['type']=='timestamp')) return true;
-		   else return false;
-	   }
-
-	   /**
-		* Function test if type is array
-		*
-		* @param   array   $info   content informations of field
-		* @return                  bool
-		*/
-	   public function isArray($info)
-	   {
-		   if (is_callable('parent::isArray')) return parent::isArray($info);
-
-		   if(is_array($info))
-		   {
-			   if(isset($info['type']) && $info['type']=='array') return true;
-			   else return false;
-		   }
-		   else return false;
-	   }
-
-	   /**
-		* Function test if type is null
-		*
-		* @param   array   $info   content informations of field
-		* @return                  bool
-		*/
-	   public function isNull($info)
-	   {
-		   if (is_callable('parent::isNull')) return parent::isNull($info);
-
-		   if(is_array($info))
-		   {
-			   if(isset($info['type']) && $info['type']=='null') return true;
-			   else return false;
-		   }
-		   else return false;
-	   }
-
-	   /**
-		* Function test if type is integer
-		*
-		* @param   array   $info   content informations of field
-		* @return                  bool
-		*/
-	   public function isInt($info)
-	   {
-		   if (is_callable('parent::isInt')) return parent::isInt($info);
-
-		   if(is_array($info))
-		   {
-			   if(isset($info['type']) && ($info['type']=='int' || $info['type']=='integer' )) return true;
-			   else return false;
-		   }
-		   else return false;
-	   }
-
-	   /**
-		* Function test if type is float
-		*
-		* @param   array   $info   content informations of field
-		* @return                  bool
-		*/
-	   public function isFloat($info)
-	   {
-		   if (is_callable('parent::isFloat')) return parent::isFloat($info);
-
-		   if(is_array($info))
-		   {
-			   if (isset($info['type']) && (preg_match('/^(double|real)/i', $info['type']))) return true;
-			   else return false;
-		   }
-		   else return false;
-	   }
-
-	   /**
-		* Function test if type is text
-		*
-		* @param   array   $info   content informations of field
-		* @return                  bool
-		*/
-	   public function isText($info)
-	   {
-		   if (is_callable('parent::isText')) return parent::isText($info);
-
-		   if(is_array($info))
-		   {
-			   if(isset($info['type']) && $info['type']=='text') return true;
-			   else return false;
-		   }
-		   else return false;
-	   }
-
-	   /**
-		* Function test if is indexed
-		*
-		* @param   array   $info   content informations of field
-		* @return                  bool
-		*/
-	   public function isIndex($info)
-	   {
-		   if (is_callable('parent::isIndex')) return parent::isIndex($info);
-
-		   if(is_array($info))
-		   {
-			   if(isset($info['index']) && $info['index']==true) return true;
-			   else return false;
-		   }
-		   else return false;
-	   }
-
-		/**
-		 * Function to concat keys of fields
-		 *
-		 * @return string
-		 */
-		public function get_field_list()
+		global $conf;
+		$queryarray=array();
+		foreach ($this->fields as $field=>$info)	// Loop on definition of fields
 		{
-			if (method_exists($this, 'getFieldList')) return parent::getFieldList();
-
-			$keys = array_keys($this->fields);
-			return implode(',', $keys);
-		}
-
-		/**
-		 * Function to load data from a SQL pointer into properties of current object $this
-		 *
-		 * @param   stdClass    $obj    Contain data of object from database
-		 */
-		protected function set_vars_by_db(&$obj)
-		{
-			if (method_exists($this, 'setVarsFromFetchObj')) return parent::setVarsFromFetchObj($obj);
-
-			foreach ($this->fields as $field => $info)
+			// Depending on field type ('datetime', ...)
+			if($this->isDate($info))
 			{
-				if($this->isDate($info))
+				if(empty($this->{$field}))
 				{
-					if(empty($obj->{$field}) || $obj->{$field} === '0000-00-00 00:00:00' || $obj->{$field} === '1000-01-01 00:00:00') $this->{$field} = 0;
-					else $this->{$field} = strtotime($obj->{$field});
-				}
-				elseif($this->isArray($info))
-				{
-					$this->{$field} = @unserialize($obj->{$field});
-					// Hack for data not in UTF8
-					if($this->{$field } === FALSE) @unserialize(utf8_decode($obj->{$field}));
-				}
-				elseif($this->isInt($info))
-				{
-					$this->{$field} = (int) $obj->{$field};
-				}
-				elseif($this->isFloat($info))
-				{
-					$this->{$field} = (double) $obj->{$field};
-				}
-				elseif($this->isNull($info))
-				{
-					$val = $obj->{$field};
-					// zero is not null
-					$this->{$field} = (is_null($val) || (empty($val) && $val!==0 && $val!=='0') ? null : $val);
+					$queryarray[$field] = NULL;
 				}
 				else
 				{
-					$this->{$field} = $obj->{$field};
+					$queryarray[$field] = $this->db->idate($this->{$field});
 				}
-
 			}
-		}
-
-		/**
-		 * Function to prepare the values to insert.
-		 * Note $this->${field} are set by the page that make the createCommon or the updateCommon.
-		 *
-		 * @return array
-		 */
-		protected function set_save_query()
-		{
-			if (method_exists($this, 'setSaveQuery')) return parent::setSaveQuery();
-
-			global $conf;
-			$queryarray=array();
-			foreach ($this->fields as $field=>$info)	// Loop on definition of fields
+			else if($this->isArray($info))
 			{
-				// Depending on field type ('datetime', ...)
-				if($this->isDate($info))
-				{
-					if(empty($this->{$field}))
-					{
-						$queryarray[$field] = NULL;
-					}
-					else
-					{
-						$queryarray[$field] = $this->db->idate($this->{$field});
-					}
-				}
-				else if($this->isArray($info))
-				{
-					$queryarray[$field] = serialize($this->{$field});
-				}
-				else if($this->isInt($info))
-				{
-					if ($field == 'entity' && is_null($this->{$field})) $queryarray[$field]=$conf->entity;
-					else
-					{
-						$queryarray[$field] = (int) price2num($this->{$field});
-						if (empty($queryarray[$field])) $queryarray[$field]=0;		// May be reset to null later if property 'notnull' is -1 for this field.
-					}
-				}
-				else if($this->isFloat($info))
-				{
-					$queryarray[$field] = (double) price2num($this->{$field});
-					if (empty($queryarray[$field])) $queryarray[$field]=0;
-				}
+				$queryarray[$field] = serialize($this->{$field});
+			}
+			else if($this->isInt($info))
+			{
+				if ($field == 'entity' && is_null($this->{$field})) $queryarray[$field]=$conf->entity;
 				else
 				{
-					$queryarray[$field] = $this->{$field};
+					$queryarray[$field] = (int) price2num($this->{$field});
+					if (empty($queryarray[$field])) $queryarray[$field]=0;		// May be reset to null later if property 'notnull' is -1 for this field.
 				}
-				if ($info['type'] == 'timestamp' && empty($queryarray[$field])) unset($queryarray[$field]);
-				if (! empty($info['notnull']) && $info['notnull'] == -1 && empty($queryarray[$field])) $queryarray[$field] = null;
 			}
-			return $queryarray;
+			else if($this->isFloat($info))
+			{
+				$queryarray[$field] = (double) price2num($this->{$field});
+				if (empty($queryarray[$field])) $queryarray[$field]=0;
+			}
+			else
+			{
+				$queryarray[$field] = $this->{$field};
+			}
+			if ($info['type'] == 'timestamp' && empty($queryarray[$field])) unset($queryarray[$field]);
+			if (! empty($info['notnull']) && $info['notnull'] == -1 && empty($queryarray[$field])) $queryarray[$field] = null;
 		}
+		return $queryarray;
 	}
 }
+
 
 
 class SeedObject extends SeedObjectDolibarr
@@ -1088,7 +842,7 @@ class SeedObject extends SeedObjectDolibarr
 	public function createCommon(User $user, $notrigger = false)
 	{
 		// method_exists() with key word 'parent' doesn't work
-		if (is_callable('parent::createCommon')) return parent::createCommon($user, $notrigger);
+		if (is_callable(parent::class.'::createCommon')) return parent::createCommon($user, $notrigger);
 
 
         $error = 0;
@@ -1153,7 +907,7 @@ class SeedObject extends SeedObjectDolibarr
 	public function updateCommon(User $user, $notrigger = false)
 	{
 		// method_exists() with key word 'parent' doesn't work
-		if (is_callable('parent::updateCommon')) return parent::updateCommon($user, $notrigger);
+		if (is_callable(parent::class.'::updateCommon')) return parent::updateCommon($user, $notrigger);
 
 
 	    $error = 0;
@@ -1218,7 +972,7 @@ class SeedObject extends SeedObjectDolibarr
 	public function deleteCommon(User $user, $notrigger = false, $forcechilddeletion = 0)
 	{
 		// method_exists() with key word 'parent' doesn't work
-		if (is_callable('parent::deleteCommon')) return parent::deleteCommon($user, $notrigger, $forcechilddeletion);
+		if (is_callable(parent::class.'::deleteCommon')) return parent::deleteCommon($user, $notrigger, $forcechilddeletion);
 
 
 	    $error=0;

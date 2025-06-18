@@ -4,16 +4,25 @@ ___
 
 # NOT RELEASED
 
+## RELEASE 3.9
+- FIX : Database connection from extern module - *18/06/2025* - 3.9.4
+- FIX : Compat v21 - *17/12/2024* - 3.9.3
+- FIX: Replace `is_callable('parent::method')` with `is_callable(parent::class.'::method')` to avoid deprecation warning on php8.2 - *27/11/2024* - 3.9.2
+- FIX: constructor TResponseMail, class properties was not defined with old PHP constructor - *30/07/2024* - 3.9.1
+- FIX : Compat v20
+  Changed Dolibarr compatibility range to 16 min - 20 max - *04/08/2024* - 3.9.0
 
-
-## RELEASE 3.6
-- FIX : Database connection from extern module - *18/06/2025* - 3.8.4
+## RELEASE 3.8
 - FIX : Warning php 8.2  warning undefined array key visible - *13/03/2024* - 3.8.3
 - FIX : Warning php 8.2  warning undefined array key visible - *14/12/2023* - 3.8.2
 - FIX : Warning php 8.2 - *11/12/2023* - 3.8.1
 - NEW : Compatibilité Dolibarr 19 - *22/11/2023* - 3.8.0
   Attention : perte compatibilité Dolibarr inférieur à 6
+
+## RELEASE 3.7
 - NEW : TObjetStd add nullable property to integer fields - *21/11/2023* - 3.7.0
+
+## RELEASE 3.6
 - NEW : script de pré-configuration (initialisation / remplacement de certaines const) lors des installs / montées de version - *19/10/2023* - 3.6.0
 - FIX : traitement séparation des requêtes SQL, erreur sql lors de l'activation module productbycompany *7/12/2023* - 3.6.1
 

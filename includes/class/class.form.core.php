@@ -52,7 +52,6 @@ function __construct($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE
 
 function begin_form($pAction=null,$pName=null,$pMethod="POST",$pTransfert=FALSE,$plus="", $addToken = true) {
 
-	require_once __DIR__ . '/../../backport/v12/core/lib/fonctions.lib.php';
 
 	$r='';
 	if (!empty($pName)) {
@@ -309,7 +308,7 @@ function select_projects($socid=-1, $selected='', $htmlname='projectid', $maxlen
 	if (! empty($conf->global->PROJECT_HIDE_UNSELECTABLES)) $hideunselectables = true;
 
 	$projectsListId = false;
-	if (empty($user->rights->projet->all->lire))
+	if (empty($user->hasRight('projet', 'all', 'lire')))
 	{
 		$projectstatic=new Project($db);
 		$projectsListId = $projectstatic->getProjectsAuthorizedForUser($user,0,1);
@@ -342,7 +341,7 @@ function select_projects($socid=-1, $selected='', $htmlname='projectid', $maxlen
 			{
 				$obj = $db->fetch_object($resql);
 				// If we ask to filter on a company and user has no permission to see all companies and project is linked to another company, we hide project.
-				if ($socid > 0 && (empty($obj->fk_soc) || $obj->fk_soc == $socid) && ! $user->rights->societe->lire)
+				if ($socid > 0 && (empty($obj->fk_soc) || $obj->fk_soc == $socid) && ! $user->hasRight('societe', 'lire'))
 				{
 					// Do nothing
 				}
@@ -1461,7 +1460,7 @@ function combo($pLib,$pName,$pListe,$pDefault,$pTaille=1,$onChange='',$plus='',$
 			$valueofempty=$showEmpty;
 		}
 
-        $field.='<option value="'.($show_empty < 0 ? $show_empty : -1).'"'.( $pDefault==$valueofempty ?' selected':'').'>'.$textforempty.'</option>'."\n";     // id is -2 because -1 is already "do not contact"
+        $field.='<option value="'.(isset($show_empty) && $show_empty < 0 ? $show_empty : -1).'"'.( $pDefault==$valueofempty ?' selected':'').'>'.$textforempty.'</option>'."\n";     // id is -2 because -1 is already "do not contact"
     }
 
   	$field.=$this->_combo_option($pListe, $pDefault);
@@ -1503,7 +1502,7 @@ function combo_sexy($pLib,$pName,$pListe,$pDefault,$pTaille=1,$onChange='',$plus
     if($id=='')$id=$pName;
 
 	$minLengthToAutocomplete=0;
-	$tmpplugin=empty($conf->global->MAIN_USE_JQUERY_MULTISELECT)?constant('REQUIRE_JQUERY_MULTISELECT')?constant('REQUIRE_JQUERY_MULTISELECT'):'select2':$conf->global->MAIN_USE_JQUERY_MULTISELECT;
+	$tmpplugin=!getDolGlobalString('MAIN_USE_JQUERY_MULTISELECT')?constant('REQUIRE_JQUERY_MULTISELECT')?constant('REQUIRE_JQUERY_MULTISELECT'):'select2':$conf->global->MAIN_USE_JQUERY_MULTISELECT;
 	$field.='<!-- JS CODE TO ENABLE '.$tmpplugin.' for id '.$id.' -->
 			<script type="text/javascript">
 				$(document).ready(function () {

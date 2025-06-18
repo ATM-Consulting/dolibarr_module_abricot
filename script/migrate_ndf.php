@@ -101,7 +101,7 @@ $aStatusTrans = array(
 
 // 0. Activation du module note de frais
 
-if(empty($conf->expensereport->enabled)) {
+if(!isModEnabled('expensereport')) {
 	_logMsg('1. Activation du module note de frais', 'title');
 	echo ' > Activation du module à faire via l\'interface administrateur<br>';
 	echo ' > Désactivation des types de frais à faire dans le dictionnaire<hr>';

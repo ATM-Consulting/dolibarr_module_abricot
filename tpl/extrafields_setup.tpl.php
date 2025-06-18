@@ -1,4 +1,9 @@
 <?php
+/**
+* SPDX-License-Identifier: GPL-3.0-or-later
+* This file is part of Dolibarr module Abricot
+*/
+
 
 // EXEMPLE OF USAGE IN YOUR admin/mymodule_extrafields.php
 ///*
@@ -53,8 +58,6 @@ if (!$user->admin) accessforbidden();
 */
 
 require DOL_DOCUMENT_ROOT.'/core/actions_extrafields.inc.php';
-require_once __DIR__ . '/../backport/v12/core/lib/fonctions.lib.php';
-
 
 /*
 * View
