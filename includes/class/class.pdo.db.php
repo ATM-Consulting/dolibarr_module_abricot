@@ -58,6 +58,13 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 		$host = (!empty($conf->db->host)) ? $conf->db->host : DB_HOST;
 		$usr = (!empty($conf->db->user)) ? $conf->db->user : DB_USER;
 		$pass = (!empty($conf->db->pass)) ? $conf->db->pass : DB_PASS;
+
+		if ($pass == '') {
+			require_once DOL_DOCUMENT_ROOT . '/conf/conf.php';
+			require_once DOL_DOCUMENT_ROOT . '/master.inc.php';
+			$pass = $this->decodePass($dolibarr_main_db_pass);
+		}
+
 		$port = $conf->db->port;
 
 		if (($db_type == '') && (defined('DB_DRIVER'))) {
@@ -460,5 +467,19 @@ function Get_column_list($table, $alias = '') {
 
 	return implode(', ', $TFields);
 }
+
+	/**
+	 * Removes the 'crypted:' prefix from a given string using regex and decode.
+	 *
+	 * @param string $encodedPass The input string to process.
+	 * @return string The processed string with 'crypted:' removed.
+	 */
+	function decodePass(string $encodedPass): string
+	{
+		// Use regex to match 'crypted:' at the start of the string or anywhere
+		// and replace it with an empty string
+		$passEncoded =  preg_replace('/crypted:/', '', $encodedPass);
+		return dol_decode($passEncoded);
+	}
 
 }
