@@ -60,7 +60,7 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 		$pass = (!empty($conf->db->pass)) ? $conf->db->pass : DB_PASS;
 
 		if ($pass == '') {
-			require DOL_DOCUMENT_ROOT . '/conf/conf.php';
+			require_once DOL_DOCUMENT_ROOT . '/conf/conf.php';
 			require_once DOL_DOCUMENT_ROOT . '/master.inc.php';
 			$pass = $this->decodePass($dolibarr_main_db_pass);
 		}
