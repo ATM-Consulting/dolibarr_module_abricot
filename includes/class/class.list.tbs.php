@@ -1015,7 +1015,7 @@ class TListviewTBS {
 			global $db,$conf,$user;
 			$form=new Form($db);
 
-			$selectedfields = GETPOST('TListTBS_'.$this->id.'_selectedfields');
+			$selectedfields = GETPOST('TListTBS_'.$this->id.'_selectedfields', 'alphanohtml');
 
 			if(!empty($selectedfields)) {
 				include_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
