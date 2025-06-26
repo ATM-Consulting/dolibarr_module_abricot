@@ -5,6 +5,7 @@ ___
 # NOT RELEASED
 
 ## RELEASE 3.9
+- FIX: Params missing GETPOST - *23/06/2025* - 3.9.5
 - FIX: Database connection from external module - *18/06/2025* - 3.9.4
 - FIX: Compatibility v21 - *17/12/2024* - 3.9.3
 - FIX: Replace `is_callable('parent::method')` with `is_callable(parent::class.'::method')` to avoid deprecation warning on PHP 8.2 - *27/11/2024* - 3.9.2
