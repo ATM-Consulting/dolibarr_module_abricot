@@ -95,13 +95,13 @@ class Listview
 
 		if (empty($TParam['limit'])) $TParam['limit'] = array();
 
-		$page = GETPOST('page');
+		$page = GETPOST('page', 'alphanohtml');
 		if (!empty($page)) $TParam['limit']['page'] = $page;
 
 		$TParam['limit'] = array_merge(array('page'=>0, 'nbLine' => $conf->liste_limit, 'global'=>0), $TParam['limit']);
 
-		if (GETPOST('sortfield')){
-			$TParam['sortfield'] = GETPOST('sortfield');
+		if (GETPOST('sortfield', 'alphanohtml')){
+			$TParam['sortfield'] = GETPOST('sortfield', 'alphanohtml');
 		}
 
 		if (GETPOST('sortorder')) {

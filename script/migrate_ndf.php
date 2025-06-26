@@ -50,7 +50,7 @@ if(empty($user->admin)){
 	exit();
 }
 
-$action = GETPOST('action');
+$action = GETPOST('action', 'alphanohtml');
 $forceLineImport = GETPOST('forceLineImport', 'int');
 $limit = GETPOST('limit', 'int');
 
