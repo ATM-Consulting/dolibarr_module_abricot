@@ -62,8 +62,29 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 		if ($pass == '') {
 			require DOL_DOCUMENT_ROOT . '/conf/conf.php';
 			require_once DOL_DOCUMENT_ROOT . '/master.inc.php';
+
+			// === CRÉER INSTANCE DB ===
+			$dbTmp = getDoliDBInstance(
+				$dolibarr_main_db_type,
+				$dolibarr_main_db_host,
+				$dolibarr_main_db_user,
+				$dolibarr_main_db_pass,
+				$dolibarr_main_db_name,
+				(int) $dolibarr_main_db_port
+			);
+
 			$pass = $this->decodePass($dolibarr_main_db_pass);
+
+
+			// to simplify debugging in production
+			if (empty($dolibarr_main_db_pass) || empty($pass)) {
+				dol_syslog("📋 Mot de passe vide", LOG_ERR);
+			} else {
+				dol_syslog("📋 Mot de passe trouvé", LOG_INFO);
+			}
+
 		}
+
 
 		$port = $conf->db->port;
 
