@@ -558,10 +558,10 @@ function _no_save_vars($lst_chp) {
 
 		if (isset($db,$user,$langs,$conf) && is_object($user) && get_class($user) === 'User' && $state!=='load')
 		{
-			$trigger_name = strtoupper(get_class($this).'_'.$state);
+			$triggersendname = strtoupper(get_class($this).'_'.$state);
 			dol_include_once('/core/class/interfaces.class.php');
 			$interface=new Interfaces($db);
-			$result=$interface->run_triggers($trigger_name,$this,$user,$langs,$conf);
+			$result=$interface->run_triggers($triggersendname,$this,$user,$langs,$conf);
 		}
 
 		/* Execute les trigger */

@@ -5,6 +5,7 @@ ___
 # NOT RELEASED
 
 ## RELEASE 3.9
+- FIX: COMPAT V22 - *08/07/2025* - 3.9.6
 - FIX: Params missing GETPOST - *23/06/2025* - 3.9.5
 - FIX: Database connection from external module - *18/06/2025* - 3.9.4
 - FIX: Compatibility v21 - *17/12/2024* - 3.9.3
