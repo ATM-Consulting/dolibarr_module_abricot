@@ -63,6 +63,8 @@ function __construct($db_type = '', $connexionString='', $DB_USER='', $DB_PASS='
 			require_once DOL_DOCUMENT_ROOT . '/conf/conf.php';
 			require_once DOL_DOCUMENT_ROOT . '/master.inc.php';
 
+			global $dolibarr_main_db_type, $dolibarr_main_db_host, $dolibarr_main_db_user , $dolibarr_main_db_pass, $dolibarr_main_db_name , $dolibarr_main_db_port;
+
 			// === CRÉER INSTANCE DB ===
 			$dbTmp = getDoliDBInstance(
 				$dolibarr_main_db_type,
